@@ -1,2 +1,3 @@
+npm test -- --passWithNoTests
 npx lint-staged
 
