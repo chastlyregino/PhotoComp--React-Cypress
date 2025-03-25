@@ -1,0 +1,21 @@
+{
+  "name": "photocomp--react-cypress",
+  "version": "1.0.0",
+  "description": "Would hold PhotoComp's Frontend Development",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cypress": "^14.2.0",
+    "typescript": "^5.8.2"
+  },
+  "devDependencies": {
+    "eslint": "^9.23.0",
+    "jest": "^29.7.0",
+    "prettier": "^3.5.3"
+  }
+}
