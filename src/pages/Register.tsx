@@ -1,7 +1,7 @@
-import AuthContext from "../components/AuthContext";
+import AuthContext from "../context/AuthContext";
 import { useState, useContext } from "react";
 import { Form, Button, Container, Row, Col, Alert } from "react-bootstrap";
-import axiosInstance from "../components/axios"
+import axiosInstance from "../util/axios"
 
 
 const Register: React.FC<{}> = () => {
