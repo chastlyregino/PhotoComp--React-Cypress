@@ -8,8 +8,9 @@ function App() {
     <>
       <h1>PhotoComp</h1>
       <Routes>
-        <Route path="/" element={<Home />} />
         <Route path="/register" element={<Register />} />
+        {/* Protect this route */}
+        <Route path="/" element={<Home />} />
       </Routes>
     </>
   );
