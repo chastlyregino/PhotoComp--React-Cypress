@@ -11,6 +11,6 @@
         "isolatedModules": true,
         "noEmit": true
     },
-    "include": ["src", "jest.setup.ts"],
-    "references": [{ "path": "./tsconfig.app.json" }, { "path": "./tsconfig.node.json" }]
+    "include": ["src"],
+    "references": [{ "path": "./tsconfig.jest.json" }, { "path": "./tsconfig.app.json" }, { "path": "./tsconfig.node.json" }]
 }

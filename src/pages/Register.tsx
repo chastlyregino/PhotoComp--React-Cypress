@@ -1,11 +1,13 @@
 import AuthContext from "../context/AuthContext";
 import { useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import { Form, Button, Container, Row, Col, Alert } from "react-bootstrap";
-import axiosInstance from "../util/axios"
+import { registerUser } from "../context/AuthService"
 
 
 const Register: React.FC<{}> = () => {
   const context = useContext(AuthContext);
+  const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -17,6 +19,7 @@ const Register: React.FC<{}> = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    // (?) More auth
     if (!email || !password || !username || !firstName || !lastName) {
       setError("Please fill in all fields");
       return;
@@ -25,15 +28,15 @@ const Register: React.FC<{}> = () => {
     const body = { email, password, username, firstName, lastName };
     try {
 
-      const response = await axiosInstance.post("/api/auth/register", body);
-      const token = response.data.token;
-      const user = response.data.user;
-
+      const response = await registerUser(body);
+      const token = response.data.data.token;
+      const user = response.data.data.user;
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));
 
       context?.setToken(token);
       context?.setUser(user);
+      navigate("/");
 
     } catch (error) {
       console.error(error);
@@ -71,7 +74,7 @@ const Register: React.FC<{}> = () => {
               </Form.Group>
 
               <Form.Group controlId="formUsername" className="mb-3">
-                <Form.Label>User Name</Form.Label>
+                <Form.Label>Username</Form.Label>
                 <Form.Control
                   type="text"
                   placeholder="Enter a Username"
@@ -102,7 +105,7 @@ const Register: React.FC<{}> = () => {
 
 
               <Button variant="primary" type="submit" className="w-100">
-                Login
+                Register
               </Button>
             </Form>
           </Col>
