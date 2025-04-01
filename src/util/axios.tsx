@@ -2,12 +2,16 @@ import axios from "axios";
 
 const BASE_URL = process.env.BASE_URL;
 
-const axiosInstance = axios.create({
+const AXIOS_DEFAULTS = {
   baseURL: BASE_URL,
   headers: {
     "Content-Type": "application/json",
   }
-})
+}
+
+export const noAuthInstance = axios.create(AXIOS_DEFAULTS);
+
+const axiosInstance = axios.create(AXIOS_DEFAULTS);
 
 axiosInstance.interceptors.request.use(
   (config) => {
@@ -26,5 +30,6 @@ axiosInstance.interceptors.response.use(
     return Promise.reject(error);
   }
 )
+
 
 export default axiosInstance;
