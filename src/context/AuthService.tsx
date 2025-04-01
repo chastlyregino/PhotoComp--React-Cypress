@@ -1,4 +1,4 @@
-import axiosInstance from "../util/axios";
+import { noAuthInstance } from "../util/axios";
 
 export const registerUser = async (data: {
   email: string;
@@ -7,6 +7,13 @@ export const registerUser = async (data: {
   firstName: string;
   lastName: string;
 }) => {
-  return axiosInstance.post("/api/auth/register", data)
+  return noAuthInstance.post("/api/auth/register", data)
+}
+
+export const loginUser = async (data: {
+  email: string;
+  password: string;
+}) => {
+  return noAuthInstance.post("/api/auth/login", data)
 }
 
