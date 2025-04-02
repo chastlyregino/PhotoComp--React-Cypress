@@ -19,6 +19,7 @@
         "photocomp-frontend": "file:",
         "react": "^19.0.0",
         "react-bootstrap": "^2.10.9",
+        "react-bootstrap-icons": "^1.11.3",
         "react-dom": "^19.0.0"
     },
     "devDependencies": {

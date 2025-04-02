@@ -1,6 +1,7 @@
 import { useState, useContext } from 'react';
 import { Container, Row, Col, Card, Form, Button, Modal, Alert } from 'react-bootstrap';
 import AuthContext from '../context/AuthContext';
+import PasswordInput from '../components/PasswordInput';
 
 const UserManagement: React.FC = () => {
   const authContext = useContext(AuthContext);
@@ -113,38 +114,30 @@ const UserManagement: React.FC = () => {
           {passwordSuccess && <Alert variant="success">{passwordSuccess}</Alert>}
           
           <Form onSubmit={handlePasswordChange}>
-            <Form.Group className="mb-3" controlId="currentPassword">
-              <Form.Label>Current Password</Form.Label>
-              <Form.Control 
-                type="password" 
-                value={currentPassword}
-                onChange={(e) => setCurrentPassword(e.target.value)}
-                placeholder="Enter your current password"
-              />
-            </Form.Group>
+            <PasswordInput
+              id="currentPassword"
+              label="Current Password"
+              value={currentPassword}
+              onChange={(e) => setCurrentPassword(e.target.value)}
+              placeholder="Enter your current password"
+            />
             
-            <Form.Group className="mb-3" controlId="newPassword">
-              <Form.Label>New Password</Form.Label>
-              <Form.Control 
-                type="password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                placeholder="Enter your new password"
-              />
-              <Form.Text className="text-muted">
-                Password must be at least 8 characters long.
-              </Form.Text>
-            </Form.Group>
+            <PasswordInput
+              id="newPassword"
+              label="New Password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              placeholder="Enter your new password"
+              helpText="Password must be at least 8 characters long."
+            />
             
-            <Form.Group className="mb-3" controlId="confirmPassword">
-              <Form.Label>Confirm New Password</Form.Label>
-              <Form.Control 
-                type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="Confirm your new password"
-              />
-            </Form.Group>
+            <PasswordInput
+              id="confirmPassword"
+              label="Confirm New Password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="Confirm your new password"
+            />
             
             <Button variant="primary" type="submit">
               Update Password
