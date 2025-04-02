@@ -15,11 +15,12 @@ function App() {
         {/* Public routes */}
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/" element={<Home />} />
         
         {/* Protected routes */}
         <Route element={<ProtectedRoute />}>
           <Route path="/account" element={<UserManagement />} />
-          <Route path="/" element={<Home />} />
+
         </Route>
       </Routes>
     </>
