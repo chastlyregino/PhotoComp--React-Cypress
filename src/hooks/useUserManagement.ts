@@ -11,6 +11,7 @@ export function useUserManagement() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [profileData, setProfileData] = useState<any>(null);
+  const [profileAttempted, setProfileAttempted] = useState(false);
 
   // Load additional profile data if needed
   const loadProfileData = async () => {
@@ -18,11 +19,14 @@ export function useUserManagement() {
       return;
     }
 
+    setIsLoading(true);
+    setError(null);
+
     try {
-      setIsLoading(true);
-      setError(null);
       const data = await getUserProfile();
       setProfileData(data);
+      // Indicate we've attempted to load the profile, whether successful or not
+      setProfileAttempted(true);
     } catch (err) {
       console.error('Error loading profile data:', err);
       setError('Failed to load profile data');
@@ -43,6 +47,9 @@ export function useUserManagement() {
     profileData,
     isLoading,
     error,
+    profileAttempted,
+    hasProfileData: !!profileData,
+    clearError: () => setError(null),
     refreshProfile: loadProfileData
   };
 }

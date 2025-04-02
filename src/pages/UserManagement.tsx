@@ -15,7 +15,17 @@ import useUserManagement from '../hooks/useUserManagement';
  * changing password, organization management, and account deletion
  */
 const UserManagement: React.FC = () => {
-  const { user, profileData, isLoading, error, refreshProfile } = useUserManagement();
+  const { 
+    user, 
+    profileData, 
+    isLoading, 
+    error, 
+    profileAttempted,
+    hasProfileData,
+    clearError, 
+    refreshProfile 
+  } = useUserManagement();
+  
   const { refreshTrigger, refreshOrganizations } = useOrganizationManagement();
 
   // Redirect to login if not authenticated
@@ -23,11 +33,20 @@ const UserManagement: React.FC = () => {
     return <Navigate to="/login" replace />;
   }
 
+  // Determine if we should show an error
+  // Only show the error if we've attempted to load the profile and failed
+  const showError = error && profileAttempted && !hasProfileData && !isLoading;
+
   return (
     <Container className="py-5">
       <h1 className="mb-4">Account Settings</h1>
       
-      {error && <Alert variant="danger">{error}</Alert>}
+      {/* Only display error when necessary */}
+      {showError && (
+        <Alert variant="danger" dismissible onClose={clearError}>
+          {error}
+        </Alert>
+      )}
       
       {isLoading ? (
         <div className="text-center py-4">
@@ -56,7 +75,7 @@ const UserManagement: React.FC = () => {
                 {/* Profile Tab */}
                 <Tab.Pane eventKey="profile">
                   <AccountInfoCard user={user} />
-                  {profileData && (
+                  {hasProfileData && (
                     <Alert variant="info" className="mt-3">
                       Additional profile data loaded successfully!
                     </Alert>
