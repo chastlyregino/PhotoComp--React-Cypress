@@ -14,7 +14,7 @@ export function useUserManagement() {
 
   // Load additional profile data if needed
   const loadProfileData = async () => {
-    if (!authContext?.user) {
+    if (!authContext?.user || !authContext?.token) {
       return;
     }
 
@@ -31,11 +31,12 @@ export function useUserManagement() {
     }
   };
 
-  // Load profile data on component mount
+  // Load profile data on component mount if user is authenticated
   useEffect(() => {
-    // Uncomment when backend API is ready
-    // loadProfileData();
-  }, [authContext?.user?.id]);
+    if (authContext?.user?.id && authContext?.token) {
+      loadProfileData();
+    }
+  }, [authContext?.user?.id, authContext?.token]);
 
   return {
     user: authContext?.user,

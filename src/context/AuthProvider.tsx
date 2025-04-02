@@ -1,34 +1,45 @@
-import { useContext, useState, useEffect, ReactNode } from "react";
+import { useState, useEffect, ReactNode } from "react";
 import AuthContext, { User } from "./AuthContext";
 
 const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const context = useContext(AuthContext);
+  // Initialize state directly from localStorage if available
+  const [user, setUser] = useState<User | null>(() => {
+    const storedUser = localStorage.getItem("user");
+    return storedUser ? JSON.parse(storedUser) : null;
+  });
+  
+  const [token, setToken] = useState<string | null>(() => {
+    return localStorage.getItem("token");
+  });
 
-  const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(null);
+  // Update localStorage when state changes
+  useEffect(() => {
+    if (user) {
+      localStorage.setItem("user", JSON.stringify(user));
+    } else {
+      localStorage.removeItem("user");
+    }
+  }, [user]);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    const storedToken = localStorage.getItem("token");
-
-    if (storedUser && storedToken) {
-      context?.setUser(JSON.parse(storedUser));
-      context?.setToken(storedToken);
+    if (token) {
+      localStorage.setItem("token", token);
+    } else {
+      localStorage.removeItem("token");
     }
-  }, [context]);
+  }, [token]);
 
   const logout = () => {
-    context?.setUser(null);
-    context?.setToken(null);
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
-  }
+    setUser(null);
+    setToken(null);
+    // localStorage items will be removed via the useEffects
+  };
 
   return (
     <AuthContext.Provider value={{ user, token, setUser, setToken, logout }}>
       {children}
     </AuthContext.Provider>
-  )
-}
+  );
+};
 
 export default AuthProvider;
