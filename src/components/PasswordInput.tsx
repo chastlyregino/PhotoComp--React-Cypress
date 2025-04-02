@@ -16,6 +16,8 @@ interface PasswordInputProps {
 /**
  * A reusable password input component with show/hide functionality
  * Provides a toggle to switch between displaying the password as plain text or hidden
+ * Open eye icon indicates password is visible (not encrypted)
+ * Closed eye icon indicates password is hidden (encrypted)
  */
 const PasswordInput: React.FC<PasswordInputProps> = ({
   id,
@@ -49,7 +51,7 @@ const PasswordInput: React.FC<PasswordInputProps> = ({
           style={{ cursor: 'pointer' }}
           aria-label={showPassword ? 'Hide password' : 'Show password'}
         >
-          {showPassword ? <EyeSlash /> : <Eye />}
+          {showPassword ? <Eye /> : <EyeSlash />}
         </InputGroup.Text>
         {isInvalid && errorMessage && (
           <Form.Control.Feedback type="invalid">
