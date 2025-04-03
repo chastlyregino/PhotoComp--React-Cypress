@@ -2,7 +2,6 @@ import React from 'react';
 import { Container, Row, Col, Nav, Tab, Alert, Spinner } from 'react-bootstrap';
 import { UserManagementTab, UserManagementViewProps } from '../model/UserManagementModel';
 
-// Import refactored components
 import AccountInfoCard from './account/AccountInfoCard';
 import PasswordChangeCard from './account/PasswordChangeCard';
 import DeleteAccountCard from './account/DeleteAccountCard';
