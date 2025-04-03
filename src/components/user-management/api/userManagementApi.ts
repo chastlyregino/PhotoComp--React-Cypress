@@ -1,31 +1,13 @@
-import axiosInstance from "../util/axios";
+import axiosInstance from "../../../util/axios";
+import { 
+  PasswordChangeRequest, 
+  PasswordChangeResponse, 
+  UserProfile 
+} from "../model/AccountModel";
 
 /**
  * API calls for user account management operations
  */
-export interface PasswordChangeRequest {
-  currentPassword: string;
-  newPassword: string;
-}
-
-export interface PasswordChangeResponse {
-  success: boolean;
-  message: string;
-}
-
-export interface UserProfile {
-  // Add specific fields based on your API response
-  id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  role: string;
-  // Add any additional fields from the profile data
-  createdAt?: string;
-  updatedAt?: string;
-  settings?: Record<string, any>;
-  // Add other fields as needed
-}
 
 /**
  * Changes the user's password

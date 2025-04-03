@@ -1,11 +1,6 @@
 import React from 'react';
 import { Card, Row, Col } from 'react-bootstrap';
-import { User } from '../../context/AuthContext';
-
-interface AccountInfoCardProps {
-    user: User | null | undefined; 
-  }
-  
+import { AccountInfoCardProps } from '../../model/AccountModel';
 
 /**
  * Displays user account information in a card format

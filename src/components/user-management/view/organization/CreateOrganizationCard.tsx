@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { Card, Form, Button, Alert } from 'react-bootstrap';
-import { createOrganization, OrganizationCreateRequest } from '../../api/organizationApi';
-
-interface CreateOrganizationCardProps {
-  onCreationSuccess: () => void;
-}
+import { createOrganization } from '../../api/organizationApi';
+import { OrganizationCreateRequest } from '../../model/OrganizationModel';
+import { CreateOrganizationCardProps } from '../../model/OrganizationModel';
+import { validateOrganizationInputs } from '../../utils/validators';
 
 /**
  * Component for creating new organizations
@@ -17,29 +16,6 @@ const CreateOrganizationCard: React.FC<CreateOrganizationCardProps> = ({ onCreat
   const [success, setSuccess] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Validate the organization creation inputs
-  const validateOrganizationInputs = (): boolean => {
-    if (!name.trim()) {
-      setError('Organization name is required');
-      return false;
-    }
-    
-    if (!logoUrl.trim()) {
-      setError('Logo URL is required');
-      return false;
-    }
-    
-    // Simple URL validation
-    try {
-      new URL(logoUrl);
-    } catch (e) {
-      setError('Please enter a valid URL for the logo');
-      return false;
-    }
-    
-    return true;
-  };
-
   // Handle organization creation form submission
   const handleCreateOrganization = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -49,7 +25,9 @@ const CreateOrganizationCard: React.FC<CreateOrganizationCardProps> = ({ onCreat
     setSuccess(null);
     
     // Validate inputs
-    if (!validateOrganizationInputs()) {
+    const validationResult = validateOrganizationInputs(name, logoUrl);
+    if (!validationResult.isValid) {
+      setError(validationResult.errorMessage);
       return;
     }
     

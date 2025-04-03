@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Navigate } from 'react-router-dom';
-import useUserManagement from '../../../hooks/useUserManagement';
-import useOrganizationManagement from '../../../hooks/useOrganizationManagement';
+import useUserManagement from '../hooks/useUserManagement';
+import useOrganizationManagement from '../hooks/useOrganizationManagement';
 import UserManagementView from '../view/UserManagementView';
 import { UserManagementTab } from '../model/UserManagementModel';
 

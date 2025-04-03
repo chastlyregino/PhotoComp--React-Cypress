@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Table, Pagination, Alert, Spinner, Badge } from 'react-bootstrap';
-import { getUserOrganizations, Organization } from '../../api/organizationApi';
+import { getUserOrganizations } from '../../api/organizationApi';
+import { Organization, OrganizationsListCardProps } from '../../model/OrganizationModel';
 
-interface OrganizationsListCardProps {
-  refreshTrigger: number;
-}
 
 /**
  * Component for displaying user's organizations with pagination

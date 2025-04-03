@@ -1,21 +1,9 @@
-import axiosInstance from "../util/axios";
+import axiosInstance from "../../../util/axios";
+import { Organization, OrganizationCreateRequest } from "../model/OrganizationModel";
 
-export interface OrganizationCreateRequest {
-  name: string;
-  logoUrl: string;
-}
-
-export interface Organization {
-  GSI1PK: string;
-  joinedAt: string;
-  role: string;
-  userId: string;
-  SK: string;
-  organizationName: string;
-  GSI1SK: string;
-  PK: string;
-  type: string;
-}
+/**
+ * API calls for organization management operations
+ */
 
 /**
  * Creates a new organization

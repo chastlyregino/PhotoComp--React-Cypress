@@ -1,11 +1,13 @@
 import React from 'react';
 import { Container, Row, Col, Nav, Tab, Alert, Spinner } from 'react-bootstrap';
-import AccountInfoCard from '../../account/AccountInfoCard';
-import PasswordChangeCard from '../../account/PasswordChangeCard';
-import DeleteAccountCard from '../../account/DeleteAccountCard';
-import CreateOrganizationCard from '../../organization/CreateOrganizationCard';
-import OrganizationsListCard from '../../organization/OrganizationsListCard';
 import { UserManagementTab, UserManagementViewProps } from '../model/UserManagementModel';
+
+// Import refactored components
+import AccountInfoCard from './account/AccountInfoCard';
+import PasswordChangeCard from './account/PasswordChangeCard';
+import DeleteAccountCard from './account/DeleteAccountCard';
+import CreateOrganizationCard from './organization/CreateOrganizationCard';
+import OrganizationsListCard from './organization/OrganizationsListCard';
 
 /**
  * Presentation component for user management functionality

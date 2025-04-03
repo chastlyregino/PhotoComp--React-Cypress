@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { Card, Form, Button, Alert } from 'react-bootstrap';
-import PasswordInput from '../PasswordInput';
-import { changePassword } from '../../api/userApi';
-import { validatePasswordChange } from '../../util/validators';
+import PasswordInput from '../../../../components/PasswordInput';
+import { changePassword } from '../../api/userManagementApi';
+import { validatePasswordChange } from '../../utils/validators';
+import { PasswordChangeCardProps } from '../../model/AccountModel';
 
 /**
  * Component for handling password change functionality
  */
-const PasswordChangeCard: React.FC = () => {
+const PasswordChangeCard: React.FC<PasswordChangeCardProps> = ({ onSuccess }) => {
   // Password change state
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -49,6 +50,11 @@ const PasswordChangeCard: React.FC = () => {
       setNewPassword('');
       setConfirmPassword('');
       setPasswordSuccess('Password successfully updated');
+      
+      // Call the success callback if provided
+      if (onSuccess) {
+        onSuccess();
+      }
     } catch (error) {
       console.error('Error changing password:', error);
       setPasswordError('Failed to update password. Please try again.');

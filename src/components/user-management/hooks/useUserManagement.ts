@@ -1,6 +1,7 @@
 import { useState, useEffect, useContext } from 'react';
-import AuthContext from '../context/AuthContext';
-import { getUserProfile } from '../api/userApi';
+import AuthContext from '../../../context/AuthContext';
+import { getUserProfile } from '../api/userManagementApi';
+import { UserProfile } from '../model/AccountModel';
 
 /**
  * Custom hook for user management-related functionality
@@ -10,7 +11,7 @@ export function useUserManagement() {
   const authContext = useContext(AuthContext);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [profileData, setProfileData] = useState<any>(null);
+  const [profileData, setProfileData] = useState<UserProfile | null>(null);
   const [profileAttempted, setProfileAttempted] = useState(false);
 
   // Load additional profile data if needed

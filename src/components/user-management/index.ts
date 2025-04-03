@@ -8,4 +8,6 @@ export default UserManagementController;
 
 // Also export model and view for testing or other uses if needed
 export * from './model/UserManagementModel';
+export * from './model/AccountModel';
+export * from './model/OrganizationModel';
 export { default as UserManagementView } from './view/UserManagementView';

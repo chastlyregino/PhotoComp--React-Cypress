@@ -1,13 +1,14 @@
 import React, { useState, useContext } from 'react';
 import { Card, Button, Modal, Form, Alert } from 'react-bootstrap';
-import AuthContext from '../../context/AuthContext';
-import { deleteAccount } from '../../api/userApi';
-import { validateDeleteConfirmation } from '../../util/validators';
+import AuthContext from '../../../../context/AuthContext';
+import { deleteAccount } from '../../api/userManagementApi';
+import { validateDeleteConfirmation } from '../../utils/validators';
+import { DeleteAccountCardProps } from '../../model/AccountModel';
 
 /**
  * Component for handling account deletion functionality
  */
-const DeleteAccountCard: React.FC = () => {
+const DeleteAccountCard: React.FC<DeleteAccountCardProps> = ({ onDelete }) => {
   const authContext = useContext(AuthContext);
   
   // Account deletion state
@@ -29,6 +30,11 @@ const DeleteAccountCard: React.FC = () => {
     try {
       setIsDeleting(true);
       await deleteAccount();
+      
+      // Call the onDelete callback if provided
+      if (onDelete) {
+        onDelete();
+      }
       
       // Logout user after successful deletion
       authContext?.logout();
