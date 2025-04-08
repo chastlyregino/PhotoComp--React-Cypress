@@ -27,7 +27,7 @@ const Login: React.FC<{}> = () => {
     const body = { email: email, password: password };
     try {
       const response = await loginUser(body);
-      console.log(response)
+
       const token = response.data.data.token;
       const user = response.data.data.user;
       localStorage.setItem("token", token);

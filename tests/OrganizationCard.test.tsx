@@ -4,6 +4,9 @@ jest.mock('react-bootstrap', () => ({
     Card: ({ children }: { children: React.ReactNode }) => (
         <div data-testid="mock-card">{children}</div>
     ),
+    Image: ({ children }: { children: React.ReactNode }) => (
+        <div data-testid="mock-card-image">{children}</div>
+    ),
     Body: ({ children }: { children: React.ReactNode }) => (
         <div data-testid="mock-card-body">{children}</div>
     ),
