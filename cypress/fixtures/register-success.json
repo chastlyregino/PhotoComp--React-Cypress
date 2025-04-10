@@ -31,17 +31,9 @@
             "forcedJSONParsing": true,
             "clarifyTimeoutError": false
         },
-        "adapter": [
-            "xhr",
-            "http",
-            "fetch"
-        ],
-        "transformRequest": [
-            null
-        ],
-        "transformResponse": [
-            null
-        ],
+        "adapter": ["xhr", "http", "fetch"],
+        "transformRequest": [null],
+        "transformResponse": [null],
         "timeout": 0,
         "xsrfCookieName": "XSRF-TOKEN",
         "xsrfHeaderName": "X-XSRF-TOKEN",

@@ -4,7 +4,13 @@
         "target": "ES2020",
         "module": "CommonJS",
         "noEmit": true,
-        "types": ["node","cypress", "@testing-library/cypress", "jest", "@testing-library/jest-dom"]
+        "types": [
+            "node",
+            "cypress",
+            "@testing-library/cypress",
+            "jest",
+            "@testing-library/jest-dom"
+        ]
     },
-    "include":["tests", "jest.setup.ts"]
+    "include": ["tests", "jest.setup.ts"]
 }
