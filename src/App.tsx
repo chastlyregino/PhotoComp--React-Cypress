@@ -7,7 +7,6 @@ import Login from './pages/Login';
 function App() {
   return (
     <>
-      <h1>PhotoComp</h1>
       <Routes>
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
