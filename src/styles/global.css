@@ -1,0 +1,8 @@
+@font-face {
+    font-family: CapsuleWeb;
+    src: url("../../public/Capsulexpromediumuc-DA20.otf") format("opentype");
+}
+
+* {
+  font-family: CapsuleWeb
+}
