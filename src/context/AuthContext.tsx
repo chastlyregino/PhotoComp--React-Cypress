@@ -16,6 +16,15 @@ export interface AuthContextType {
     logout: () => void;
 }
 
-const AuthContext = createContext<AuthContextType | null>(null);
+// Create a default value for the context to avoid null checks
+const defaultContext: AuthContextType = {
+    user: null,
+    token: null,
+    setUser: () => {},
+    setToken: () => {},
+    logout: () => {}
+};
+
+const AuthContext = createContext<AuthContextType>(defaultContext);
 
 export default AuthContext;
