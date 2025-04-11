@@ -3,7 +3,6 @@ import { noAuthInstance } from '../util/axios';
 export const registerUser = async (data: {
     email: string;
     password: string;
-    username: string;
     firstName: string;
     lastName: string;
 }) => {

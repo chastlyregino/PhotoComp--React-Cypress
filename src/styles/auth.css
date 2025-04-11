@@ -71,3 +71,13 @@
 .form-group {
     width: 100%;
 }
+
+.form-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.form-row .form-group {
+    margin-bottom: 0;
+}
