@@ -61,7 +61,7 @@ const Register: React.FC = () => {
 
     return (
         <FormContainer>
-            <BackButton to="/"/>
+            <BackButton to="/"> Back to home </BackButton>
             <AuthForm 
                 title="PHOTOCOMP" 
                 onSubmit={handleSubmit} 
