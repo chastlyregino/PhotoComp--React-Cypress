@@ -1,7 +1,8 @@
 import React from 'react';
 import { Navbar, Nav } from 'react-bootstrap';
 import * as icon from 'react-bootstrap-icons';
-import { Link } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
+import logo from '../../assets/PhotoCompLogo.png';
 
 const Sidebar: React.FC = () => {
     return (
@@ -11,29 +12,117 @@ const Sidebar: React.FC = () => {
             bg="dark"
             variant="dark"
             className="flex-column"
-            style={{ width: '200px', height: '100vh' }}
+            style={{
+                width: '200px',
+                height: '100vh',
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                zIndex: 1000,
+            }}
         >
             <Navbar.Brand className="mx-auto">
-                <img
-                    src="https://see.fontimg.com/api/rf5/DA20/N2ZmZmEyODZjOTU1NGNhZThkNjc3ZWMxZTc0NzM0NWIub3Rm/UGhvdG9Db21w/capsulexpromediumuc.png?r=fs&h=118&w=2000&fg=F8F8F8&bg=000000&tb=1&s=59"
-                    width="175"
-                />
+                <img src={logo} width="175" />
             </Navbar.Brand>
             <Navbar.Toggle aria-controls="responsive-navbar-nav" />
             <Navbar.Collapse id="responsive-navbar-nav">
                 <Nav className="flex-column">
-                    <Nav.Link as={Link} to="/">
+                    <NavLink
+                        to="/"
+                        end
+                        className={({ isActive }) =>
+                            `nav-link d-flex align-items-center gap-2 ${isActive}`
+                        }
+                        style={({ isActive }) =>
+                            isActive
+                                ? {
+                                      backgroundColor: '#71797E',
+                                      color: '#ffffff',
+                                      fontFamily: 'Roboto, sans-serif',
+                                      fontSize: '20px',
+                                      textDecoration: 'none',
+                                  }
+                                : {
+                                      fontFamily: 'Roboto, sans-serif',
+                                      fontSize: '20px',
+                                      textDecoration: 'none',
+                                  }
+                        }
+                    >
                         <icon.HouseDoor /> Home
-                    </Nav.Link>
-                    <Nav.Link as={Link} to="/organizations">
+                    </NavLink>
+
+                    <NavLink
+                        to="/organizations"
+                        className={({ isActive }) =>
+                            `nav-link d-flex align-items-center gap-2 ${isActive}`
+                        }
+                        style={({ isActive }) =>
+                            isActive
+                                ? {
+                                      backgroundColor: '#71797E',
+                                      color: '#ffffff',
+                                      fontFamily: 'Roboto, sans-serif',
+                                      fontSize: '20px',
+                                      textDecoration: 'none',
+                                  }
+                                : {
+                                      fontFamily: 'Roboto, sans-serif',
+                                      fontSize: '20px',
+                                      textDecoration: 'none',
+                                  }
+                        }
+                    >
                         <icon.Grid3x3Gap /> Organizations
-                    </Nav.Link>
-                    <Nav.Link as={Link} to="/:id/events">
+                    </NavLink>
+
+                    <NavLink
+                        to="/:id/events"
+                        className={({ isActive }) =>
+                            `nav-link d-flex align-items-center gap-2 ${isActive}`
+                        }
+                        style={({ isActive }) =>
+                            isActive
+                                ? {
+                                      backgroundColor: '#71797E',
+                                      color: '#ffffff',
+                                      fontFamily: 'Roboto, sans-serif',
+                                      fontSize: '20px',
+                                      textDecoration: 'none',
+                                  }
+                                : {
+                                      fontFamily: 'Roboto, sans-serif',
+                                      fontSize: '20px',
+                                      textDecoration: 'none',
+                                  }
+                        }
+                    >
                         <icon.Window /> Events
-                    </Nav.Link>
-                    <Nav.Link as={Link} to="/:id/events/:eid">
+                    </NavLink>
+
+                    <NavLink
+                        to="/:id/events/:eid"
+                        className={({ isActive }) =>
+                            `nav-link d-flex align-items-center gap-2 ${isActive}`
+                        }
+                        style={({ isActive }) =>
+                            isActive
+                                ? {
+                                      backgroundColor: '#3A3838',
+                                      color: '#ffffff',
+                                      fontFamily: 'Roboto, sans-serif',
+                                      fontSize: '20px',
+                                      textDecoration: 'none',
+                                  }
+                                : {
+                                      fontFamily: 'Roboto, sans-serif',
+                                      fontSize: '20px',
+                                      textDecoration: 'none',
+                                  }
+                        }
+                    >
                         <icon.Images /> Photos
-                    </Nav.Link>
+                    </NavLink>
                 </Nav>
             </Navbar.Collapse>
         </Navbar>
