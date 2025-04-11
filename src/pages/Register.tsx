@@ -1,34 +1,52 @@
+import '../styles/auth.css';
 import AuthContext from '../context/AuthContext';
 import { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Form, Button, Container, Row, Col, Alert } from 'react-bootstrap';
 import { registerUser } from '../context/AuthService';
 
-const Register: React.FC<{}> = () => {
+// Import our custom components
+import FormContainer from '../components/forms/FormContainer';
+import AuthForm from '../components/forms/AuthForm';
+import FormInput from '../components/forms/FormInput';
+import FormButton from '../components/forms/FormButton';
+
+const Register: React.FC = () => {
     const context = useContext(AuthContext);
     const navigate = useNavigate();
 
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [username, setUsername] = useState('');
-    const [firstName, setFirstName] = useState('');
-    const [lastName, setLastName] = useState('');
+    const [userData, setUserData] = useState({
+        email: '',
+        password: '',
+        username: '',
+        firstName: '',
+        lastName: ''
+    });
 
     const [error, setError] = useState<string | null>(null);
 
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { id, value } = e.target;
+        setUserData(prev => ({
+            ...prev,
+            [id.replace('form', '').toLowerCase()]: value
+        }));
+    };
+
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        // (?) More auth
+        const { email, password, username, firstName, lastName } = userData;
+
         if (!email || !password || !username || !firstName || !lastName) {
             setError('Please fill in all fields');
             return;
         }
         setError(null);
-        const body = { email, password, username, firstName, lastName };
+
         try {
-            const response = await registerUser(body);
+            const response = await registerUser({ email, password, username, firstName, lastName });
             const token = response.data.data.token;
             const user = response.data.data.user;
+            
             localStorage.setItem('token', token);
             localStorage.setItem('user', JSON.stringify(user));
 
@@ -42,71 +60,69 @@ const Register: React.FC<{}> = () => {
     };
 
     return (
-        <>
-            <Container>
-                <Row className="justify-content-md-center">
-                    <Col md={6}>
-                        <h2 className="text-center">Register</h2>
-                        {error && <Alert variant="danger">{error}</Alert>}
-                        <Form onSubmit={handleSubmit}>
-                            <Form.Group controlId="formEmail" className="mb-3">
-                                <Form.Label>Email Address</Form.Label>
-                                <Form.Control
-                                    type="email"
-                                    placeholder="Enter email"
-                                    value={email}
-                                    onChange={e => setEmail(e.target.value)}
-                                />
-                            </Form.Group>
+        <FormContainer>
+            <AuthForm 
+                title="PHOTOCOMP" 
+                onSubmit={handleSubmit} 
+                error={error}
+            >
+                <FormInput
+                    id="formEmail"
+                    type="email"
+                    placeholder="Email"
+                    value={userData.email}
+                    onChange={handleChange}
+                    required
+                />
+                
+                <FormInput
+                    id="formPassword"
+                    type="password"
+                    placeholder="Password"
+                    value={userData.password}
+                    onChange={handleChange}
+                    required
+                />
 
-                            <Form.Group controlId="formPassword" className="mb-3">
-                                <Form.Label>Password</Form.Label>
-                                <Form.Control
-                                    type="password"
-                                    placeholder="Enter password"
-                                    value={password}
-                                    onChange={e => setPassword(e.target.value)}
-                                />
-                            </Form.Group>
+                <FormInput
+                    id="formUsername"
+                    type="text"
+                    placeholder="Username"
+                    value={userData.username}
+                    onChange={handleChange}
+                    required
+                />
 
-                            <Form.Group controlId="formUsername" className="mb-3">
-                                <Form.Label>Username</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    placeholder="Enter a Username"
-                                    value={username}
-                                    onChange={e => setUsername(e.target.value)}
-                                />
-                            </Form.Group>
+                <FormInput
+                    id="formFirstName"
+                    type="text"
+                    placeholder="First Name"
+                    value={userData.firstName}
+                    onChange={handleChange}
+                    required
+                />
 
-                            <Form.Group controlId="formFirstName" className="mb-3">
-                                <Form.Label>First Name</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    placeholder="Enter First Name"
-                                    value={firstName}
-                                    onChange={e => setFirstName(e.target.value)}
-                                />
-                            </Form.Group>
+                <FormInput
+                    id="formLastName"
+                    type="text"
+                    placeholder="Last Name"
+                    value={userData.lastName}
+                    onChange={handleChange}
+                    required
+                />
 
-                            <Form.Group controlId="formLastName" className="mb-3">
-                                <Form.Label>Last Name</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    placeholder="Enter Last Name"
-                                    value={lastName}
-                                    onChange={e => setLastName(e.target.value)}
-                                />
-                            </Form.Group>
-
-                            <Button variant="primary" type="submit" className="w-100">
-                                Register
-                            </Button>
-                        </Form>
-                    </Col>
-                </Row>
-            </Container>
-        </>
+                <FormButton type="submit" variant="light">
+                    Register
+                </FormButton>
+                
+                <FormButton 
+                    type="button" 
+                    onClick={() => navigate('/login')}
+                >
+                    Already have an account? Login
+                </FormButton>
+            </AuthForm>
+        </FormContainer>
     );
 };
 
