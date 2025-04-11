@@ -1,4 +1,4 @@
-import { noAuthInstance } from '../util/axios';
+import { noAuthInstance } from '../utils/axios';
 
 export const registerUser = async (data: {
     email: string;

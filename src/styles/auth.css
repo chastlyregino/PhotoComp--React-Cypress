@@ -1,3 +1,8 @@
+@font-face {
+    font-family: CapsuleWeb;
+    src: url("../../public/Capsulexpromediumuc-DA20.otf") format("opentype");
+}
+
 .form-container {
     background-color: #212529; 
     color: #fff;
@@ -13,13 +18,13 @@
 }
 
 .auth-title {
-    font-family: 'PhotoCompMedium', 'Arial', sans-serif;
+    font-family: CapsuleWeb, 'Arial', sans-serif;
     letter-spacing: 1px;
-    font-size: 6.5rem;
+    font-size: 8.5rem;
     margin-bottom: 2rem;
     text-align: center;
     width: 100%;
-    font-weight: 600;
+    font-weight: 50;
 }
 
 .auth-form form {

@@ -1,13 +1,13 @@
-import '../styles/auth.css';
-import AuthContext from '../context/AuthContext';
+// import '../../styles/auth.css';
+import AuthContext from '../../context/AuthContext';
 import { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { loginUser } from '../context/AuthService';
+import { loginUser } from '../../context/AuthService';
 
-import FormContainer from '../components/forms/FormContainer';
-import AuthForm from '../components/forms/AuthForm';
-import FormInput from '../components/forms/FormInput';
-import FormButton from '../components/forms/FormButton';
+import FormContainer from '../../components/forms/FormContainer/FormContainer';
+import AuthForm from '../../components/forms/AuthForm/AuthForm';
+import FormInput from '../../components/forms/FormInput/FormInput';
+import FormButton from '../../components/forms/FormButton/FormButton';
 
 const Login: React.FC = () => {
     const context = useContext(AuthContext);
