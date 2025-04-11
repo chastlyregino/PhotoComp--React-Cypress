@@ -9,11 +9,13 @@ interface ProtectedRouteProps {
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     const authContext = useContext(AuthContext);
     
-    if (!authContext?.token) {
-        // Redirect to login if there is no token
-        return <Navigate to="/login" replace />;
+    if (!authContext || !authContext.token) {
+        const storedToken = localStorage.getItem('token');
+        if (!storedToken) {
+            return <Navigate to="/login" replace />;
+        }
+        console.log('Token found in localStorage but not in context');
     }
-    
     return children;
 };
 
