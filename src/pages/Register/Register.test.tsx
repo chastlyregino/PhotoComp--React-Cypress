@@ -59,7 +59,9 @@ describe('Register Component', () => {
         fireEvent.submit(form);
 
         await waitFor(() => {
-            expect(screen.getByTestId('error-message')).toHaveTextContent(/please fill in all fields/i);
+            expect(screen.getByTestId('error-message')).toHaveTextContent(
+                /please fill in all fields/i
+            );
         });
     });
 
@@ -83,8 +85,12 @@ describe('Register Component', () => {
 
         fireEvent.change(screen.getByPlaceholderText(/email/i), { target: { value: email } });
         fireEvent.change(screen.getByPlaceholderText(/password/i), { target: { value: password } });
-        fireEvent.change(screen.getByPlaceholderText(/first name/i), { target: { value: firstName } });
-        fireEvent.change(screen.getByPlaceholderText(/last name/i), { target: { value: lastName } });
+        fireEvent.change(screen.getByPlaceholderText(/first name/i), {
+            target: { value: firstName },
+        });
+        fireEvent.change(screen.getByPlaceholderText(/last name/i), {
+            target: { value: lastName },
+        });
 
         // Submit the form directly
         const form = screen.getByRole('form');
@@ -116,8 +122,12 @@ describe('Register Component', () => {
 
         fireEvent.change(screen.getByPlaceholderText(/email/i), { target: { value: email } });
         fireEvent.change(screen.getByPlaceholderText(/password/i), { target: { value: password } });
-        fireEvent.change(screen.getByPlaceholderText(/first name/i), { target: { value: firstName } });
-        fireEvent.change(screen.getByPlaceholderText(/last name/i), { target: { value: lastName } });
+        fireEvent.change(screen.getByPlaceholderText(/first name/i), {
+            target: { value: firstName },
+        });
+        fireEvent.change(screen.getByPlaceholderText(/last name/i), {
+            target: { value: lastName },
+        });
 
         // Submit the form directly
         const form = screen.getByRole('form');

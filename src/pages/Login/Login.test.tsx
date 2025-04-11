@@ -53,11 +53,11 @@ describe('Login Component', () => {
 
     test('shows an error when fields are empty', async () => {
         renderWithRouter(<Login />);
-        
+
         // Need to prevent the default form submission to allow the error check to work
         const form = screen.getByRole('form');
         fireEvent.submit(form);
-        
+
         // Use waitFor instead of findByText to allow time for state updates
         await waitFor(() => {
             expect(screen.getByText(/please fill in all fields/i)).toBeInTheDocument();
@@ -83,7 +83,7 @@ describe('Login Component', () => {
         // Mock the input fields
         const emailInput = screen.getByPlaceholderText(/email/i);
         const passwordInput = screen.getByPlaceholderText(/password/i);
-        
+
         fireEvent.change(emailInput, { target: { value: email } });
         fireEvent.change(passwordInput, { target: { value: password } });
 
@@ -114,7 +114,7 @@ describe('Login Component', () => {
         // Mock the input fields
         const emailInput = screen.getByPlaceholderText(/email/i);
         const passwordInput = screen.getByPlaceholderText(/password/i);
-        
+
         fireEvent.change(emailInput, { target: { value: email } });
         fireEvent.change(passwordInput, { target: { value: password } });
 

@@ -10,7 +10,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
         const initializeAuth = () => {
             const storedUser = localStorage.getItem('user');
             const storedToken = localStorage.getItem('token');
-    
+
             if (storedUser && storedToken) {
                 try {
                     setUser(JSON.parse(storedUser));
@@ -21,7 +21,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
                     localStorage.removeItem('token');
                 }
             }
-            
+
             setIsInitialized(true);
         };
 
@@ -59,13 +59,15 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
 
     return (
-        <AuthContext.Provider value={{ 
-            user, 
-            token, 
-            setUser: updateUser, 
-            setToken: updateToken, 
-            logout 
-        }}>
+        <AuthContext.Provider
+            value={{
+                user,
+                token,
+                setUser: updateUser,
+                setToken: updateToken,
+                logout,
+            }}
+        >
             {children}
         </AuthContext.Provider>
     );

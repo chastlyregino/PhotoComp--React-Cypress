@@ -18,7 +18,7 @@ const FormInput: React.FC<FormInputProps> = ({
     value,
     onChange,
     required = false,
-    className = ''
+    className = '',
 }) => {
     return (
         <Form.Group controlId={id} className={`${className}`}>

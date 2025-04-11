@@ -16,12 +16,12 @@ const FormButton: React.FC<FormButtonProps> = ({
     variant = 'primary',
     onClick,
     children,
-    inverted = false
+    inverted = false,
 }) => {
     // Use inverted styles if specified
     const buttonVariant = inverted ? 'light' : variant;
     const buttonClasses = `${className} ${inverted ? 'text-dark' : ''}`;
-    
+
     return (
         <Button
             variant={buttonVariant}

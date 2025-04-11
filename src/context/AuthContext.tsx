@@ -22,7 +22,7 @@ const defaultContext: AuthContextType = {
     token: null,
     setUser: () => {},
     setToken: () => {},
-    logout: () => {}
+    logout: () => {},
 };
 
 const AuthContext = createContext<AuthContextType>(defaultContext);

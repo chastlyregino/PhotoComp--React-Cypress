@@ -17,7 +17,7 @@ const Login: React.FC = () => {
 
     const [credentials, setCredentials] = useState({
         email: '',
-        password: ''
+        password: '',
     });
 
     const [error, setError] = useState<string | null>(null);
@@ -26,7 +26,7 @@ const Login: React.FC = () => {
         const { id, value } = e.target;
         setCredentials(prev => ({
             ...prev,
-            [id.replace('form', '').toLowerCase()]: value
+            [id.replace('form', '').toLowerCase()]: value,
         }));
     };
 
@@ -44,7 +44,7 @@ const Login: React.FC = () => {
             const response = await loginUser({ email, password });
             const token = response.data.data.token;
             const user = response.data.data.user;
-            
+
             localStorage.setItem('token', token);
             localStorage.setItem('user', JSON.stringify(user));
 
@@ -77,7 +77,7 @@ const Login: React.FC = () => {
                     className="w-100 mb-3"
                     required
                 />
-                
+
                 <FormInput
                     id="formPassword"
                     type="password"
@@ -91,11 +91,8 @@ const Login: React.FC = () => {
                 <FormButton type="submit" variant="light">
                     Login
                 </FormButton>
-                
-                <FormButton 
-                    type="button" 
-                    onClick={() => navigate('/register')}
-                >
+
+                <FormButton type="button" onClick={() => navigate('/register')}>
                     Don't have an account? Register
                 </FormButton>
             </AuthForm>
