@@ -3,7 +3,7 @@ import { render, RenderOptions } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 
 // Mock AuthContext
-import AuthContext from '../../src/context/AuthContext';
+import AuthContext from '../context/AuthContext';
 
 const mockAuthContext = {
     user: null,
@@ -21,7 +21,7 @@ interface CustomRenderOptions extends Omit<RenderOptions, 'wrapper'> {
 /**
  * Custom render function that wraps components with MemoryRouter and AuthContext
  *
- * Used to allow componets to route in the tests in the case a component uses
+ * Used to allow components to route in the tests in the case a component uses
  * react-router-dom with some auth context (protected routes).
  *
  */

@@ -1,15 +1,14 @@
-import '../styles/auth.css';
-import AuthContext from '../context/AuthContext';
+// import '../../styles/auth.css';
+import AuthContext from '../../context/AuthContext';
 import { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { registerUser } from '../context/AuthService';
+import { registerUser } from '../../context/AuthService';
 
-// Import our custom components
-import FormContainer from '../components/forms/FormContainer';
-import AuthForm from '../components/forms/AuthForm';
-import FormInput from '../components/forms/FormInput';
-import FormButton from '../components/forms/FormButton';
-import FormRow from '../components/forms/FormRow';
+import FormContainer from '../../components/forms/FormContainer/FormContainer';
+import AuthForm from '../../components/forms/AuthForm/AuthForm';
+import FormInput from '../../components/forms/FormInput/FormInput';
+import FormButton from '../../components/forms/FormButton/FormButton';
+import FormRow from '../../components/forms/FormRow/FormRow';
 
 const Register: React.FC = () => {
     const context = useContext(AuthContext);
@@ -28,7 +27,7 @@ const Register: React.FC = () => {
         const { id, value } = e.target;
         setUserData(prev => ({
             ...prev,
-            [id.replace('form', '').toLowerCase()]: value
+            [id.replace('form', '')]: value
         }));
     };
 
@@ -68,7 +67,7 @@ const Register: React.FC = () => {
             >
                 <FormRow>
                     <FormInput
-                        id="formFirstName"
+                        id="formfirstName"
                         type="text"
                         placeholder="First Name"
                         value={userData.firstName}
@@ -77,7 +76,7 @@ const Register: React.FC = () => {
                         className="mb-2"
                     />
                     <FormInput
-                        id="formLastName"
+                        id="formlastName"
                         type="text"
                         placeholder="Last Name"
                         value={userData.lastName}
@@ -88,7 +87,7 @@ const Register: React.FC = () => {
                 </FormRow>
 
                 <FormInput
-                    id="formEmail"
+                    id="formemail"
                     type="email"
                     placeholder="Email"
                     value={userData.email}
@@ -98,7 +97,7 @@ const Register: React.FC = () => {
                 />
                 
                 <FormInput
-                    id="formPassword"
+                    id="formpassword"
                     type="password"
                     placeholder="Password"
                     value={userData.password}
