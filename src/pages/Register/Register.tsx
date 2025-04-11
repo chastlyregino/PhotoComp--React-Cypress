@@ -9,6 +9,7 @@ import AuthForm from '../../components/forms/AuthForm/AuthForm';
 import FormInput from '../../components/forms/FormInput/FormInput';
 import FormButton from '../../components/forms/FormButton/FormButton';
 import FormRow from '../../components/forms/FormRow/FormRow';
+import BackButton from '../../components/backButton/BackButton';
 
 const Register: React.FC = () => {
     const context = useContext(AuthContext);
@@ -60,6 +61,7 @@ const Register: React.FC = () => {
 
     return (
         <FormContainer>
+            <BackButton to="/"/>
             <AuthForm 
                 title="PHOTOCOMP" 
                 onSubmit={handleSubmit} 

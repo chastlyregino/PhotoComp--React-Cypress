@@ -1,5 +1,6 @@
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
+import './styles/global.css'; 
 import './styles/auth.css'; 
 
 import { StrictMode } from 'react';
