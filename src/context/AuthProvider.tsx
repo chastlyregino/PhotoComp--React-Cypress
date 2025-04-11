@@ -1,9 +1,7 @@
-import { useContext, useState, useEffect, ReactNode } from 'react';
+import { useState, useEffect, ReactNode } from 'react';
 import AuthContext, { User } from './AuthContext';
 
 const AuthProvider = ({ children }: { children: ReactNode }) => {
-    const context = useContext(AuthContext);
-
     const [user, setUser] = useState<User | null>(null);
     const [token, setToken] = useState<string | null>(null);
 
@@ -12,14 +10,14 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
         const storedToken = localStorage.getItem('token');
 
         if (storedUser && storedToken) {
-            context?.setUser(JSON.parse(storedUser));
-            context?.setToken(storedToken);
+            setUser(JSON.parse(storedUser));
+            setToken(storedToken);
         }
-    }, [context]);
+    }, []);
 
     const logout = () => {
-        context?.setUser(null);
-        context?.setToken(null);
+        setUser(null);
+        setToken(null);
         localStorage.removeItem('user');
         localStorage.removeItem('token');
     };
@@ -31,4 +29,4 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     );
 };
 
-export default AuthProvider;
+export default AuthProvider; 

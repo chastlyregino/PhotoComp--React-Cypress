@@ -1,4 +1,3 @@
-import Container from 'react-bootstrap/Container';
 import Gallery from '../components/Gallery';
 import Sidebar from '../components/bars/SideBar';
 import { Col, Row } from 'react-bootstrap';
