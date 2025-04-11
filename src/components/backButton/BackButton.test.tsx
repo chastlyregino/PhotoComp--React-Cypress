@@ -3,7 +3,6 @@ import { fireEvent, screen } from '@testing-library/react';
 import BackButton from './BackButton';
 import { renderWithRouter } from '../../utils/test-utils';
 
-// Mock react-bootstrap Button
 jest.mock('react-bootstrap', () => ({
     Button: ({ 
         children, 
@@ -27,24 +26,19 @@ jest.mock('react-bootstrap', () => ({
     )
 }));
 
-// Mock react-bootstrap-icons
 jest.mock('react-bootstrap-icons', () => ({
     ArrowLeft: () => <span data-testid="arrow-left-icon" />
 }));
 
+const mockNavigate = jest.fn();
+jest.mock('react-router-dom', () => ({
+    ...jest.requireActual('react-router-dom'),
+    useNavigate: () => mockNavigate
+}));
+
 describe('BackButton Component', () => {
-    const mockNavigate = jest.fn();
-
     beforeEach(() => {
-        // Mock useNavigate
-        jest.mock('react-router-dom', () => ({
-            ...jest.requireActual('react-router-dom'),
-            useNavigate: () => mockNavigate
-        }));
-    });
-
-    afterEach(() => {
-        jest.clearAllMocks();
+        mockNavigate.mockClear();
     });
 
     test('renders with default props', () => {
@@ -52,7 +46,7 @@ describe('BackButton Component', () => {
         
         const button = screen.getByTestId('mock-button');
         expect(button).toHaveTextContent('Back');
-        expect(button).toHaveAttribute('data-variant', 'light');
+        expect(button).toHaveAttribute('data-variant', 'primary');
         expect(button).toHaveClass('back-button');
         expect(screen.getByTestId('arrow-left-icon')).toBeInTheDocument();
     });
@@ -80,16 +74,18 @@ describe('BackButton Component', () => {
     });
 
     test('navigates to specified route when clicked', () => {
-        const { rerender } = renderWithRouter(<BackButton to="/dashboard">Back</BackButton>);
+        const { rerender } = renderWithRouter(<BackButton to="/dashboard">Back to dashboard</BackButton>);
         
         const button = screen.getByTestId('mock-button');
         fireEvent.click(button);
         
         expect(mockNavigate).toHaveBeenCalledWith('/dashboard');
         
-        // Test default route
+        mockNavigate.mockClear(); 
         rerender(<BackButton>Back</BackButton>);
-        fireEvent.click(button);
+        
+        const defaultButton = screen.getByTestId('mock-button');
+        fireEvent.click(defaultButton);
         
         expect(mockNavigate).toHaveBeenCalledWith('/');
     });

@@ -29,7 +29,7 @@ const BackButton: React.FC<BackButtonProps> = ({
             onClick={handleClick}
         >
             <ArrowLeft className="me-1" />
-            {children || 'Back to Home'}
+            {children || 'Back'}
         </Button>
     );
 };
