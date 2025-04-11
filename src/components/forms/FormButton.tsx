@@ -26,7 +26,7 @@ const FormButton: React.FC<FormButtonProps> = ({
         <Button
             variant={buttonVariant}
             type={type}
-            className={`mb-2 ${buttonClasses}`}
+            className={`mb-3 ${buttonClasses}`}
             onClick={onClick}
         >
             {children}

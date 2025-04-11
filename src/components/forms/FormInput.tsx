@@ -8,6 +8,7 @@ interface FormInputProps {
     value: string;
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     required?: boolean;
+    className?: string;
 }
 
 const FormInput: React.FC<FormInputProps> = ({
@@ -16,10 +17,11 @@ const FormInput: React.FC<FormInputProps> = ({
     placeholder,
     value,
     onChange,
-    required = false
+    required = false,
+    className = ''
 }) => {
     return (
-        <Form.Group controlId={id} className="w-100 mb-2">
+        <Form.Group controlId={id} className={`${className}`}>
             <Form.Control
                 type={type}
                 placeholder={placeholder}

@@ -9,6 +9,7 @@ import FormContainer from '../components/forms/FormContainer';
 import AuthForm from '../components/forms/AuthForm';
 import FormInput from '../components/forms/FormInput';
 import FormButton from '../components/forms/FormButton';
+import FormRow from '../components/forms/FormRow';
 
 const Register: React.FC = () => {
     const context = useContext(AuthContext);
@@ -17,7 +18,6 @@ const Register: React.FC = () => {
     const [userData, setUserData] = useState({
         email: '',
         password: '',
-        username: '',
         firstName: '',
         lastName: ''
     });
@@ -34,16 +34,16 @@ const Register: React.FC = () => {
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const { email, password, username, firstName, lastName } = userData;
+        const { email, password, firstName, lastName } = userData;
 
-        if (!email || !password || !username || !firstName || !lastName) {
+        if (!email || !password || !firstName || !lastName) {
             setError('Please fill in all fields');
             return;
         }
         setError(null);
 
         try {
-            const response = await registerUser({ email, password, username, firstName, lastName });
+            const response = await registerUser({ email, password, firstName, lastName });
             const token = response.data.data.token;
             const user = response.data.data.user;
             
@@ -66,6 +66,27 @@ const Register: React.FC = () => {
                 onSubmit={handleSubmit} 
                 error={error}
             >
+                <FormRow>
+                    <FormInput
+                        id="formFirstName"
+                        type="text"
+                        placeholder="First Name"
+                        value={userData.firstName}
+                        onChange={handleChange}
+                        required
+                        className="mb-2"
+                    />
+                    <FormInput
+                        id="formLastName"
+                        type="text"
+                        placeholder="Last Name"
+                        value={userData.lastName}
+                        onChange={handleChange}
+                        required
+                        className="mb-2"
+                    />
+                </FormRow>
+
                 <FormInput
                     id="formEmail"
                     type="email"
@@ -73,6 +94,7 @@ const Register: React.FC = () => {
                     value={userData.email}
                     onChange={handleChange}
                     required
+                    className="w-100 mb-3"
                 />
                 
                 <FormInput
@@ -82,46 +104,22 @@ const Register: React.FC = () => {
                     value={userData.password}
                     onChange={handleChange}
                     required
+                    className="w-100 mb-3"
                 />
 
-                <FormInput
-                    id="formUsername"
-                    type="text"
-                    placeholder="Username"
-                    value={userData.username}
-                    onChange={handleChange}
-                    required
-                />
-
-                <FormInput
-                    id="formFirstName"
-                    type="text"
-                    placeholder="First Name"
-                    value={userData.firstName}
-                    onChange={handleChange}
-                    required
-                />
-
-                <FormInput
-                    id="formLastName"
-                    type="text"
-                    placeholder="Last Name"
-                    value={userData.lastName}
-                    onChange={handleChange}
-                    required
-                />
-
-                <FormButton type="submit" variant="light">
+                <FormButton type="submit" variant="light" className="w-100">
                     Register
                 </FormButton>
                 
                 <FormButton 
                     type="button" 
                     onClick={() => navigate('/login')}
+                    className="w-100"
                 >
-                    Already have an account? Login
+                Already have an account? Login
                 </FormButton>
             </AuthForm>
+
         </FormContainer>
     );
 };

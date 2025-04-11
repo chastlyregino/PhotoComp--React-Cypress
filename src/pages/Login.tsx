@@ -68,6 +68,7 @@ const Login: React.FC = () => {
                     placeholder="Email"
                     value={credentials.email}
                     onChange={handleChange}
+                    className="w-100 mb-3"
                     required
                 />
                 
@@ -77,6 +78,7 @@ const Login: React.FC = () => {
                     placeholder="Password"
                     value={credentials.password}
                     onChange={handleChange}
+                    className="w-100 mb-3"
                     required
                 />
 
