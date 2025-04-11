@@ -8,7 +8,7 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     const authContext = useContext(AuthContext);
-    
+
     if (!authContext || !authContext.token) {
         const storedToken = localStorage.getItem('token');
         if (!storedToken) {

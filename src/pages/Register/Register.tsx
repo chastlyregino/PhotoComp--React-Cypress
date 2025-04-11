@@ -20,7 +20,7 @@ const Register: React.FC = () => {
         email: '',
         password: '',
         firstName: '',
-        lastName: ''
+        lastName: '',
     });
 
     const [error, setError] = useState<string | null>(null);
@@ -29,7 +29,7 @@ const Register: React.FC = () => {
         const { id, value } = e.target;
         setUserData(prev => ({
             ...prev,
-            [id.replace('form', '')]: value
+            [id.replace('form', '')]: value,
         }));
     };
 
@@ -47,7 +47,7 @@ const Register: React.FC = () => {
             const response = await registerUser({ email, password, firstName, lastName });
             const token = response.data.data.token;
             const user = response.data.data.user;
-            
+
             localStorage.setItem('token', token);
             localStorage.setItem('user', JSON.stringify(user));
 
@@ -101,7 +101,7 @@ const Register: React.FC = () => {
                     required
                     className="w-100 mb-3"
                 />
-                
+
                 <FormInput
                     id="formpassword"
                     type="password"
@@ -115,16 +115,11 @@ const Register: React.FC = () => {
                 <FormButton type="submit" variant="light" className="w-100">
                     Register
                 </FormButton>
-                
-                <FormButton 
-                    type="button" 
-                    onClick={() => navigate('/login')}
-                    className="w-100"
-                >
-                Already have an account? Login
+
+                <FormButton type="button" onClick={() => navigate('/login')} className="w-100">
+                    Already have an account? Login
                 </FormButton>
             </AuthForm>
-
         </FormContainer>
     );
 };
