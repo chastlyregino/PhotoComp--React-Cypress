@@ -11,7 +11,7 @@
         "isolatedModules": true,
         "noEmit": true
     },
-    "include": ["src"],
+    "include": ["src", "tests/mocks/fileMock.js"],
     "references": [
         { "path": "./tsconfig.jest.json" },
         { "path": "./tsconfig.app.json" },
