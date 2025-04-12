@@ -1,0 +1,42 @@
+.photo-carousel-container {
+    /* Main container styles */
+  }
+  
+  .photo-carousel {
+    /* Custom styles for the carousel */
+  }
+  
+  /* Custom styling for carousel controls */
+  .carousel-control-icon {
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+  }
+  
+  /* Making sure the carousel container is centered */
+  .carousel-image-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  /* Styling for the carousel image */
+  .carousel-image {
+    margin: 0 auto;
+  }
+  
+  /* Override Bootstrap's default carousel control styles */
+  .carousel-control-prev,
+  .carousel-control-next {
+    width: 5%;
+  }
+  
+  /* Add hover effect to controls */
+  .carousel-control-icon:hover {
+    background-color: rgba(0, 0, 0, 0.7);
+  }
