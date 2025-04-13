@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Container, Row, Col, Button } from 'react-bootstrap';
 import { Search, Download, Heart, PersonCircle } from 'react-bootstrap-icons';
 import PhotoCarousel from '../../components/PhotoCarousel/PhotoCarousel';
 
 const PhotoGalleryPage: React.FC = () => {
-  // We can pass specific org/event IDs here if needed
-  // or leave them blank to auto-fetch the first event's photos
-  const orgName = "TestOrg"; // The org created in Postman
+  // Use the exact organization name and event ID from API responses
+  const orgName = "GalleryTestOrg";
+  const eventId = "3dcf897f-7bcf-4ac7-b38f-860a41615223";
   
   return (
     <div className="photo-gallery-page bg-dark min-vh-100">
@@ -42,8 +42,8 @@ const PhotoGalleryPage: React.FC = () => {
         </Row>
       </Container>
 
-      {/* Main carousel section - connected to API */}
-      <PhotoCarousel orgName={orgName} />
+      {/* Main carousel section - connected to specific API event */}
+      <PhotoCarousel orgName={orgName} eventId={eventId} />
     </div>
   );
 };

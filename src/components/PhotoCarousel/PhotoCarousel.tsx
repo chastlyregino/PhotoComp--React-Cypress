@@ -1,5 +1,6 @@
+// In src/components/PhotoCarousel/PhotoCarousel.tsx
 import React, { useState, useEffect } from 'react';
-import { Carousel, Container, Row, Col } from 'react-bootstrap';
+import { Carousel, Container, Row, Col, Alert } from 'react-bootstrap';
 import { ChevronLeft, ChevronRight } from 'react-bootstrap-icons';
 import axios from 'axios';
 import './PhotoCarousel.css';
@@ -10,6 +11,7 @@ interface ApiPhoto {
   eventId: string;
   url: string;
   createdAt: string;
+  updatedAt: string;
   uploadedBy: string;
   metadata?: {
     title?: string;
@@ -34,48 +36,43 @@ interface PhotoCarouselProps {
 }
 
 const PhotoCarousel: React.FC<PhotoCarouselProps> = ({ 
-  orgName = "TestOrg", // Default org name
-  eventId, // If not provided, will be fetched from first event
+  orgName = "GalleryTestOrg", // Use your exact organization name
+  eventId = "3dcf897f-7bcf-4ac7-b38f-860a41615223", // Use your exact event ID
   initialIndex = 0 
 }) => {
   const [index, setIndex] = useState(initialIndex);
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [eventTitle, setEventTitle] = useState("Loading...");
+  const [eventTitle, setEventTitle] = useState("Gallery Test Event");
 
   useEffect(() => {
     const fetchPhotos = async () => {
       setLoading(true);
+      setError(null);
+      console.log(`Fetching photos for org: ${orgName}, event: ${eventId}`);
+      
       try {
-        // First, if we don't have an eventId, get the first event for this org
-        let targetEventId = eventId;
-        if (!targetEventId) {
-          const eventsResponse = await axios.get(`/organizations/${orgName}/events`, {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem('token')}`
-            }
-          });
-          
-          if (eventsResponse.data.data.events && eventsResponse.data.data.events.length > 0) {
-            const firstEvent = eventsResponse.data.data.events[0];
-            targetEventId = firstEvent.PK.replace('EVENT#', '');
-            setEventTitle(firstEvent.title);
-          } else {
-            throw new Error("No events found for this organization");
-          }
-        }
-
-        // Now fetch photos for this event
-        const photosResponse = await axios.get(`/organizations/${orgName}/events/${targetEventId}/photos`, {
+        // Create axios instance with proper base URL
+        const axiosInstance = axios.create({
+          baseURL: 'http://localhost:3000',
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
           }
         });
+        
+        // Directly fetch photos for the specific event
+        console.log(`Making request to: /organizations/${orgName}/events/${eventId}/photos`);
+        const photosResponse = await axiosInstance.get(`/organizations/${orgName}/events/${eventId}/photos`);
+        
+        console.log("Photos API response:", photosResponse);
 
-        if (photosResponse.data.data.photos) {
+        if (photosResponse.data?.data?.photos) {
+          const apiPhotos: ApiPhoto[] = photosResponse.data.data.photos;
+          console.log(`Found ${apiPhotos.length} photos:`, apiPhotos);
+          
           // Transform API photos to our Photo interface
-          const transformedPhotos: Photo[] = photosResponse.data.data.photos.map((apiPhoto: ApiPhoto) => ({
+          const transformedPhotos: Photo[] = apiPhotos.map((apiPhoto: ApiPhoto) => ({
             id: apiPhoto.id,
             imageUrl: apiPhoto.url,
             event: eventTitle,
@@ -85,6 +82,9 @@ const PhotoCarousel: React.FC<PhotoCarouselProps> = ({
           }));
           
           setPhotos(transformedPhotos);
+        } else {
+          console.error("No photos data in response:", photosResponse.data);
+          setError("Could not retrieve photos from the server.");
         }
       } catch (err) {
         console.error('Error fetching photos:', err);
@@ -107,7 +107,7 @@ const PhotoCarousel: React.FC<PhotoCarouselProps> = ({
     };
 
     fetchPhotos();
-  }, [orgName, eventId]);
+  }, [orgName, eventId, eventTitle]);
 
   const handleSelect = (selectedIndex: number) => {
     setIndex(selectedIndex);
@@ -122,85 +122,76 @@ const PhotoCarousel: React.FC<PhotoCarouselProps> = ({
     );
   }
 
-  // Error state
-  if (error) {
-    return (
-      <Container className="text-center text-white my-5">
-        <p>{error}</p>
-      </Container>
-    );
-  }
-
-  // Ensure we have photos to display
-  if (!photos || photos.length === 0) {
-    return (
-      <Container className="text-center text-white my-5">
-        <p>No photos available to display</p>
-      </Container>
-    );
-  }
-
   return (
     <Container className="photo-carousel-container my-4">
       <Row className="justify-content-center">
         <Col xs={12} className="text-start mb-3">
           <h2 className="text-white fw-normal" style={{ fontFamily: 'Michroma' }}>
-            Photos : {eventTitle}
+            Photos: {eventTitle}
           </h2>
+          {error && (
+            <Alert variant="warning">
+              {error}
+            </Alert>
+          )}
         </Col>
         
-        <Col xs={12} className="position-relative">
-          {/* Custom Carousel with custom controls */}
-          <Carousel
-            activeIndex={index}
-            onSelect={handleSelect}
-            indicators={false}
-            interval={null}
-            className="photo-carousel"
-            prevIcon={
-              <div className="carousel-control-icon">
-                <ChevronLeft size={36} />
-              </div>
-            }
-            nextIcon={
-              <div className="carousel-control-icon">
-                <ChevronRight size={36} />
-              </div>
-            }
-          >
-            {photos.map((photo) => (
-              <Carousel.Item key={photo.id}>
-                <div className="carousel-image-container">
-                  <img
-                    className="d-block w-100 rounded carousel-image"
-                    src={photo.imageUrl}
-                    alt={photo.description}
+        {photos.length > 0 ? (
+          <Col xs={12} className="position-relative">
+            <Carousel
+              activeIndex={index}
+              onSelect={handleSelect}
+              indicators={false}
+              interval={null}
+              className="photo-carousel"
+              prevIcon={
+                <div className="carousel-control-icon">
+                  <ChevronLeft size={36} />
+                </div>
+              }
+              nextIcon={
+                <div className="carousel-control-icon">
+                  <ChevronRight size={36} />
+                </div>
+              }
+            >
+              {photos.map((photo) => (
+                <Carousel.Item key={photo.id}>
+                  <div className="carousel-image-container">
+                    <img
+                      className="d-block w-100 rounded carousel-image"
+                      src={photo.imageUrl}
+                      alt={photo.description}
+                      style={{ 
+                        maxWidth: '958px', 
+                        height: '680px', 
+                        objectFit: 'cover',
+                        boxShadow: '0px 8px 35px rgba(0, 0, 0, 0.16)'
+                      }}
+                    />
+                  </div>
+                  <div 
+                    className="text-center text-white mt-3"
                     style={{ 
-                      maxWidth: '958px', 
-                      height: '680px', 
-                      objectFit: 'cover',
-                      boxShadow: '0px 8px 35px rgba(0, 0, 0, 0.16)'
+                      fontFamily: 'Michroma', 
+                      fontSize: '24px',
+                      maxWidth: '953px',
+                      margin: '0 auto'
                     }}
-                  />
-                </div>
-                <div 
-                  className="text-center text-white mt-3"
-                  style={{ 
-                    fontFamily: 'Michroma', 
-                    fontSize: '24px',
-                    maxWidth: '953px',
-                    margin: '0 auto'
-                  }}
-                >
-                  <p className="mb-0">
-                    Photo Description: {photo.event}; {photo.description}; {photo.time}; 
-                    {photo.tagged ? ' Tagged' : ' Not Tagged'}
-                  </p>
-                </div>
-              </Carousel.Item>
-            ))}
-          </Carousel>
-        </Col>
+                  >
+                    <p className="mb-0">
+                      {photo.description} | {photo.time}
+                    </p>
+                  </div>
+                </Carousel.Item>
+              ))}
+            </Carousel>
+          </Col>
+        ) : (
+          <Col xs={12} className="text-center">
+            <p className="text-white">No photos available to display</p>
+          </Col>
+        )}
       </Row>
     </Container>
   );
