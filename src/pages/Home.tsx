@@ -63,7 +63,7 @@ const Home = () => {
                 <Col md="auto">
                     <Sidebar />
                 </Col>
-                <Col>
+                <Col style={{ flex: 1, marginLeft: '200px' }}>
                     <TopBar 
                         searchComponent={searchComponent}
                         rightComponents={rightComponents}

@@ -11,7 +11,6 @@ export default defineConfig(({ mode }) => {
         test: {
             globals: true,
             environment: 'jsdom',
-            exclude: [...configDefaults.exclude],
             alias: {
                 '^.+\\.(jpg|jpeg|png|gif|svg)$': '/tests/__mocks__/fileMock.ts',
             },
