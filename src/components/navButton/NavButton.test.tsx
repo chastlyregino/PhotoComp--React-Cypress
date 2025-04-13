@@ -1,6 +1,6 @@
 import React from 'react';
 import { fireEvent, screen } from '@testing-library/react';
-import BackButton from './BackButton';
+import NavButton from './NavButton';
 import { renderWithRouter } from '../../utils/test-utils';
 
 jest.mock('react-bootstrap', () => ({
@@ -42,39 +42,36 @@ describe('BackButton Component', () => {
     });
 
     test('renders with default props', () => {
-        renderWithRouter(<BackButton />);
+        renderWithRouter(<NavButton />);
         
         const button = screen.getByTestId('mock-button');
         expect(button).toHaveTextContent('Back');
         expect(button).toHaveAttribute('data-variant', 'primary');
-        expect(button).toHaveClass('back-button');
-        expect(screen.getByTestId('arrow-left-icon')).toBeInTheDocument();
     });
 
     test('renders with custom text', () => {
-        renderWithRouter(<BackButton>Go Home</BackButton>);
+        renderWithRouter(<NavButton>Go Home</NavButton>);
         
         const button = screen.getByTestId('mock-button');
         expect(button).toHaveTextContent('Go Home');
     });
 
     test('applies custom class names', () => {
-        renderWithRouter(<BackButton className="custom-class">Back</BackButton>);
+        renderWithRouter(<NavButton className="custom-class">Back</NavButton>);
         
         const button = screen.getByTestId('mock-button');
         expect(button).toHaveClass('custom-class');
-        expect(button).toHaveClass('back-button');
     });
 
     test('applies custom variant', () => {
-        renderWithRouter(<BackButton variant="outline-dark">Back</BackButton>);
+        renderWithRouter(<NavButton variant="outline-dark">Back</NavButton>);
         
         const button = screen.getByTestId('mock-button');
         expect(button).toHaveAttribute('data-variant', 'outline-dark');
     });
 
     test('navigates to specified route when clicked', () => {
-        const { rerender } = renderWithRouter(<BackButton to="/dashboard">Back to dashboard</BackButton>);
+        const { rerender } = renderWithRouter(<NavButton to="/dashboard">Back to dashboard</NavButton>);
         
         const button = screen.getByTestId('mock-button');
         fireEvent.click(button);
@@ -82,7 +79,7 @@ describe('BackButton Component', () => {
         expect(mockNavigate).toHaveBeenCalledWith('/dashboard');
         
         mockNavigate.mockClear(); 
-        rerender(<BackButton>Back</BackButton>);
+        rerender(<NavButton>Back</NavButton>);
         
         const defaultButton = screen.getByTestId('mock-button');
         fireEvent.click(defaultButton);
