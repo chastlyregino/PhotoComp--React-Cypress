@@ -8,5 +8,13 @@ export default defineConfig(({ mode }) => {
         define: {
             'process.env': env,
         },
+        test: {
+            globals: true,
+            environment: 'jsdom',
+            exclude: [...configDefaults.exclude],
+            alias: {
+                '^.+\\.(jpg|jpeg|png|gif|svg)$': '/tests/__mocks__/fileMock.ts',
+            },
+        },
     };
 });
