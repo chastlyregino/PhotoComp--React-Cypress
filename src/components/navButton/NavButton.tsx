@@ -1,7 +1,6 @@
 import React from 'react';
 import { Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft } from 'react-bootstrap-icons';
 
 interface BackButtonProps {
     to?: string;
@@ -25,10 +24,9 @@ const BackButton: React.FC<BackButtonProps> = ({
     return (
         <Button 
             variant={variant}
-            className={`back-button ${className}`}
+            className={`${className}`}
             onClick={handleClick}
         >
-            <ArrowLeft className="me-1" />
             {children || 'Back'}
         </Button>
     );

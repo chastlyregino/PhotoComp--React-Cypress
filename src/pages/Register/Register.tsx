@@ -3,13 +3,14 @@ import AuthContext from '../../context/AuthContext';
 import { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { registerUser } from '../../context/AuthService';
+import { ArrowLeft } from 'react-bootstrap-icons';
 
 import FormContainer from '../../components/forms/FormContainer/FormContainer';
 import AuthForm from '../../components/forms/AuthForm/AuthForm';
 import FormInput from '../../components/forms/FormInput/FormInput';
 import FormButton from '../../components/forms/FormButton/FormButton';
 import FormRow from '../../components/forms/FormRow/FormRow';
-import BackButton from '../../components/backButton/BackButton';
+import NavButton from '../../components/navButton/NavButton';
 
 const Register: React.FC = () => {
     const context = useContext(AuthContext);
@@ -61,7 +62,10 @@ const Register: React.FC = () => {
 
     return (
         <FormContainer>
-            <BackButton to="/"> Back to home </BackButton>
+            <NavButton to="/" className='back-button'> 
+              <ArrowLeft className="me-1" />
+              Back to home 
+            </NavButton>
             <AuthForm 
                 title="PHOTOCOMP" 
                 onSubmit={handleSubmit} 
