@@ -1,38 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Container, Row, Col, Button } from 'react-bootstrap';
 import { Search, Download, Heart, PersonCircle } from 'react-bootstrap-icons';
 import PhotoCarousel from '../../components/PhotoCarousel/PhotoCarousel';
 
-
-// Sample data for demonstration
-const samplePhotos = [
-  {
-    id: '1',
-    imageUrl: 'https://placehold.co/958x680',
-    event: 'Promotional Test',
-    description: 'Black Belt Candidates',
-    time: 'May 2025',
-    tagged: true
-  },
-  {
-    id: '2',
-    imageUrl: 'https://placehold.co/958x680',
-    event: 'Tournament',
-    description: 'Forms Competition',
-    time: 'April 2025',
-    tagged: false
-  },
-  {
-    id: '3',
-    imageUrl: 'https://placehold.co/958x680',
-    event: 'Graduation Ceremony',
-    description: 'Belt Promotion',
-    time: 'March 2025',
-    tagged: true
-  }
-];
-
 const PhotoGalleryPage: React.FC = () => {
+  // We can pass specific org/event IDs here if needed
+  // or leave them blank to auto-fetch the first event's photos
+  const orgName = "TestOrg"; // The org created in Postman
+  
   return (
     <div className="photo-gallery-page bg-dark min-vh-100">
       {/* Header/Nav area */}
@@ -67,8 +42,8 @@ const PhotoGalleryPage: React.FC = () => {
         </Row>
       </Container>
 
-      {/* Main carousel section */}
-      <PhotoCarousel photos={samplePhotos} />
+      {/* Main carousel section - connected to API */}
+      <PhotoCarousel orgName={orgName} />
     </div>
   );
 };
