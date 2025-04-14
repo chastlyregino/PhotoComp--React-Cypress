@@ -15,8 +15,6 @@ const OrganizationRow: React.FC<OrganizationRowProps> = ({ organization }) => {
   const [displayedEvents, setDisplayedEvents] = useState<number>(3); 
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [lastEvaluatedKey, setLastEvaluatedKey] = useState<string | null>(null);
-  const [allEventsLoaded, setAllEventsLoaded] = useState<boolean>(false);
   const [expandedRow, setExpandedRow] = useState<boolean>(false);
 
   const orgId = organization.PK.split('#')[1];
@@ -27,8 +25,6 @@ const OrganizationRow: React.FC<OrganizationRowProps> = ({ organization }) => {
         setLoading(true);
         const response = await getPublicOrganizationEvents(orgId);
         setEvents(response.data.events);
-        setLastEvaluatedKey(response.lastEvaluatedKey);
-        setAllEventsLoaded(response.lastEvaluatedKey === null);
         setLoading(false);
       } catch (err) {
         console.error(`Error fetching events for ${organization.name}:`, err);
@@ -36,7 +32,6 @@ const OrganizationRow: React.FC<OrganizationRowProps> = ({ organization }) => {
         setLoading(false);
       }
     };
-
     fetchEvents();
   }, [organization, orgId]);
 
@@ -53,25 +48,22 @@ const OrganizationRow: React.FC<OrganizationRowProps> = ({ organization }) => {
 
   return (
     <div className="organization-row mb-4">
-      <div className="d-flex justify-content-between align-items-center mb-2">
-        <h3>{organization.name}</h3>
-        <Button 
-          variant="link" 
-          onClick={handleSeeAll}
-          className="text-decoration-none"
-        >
-          See All <ChevronRight />
-        </Button>
-      </div>
 
-      <div className={`row-container ${expandedRow ? 'expanded' : ''}`} style={{ 
-        overflowX: expandedRow ? 'auto' : 'hidden',
-        display: 'flex',
-        gap: '15px',
-        paddingBottom: '10px'
-      }}>
+      <div 
+        className={`row-container ${expandedRow ? 'expanded' : ''}`} 
+        style={{ 
+          overflowX: 'auto',
+          display: 'flex',
+          gap: '15px',
+          paddingBottom: '10px',
+          whiteSpace: 'nowrap',
+          scrollbarWidth: 'thin',
+          msOverflowStyle: 'none',
+          WebkitOverflowScrolling: 'touch'
+        }}
+      >
         {/* Organization Card */}
-        <div style={{ minWidth: '350px', flexShrink: 0 }}>
+        <div style={{ minWidth: '350px', flexShrink: 0, display: 'inline-block' }}>
           <GalleryCard 
             item={organization} 
             className="organization-card" 
@@ -86,7 +78,7 @@ const OrganizationRow: React.FC<OrganizationRowProps> = ({ organization }) => {
         ) : (
           <>
             {eventsToDisplay.map(event => (
-              <div key={event.id} style={{ minWidth: '350px', flexShrink: 0 }}>
+              <div key={event.id} style={{ minWidth: '350px', flexShrink: 0, display: 'inline-block' }}>
                 <GalleryCard 
                   item={event} 
                   className="event" 
@@ -94,13 +86,13 @@ const OrganizationRow: React.FC<OrganizationRowProps> = ({ organization }) => {
               </div>
             ))}
 
-            {/* See More button (only if there are more events to show and not expanded yet) */}
             {!expandedRow && events.length > 3 && (
               <div style={{ 
                 minWidth: '100px', 
-                display: 'flex', 
+                display: 'inline-flex', 
                 alignItems: 'center', 
-                justifyContent: 'center' 
+                justifyContent: 'center',
+                flexShrink: 0 
               }}>
                 <Button 
                   variant="outline-primary" 
@@ -113,13 +105,13 @@ const OrganizationRow: React.FC<OrganizationRowProps> = ({ organization }) => {
               </div>
             )}
 
-            {/* See All button (only if row is expanded) */}
             {expandedRow && (
               <div style={{ 
                 minWidth: '100px', 
-                display: 'flex', 
+                display: 'inline-flex', 
                 alignItems: 'center', 
-                justifyContent: 'center' 
+                justifyContent: 'center',
+                flexShrink: 0 
               }}>
                 <Button 
                   variant="outline-primary" 
