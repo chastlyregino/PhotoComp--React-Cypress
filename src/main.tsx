@@ -7,6 +7,7 @@ import './styles/organizationRow.css';
 import './styles/galleryCard.css'
 import './styles/SideBar.css';
 import './styles/layout.css';
+import './styles/navBarButton.css';
 
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';

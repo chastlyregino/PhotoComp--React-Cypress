@@ -11,21 +11,21 @@ interface GalleryProps {
     useNewCard?: boolean;
 }
 
-const Gallery: React.FC<GalleryProps> = ({ 
-    items, 
-    type = 'organization',
-    useNewCard = true 
-}) => {
+const Gallery: React.FC<GalleryProps> = ({ items, type = 'organization', useNewCard = true }) => {
     return (
         <Container fluid className="py-4">
             <Row className="g-4">
-                {items.map((item) => (
-                    <Col key={item.id} xs={12} sm={6} md={4} lg={4} className="d-flex justify-content-center">
+                {items.map(item => (
+                    <Col
+                        key={item.id}
+                        xs={12}
+                        sm={6}
+                        md={4}
+                        lg={4}
+                        className="d-flex justify-content-center"
+                    >
                         {useNewCard ? (
-                            <GalleryCard 
-                                item={item} 
-                                className={`${type}-card`} 
-                            />
+                            <GalleryCard item={item} className={`${type}-card`} />
                         ) : (
                             <OrganizationCard index={item.id} />
                         )}
