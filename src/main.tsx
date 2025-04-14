@@ -6,6 +6,7 @@ import './styles/auth.css';
 import './styles/organizationRow.css';
 import './styles/galleryCard.css'
 import './styles/SideBar.css';
+import './styles/layout.css';
 
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';

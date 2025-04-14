@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Col, Row,  Container } from 'react-bootstrap';
 import { BellFill, PersonCircle } from 'react-bootstrap-icons';
 
-import Sidebar from '../components/bars/SideBar';
+import Sidebar from '../components/bars/SideBar/SideBar';
 import TopBar from '../components/bars/TopBar/TopBar';
 import SearchBar from '../components/bars/SearchBar/SearchBar';
 import NavButton from '../components/navButton/NavButton';

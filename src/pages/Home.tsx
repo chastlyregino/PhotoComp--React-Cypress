@@ -2,88 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Col, Row, Button, Container } from 'react-bootstrap';
 import { BellFill, PersonCircle } from 'react-bootstrap-icons';
 
-import Sidebar from '../components/bars/SideBar';
+import Sidebar from '../components/bars/SideBar/SideBar';
 import TopBar from '../components/bars/TopBar/TopBar';
 import SearchBar from '../components/bars/SearchBar/SearchBar';
 import NavButton from '../components/navButton/NavButton';
 import OrganizationRow from '../components/organizationRow/OrganizationRow';
 import { Organization, getPublicOrganizations } from '../context/OrgService';
-
-const items = [
-  {
-
-    id: "NAME",
-    name: "name",
-    description: "Some random description",
-    logoUrl: "https://picsum.photos/300/200",
-    PK: "ORG#NAME"
-  },
-  {
-
-    id: "NAME",
-    name: "name",
-    description: "Some random description",
-    logoUrl: "https://picsum.photos/300/200",
-    PK: "ORG#NAME"
-  },
-  {
-
-    id: "NAME",
-    name: "name",
-    description: "Some random description",
-    logoUrl: "https://picsum.photos/300/200",
-    PK: "ORG#NAME"
-  },
-  {
-
-    id: "NAME",
-    name: "name",
-    description: "Some random description",
-    logoUrl: "https://picsum.photos/300/200",
-    PK: "ORG#NAME"
-  },
-  {
-
-    id: "NAME",
-    name: "name",
-    description: "Some random description",
-    logoUrl: "https://picsum.photos/300/200",
-    PK: "ORG#NAME"
-  },
-  {
-
-    id: "NAME",
-    name: "name",
-    description: "Some random description",
-    logoUrl: "https://picsum.photos/300/200",
-    PK: "ORG#NAME"
-  },
-  {
-
-    id: "NAME",
-    name: "name",
-    description: "Some random description",
-    logoUrl: "https://picsum.photos/300/200",
-    PK: "ORG#NAME"
-  },
-  {
-
-    id: "NAME",
-    name: "name",
-    description: "Some random description",
-    logoUrl: "https://picsum.photos/300/200",
-    PK: "ORG#NAME"
-  },
-  {
-
-    id: "NAME",
-    name: "name",
-    description: "Some random description",
-    logoUrl: "https://picsum.photos/300/200",
-    PK: "ORG#NAME"
-  },
-];
-
 
 
 const Home = () => {
@@ -167,10 +91,10 @@ const Home = () => {
   return (
     <>
       <Row className="g-0">
-        <Col md="auto">
+        <Col md="auto" className="sidebar-container">
           <Sidebar />
         </Col>
-        <Col>
+        <Col className="main-content">
           <TopBar 
             searchComponent={searchComponent}
             rightComponents={rightComponents}
