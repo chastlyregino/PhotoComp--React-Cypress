@@ -4,14 +4,23 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import GalleryCard from './cards/galleryCard/GalleryCard';
 import OrganizationCard from './OrganizationCard';
-
+d
 interface GalleryProps {
     items: any[];
     type?: 'organization' | 'event' | 'photo';
     useNewCard?: boolean;
 }
+<<<<<<< HEAD
 
 const Gallery: React.FC<GalleryProps> = ({ items, type = 'organization', useNewCard = true }) => {
+=======
+test
+const Gallery: React.FC<GalleryProps> = ({ 
+    items, 
+    type = 'organization',
+    useNewCard = true 
+}) => {
+>>>>>>> b90473a (set upstream)
     return (
         <Container fluid className="py-4">
             <Row className="g-4">
