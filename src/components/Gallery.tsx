@@ -4,17 +4,20 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import GalleryCard from './cards/galleryCard/GalleryCard';
 import OrganizationCard from './OrganizationCard';
-d
+
 interface GalleryProps {
     items: any[];
     type?: 'organization' | 'event' | 'photo';
     useNewCard?: boolean;
 }
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 const Gallery: React.FC<GalleryProps> = ({ items, type = 'organization', useNewCard = true }) => {
 =======
 test
+=======
+>>>>>>> 06af71f (add account settings page)
 const Gallery: React.FC<GalleryProps> = ({ 
     items, 
     type = 'organization',
