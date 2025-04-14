@@ -71,21 +71,22 @@ const PhotoCarousel: React.FC<PhotoCarouselProps> = ({
     }
 
     // Check if the requested size exists
-    if (photo.urls[size as keyof typeof photo.urls]) {
-      return photo.urls[size as keyof typeof photo.urls] as string;
+    const requestedSize = photo.urls[size as keyof typeof photo.urls];
+    if (requestedSize) {
+      return requestedSize;
     }
 
     // Fallback logic based on requested size
     switch (size) {
       case 'thumbnail':
-        return photo.urls.thumbnail || photo.urls.medium || photo.urls.large || photo.urls.original;
+        return photo.urls.thumbnail || photo.urls.medium || photo.urls.large || photo.urls.original || photo.url;
       case 'medium':
-        return photo.urls.medium || photo.urls.large || photo.urls.original || photo.urls.thumbnail;
+        return photo.urls.medium || photo.urls.large || photo.urls.original || photo.urls.thumbnail || photo.url;
       case 'large':
-        return photo.urls.large || photo.urls.original || photo.urls.medium || photo.urls.thumbnail;
+        return photo.urls.large || photo.urls.original || photo.urls.medium || photo.urls.thumbnail || photo.url;
       case 'original':
       default:
-        return photo.urls.original || photo.urls.large || photo.urls.medium || photo.urls.thumbnail;
+        return photo.urls.original || photo.urls.large || photo.urls.medium || photo.urls.thumbnail || photo.url;
     }
   };
 
