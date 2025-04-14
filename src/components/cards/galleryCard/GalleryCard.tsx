@@ -96,13 +96,16 @@ const GalleryCard: React.FC<GalleryCardProps> = ({ item, className }) => {
   
   const handleCardClick = () => {
     if (isOrganizationItem(item)) {
-      const orgId = item.PK ? item.PK.replace('ORG#', '') : item.id;
+      const orgId = item.PK ? 
+        item.PK.replace('ORG#', '') : 
+        item.id;
       navigate(`/organizations/${orgId.toLowerCase()}`);
-
     } else if (isEventItem(item)) {
-      const orgId = item.GSI2PK ? item.GSI2PK.replace('ORG#', '').toLowerCase() : '';
+      const orgId = item.GSI2PK ? 
+        item.GSI2PK.replace('ORG#', '').toLowerCase() : 
+        '';
+      
       navigate(`/organizations/${orgId}/events/${item.id}`);
-
     } else if (isPhotoItem(item)) {
       navigate(`/photos/${item.id}`);
     }
@@ -131,15 +134,15 @@ const GalleryCard: React.FC<GalleryCardProps> = ({ item, className }) => {
       )}
       
       {!isPhoto && (
-        <Card.Body className="card-content">
-          <Card.Title className="card-title">{getTitle()}</Card.Title>
+        <div className="card-content">
+          <h5 className="card-title">{getTitle()}</h5>
           
           {getDescription() && (
-            <Card.Text className="card-description">
+            <p className="card-description">
               {getDescription()}
-            </Card.Text>
+            </p>
           )}
-        </Card.Body>
+        </div>
       )}
     </Card>
   );
