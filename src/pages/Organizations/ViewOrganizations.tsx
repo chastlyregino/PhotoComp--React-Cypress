@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { Col, Row } from 'react-bootstrap';
-import { BellFill, PersonCircle } from 'react-bootstrap-icons';
+import * as icon from 'react-bootstrap-icons';
 
 import Sidebar from '../../components/bars/SideBar/SideBar';
 import TopBar from '../../components/bars/TopBar/TopBar';
 import SearchBar from '../../components/bars/SearchBar/SearchBar';
 import NavButton from '../../components/navButton/NavButton';
+import { NavLink } from 'react-router-dom';
 
 const Organizations: React.FC = () => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -33,14 +34,18 @@ const Organizations: React.FC = () => {
     /* Components to be injected into the TopBar*/
     const rightComponents = (
         <>
-            <NavButton to="/register" variant="outline-light" className="mx-2 top-bar-element">
-                Register
-            </NavButton>
-            <NavButton to="/login" variant="outline-light" className="top-bar-element">
-                Login
-            </NavButton>
-            <BellFill className="text-light m-2 top-bar-element" size={24} />
-            <PersonCircle className="text-light m-2 top-bar-element" size={24} />
+            <div className="d-flex align-items-center gap-3">
+                {/* Create Organization should only appear when a user is logged in */}
+                <NavButton to="/organizations/create" className="mx-2 top-bar-element custom-create-button">
+                    Create Organization
+                </NavButton>
+                <NavLink to="/account-settings" className="text-light top-bar-element">
+                    <icon.GearFill size={24} />
+                </NavLink>
+                <NavLink to="/logout" className="text-light top-bar-element">
+                    <icon.BoxArrowRight size={24} />
+                </NavLink>
+            </div>
         </>
     );
 

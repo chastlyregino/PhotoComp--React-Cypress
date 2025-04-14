@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useContext } from 'react';
 import AuthContext from '../context/AuthContext';
 import { Col, Row, Button, Container } from 'react-bootstrap';
-import { BellFill, PersonCircle } from 'react-bootstrap-icons';
+import * as icon from 'react-bootstrap-icons';
 
 import Sidebar from '../components/bars/SideBar/SideBar';
 import TopBar from '../components/bars/TopBar/TopBar';
 import SearchBar from '../components/bars/SearchBar/SearchBar';
 import NavButton from '../components/navButton/NavButton';
+import { NavLink } from 'react-router-dom';
 import OrganizationRow from '../components/organizationRow/OrganizationRow';
 import { Organization, getPublicOrganizations } from '../context/OrgService';
 
@@ -75,26 +76,28 @@ const Home = () => {
     />
   );
 
-  const rightComponents = (
-    <>
-      {user && token ? (
-        <></>
-      ) : (
+    /* Components to be injected into the TopBar*/
+    const rightComponents = (
         <>
-          <NavButton to='/register' variant="outline-light" className="mx-2 top-bar-element">
-            Register
-          </NavButton>
-          <NavButton to='/login' variant="outline-light" className="top-bar-element">
-            Login
-          </NavButton>
+            <div className="d-flex align-items-center gap-3">
+                {/* Register and Login should only appear when no user is logged in */}
+                <NavButton to="/register" className="mx-2 top-bar-element">
+                    Register
+                </NavButton>
+                <NavButton to="/login" className="mx-2 top-bar-element">
+                    Login
+                </NavButton>
+                <NavLink to="/account-settings" className="text-light top-bar-element">
+                    <icon.GearFill size={24} />
+                </NavLink>
+                <NavLink to="/logout" className="text-light top-bar-element">
+                    <icon.BoxArrowRight size={24} />
+                </NavLink>
+            </div>
         </>
-      )}
-      <BellFill className="text-light m-2 top-bar-element" size={24} />
-      <PersonCircle className="text-light m-2 top-bar-element" size={24} />
-    </>
-  );
+    );
 
-  const displayedOrganizations = organizations.slice(0, displayCount);
+    const displayedOrganizations = organizations.slice(0, displayCount);
 
   return (
     <>
