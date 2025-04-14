@@ -1,4 +1,3 @@
-// In src/components/PhotoCarousel/PhotoCarousel.tsx
 import React, { useState, useEffect } from 'react';
 import { Carousel, Container, Row, Col, Alert } from 'react-bootstrap';
 import { ChevronLeft, ChevronRight } from 'react-bootstrap-icons';
@@ -36,8 +35,8 @@ interface PhotoCarouselProps {
 }
 
 const PhotoCarousel: React.FC<PhotoCarouselProps> = ({ 
-  orgName = "GalleryTestOrg", // Use your exact organization name
-  eventId = "3dcf897f-7bcf-4ac7-b38f-860a41615223", // Use your exact event ID
+  orgName = "GalleryTestOrg", // exact organization name
+  eventId = "3dcf897f-7bcf-4ac7-b38f-860a41615223", //  exact event ID
   initialIndex = 0 
 }) => {
   const [index, setIndex] = useState(initialIndex);
