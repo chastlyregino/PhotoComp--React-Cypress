@@ -8,12 +8,12 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     const authContext = useContext(AuthContext);
-    
+
     if (!authContext?.token) {
         // Redirect to login if there is no token
         return <Navigate to="/login" replace />;
     }
-    
+
     return children;
 };
 

@@ -13,9 +13,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ title, onSubmit, error, children })
         <div className="auth-form">
             <h1 className="auth-title">{title}</h1>
             {error && <Alert variant="danger">{error}</Alert>}
-            <Form onSubmit={onSubmit} >
-                {children}
-            </Form>
+            <Form onSubmit={onSubmit}>{children}</Form>
         </div>
     );
 };

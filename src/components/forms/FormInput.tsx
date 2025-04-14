@@ -16,7 +16,7 @@ const FormInput: React.FC<FormInputProps> = ({
     placeholder,
     value,
     onChange,
-    required = false
+    required = false,
 }) => {
     return (
         <Form.Group controlId={id} className="w-100 mb-2">

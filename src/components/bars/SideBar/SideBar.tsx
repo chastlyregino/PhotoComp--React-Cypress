@@ -2,8 +2,8 @@ import React from 'react';
 import { Navbar, Nav } from 'react-bootstrap';
 import * as icon from 'react-bootstrap-icons';
 import { NavLink } from 'react-router-dom';
-import logo from '../../assets/PhotoCompLogo.png';
-import '../../styles/SideBar.css';
+import logo from '../../../assets/PhotoCompLogo.png';
+import '../../../styles/SideBar.css';
 
 const Sidebar: React.FC = () => {
     return (
