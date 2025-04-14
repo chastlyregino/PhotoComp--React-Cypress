@@ -13,7 +13,7 @@ const BackButton: React.FC<BackButtonProps> = ({
     to = '/',
     className = '',
     variant = 'primary',
-    children
+    children,
 }) => {
     const navigate = useNavigate();
 
@@ -22,11 +22,7 @@ const BackButton: React.FC<BackButtonProps> = ({
     };
 
     return (
-        <Button 
-            variant={variant}
-            className={`${className}`}
-            onClick={handleClick}
-        >
+        <Button variant={variant} className={`${className}`} onClick={handleClick}>
             {children || 'Back'}
         </Button>
     );

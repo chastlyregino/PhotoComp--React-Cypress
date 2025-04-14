@@ -6,7 +6,7 @@ import Gallery from '../components/Gallery';
 import Sidebar from '../components/bars/SideBar';
 import TopBar from '../components/bars/TopBar/TopBar';
 import SearchBar from '../components/bars/SearchBar/SearchBar';
-import NavButton from '../components/navButton/NavButton'
+import NavButton from '../components/navButton/NavButton';
 
 const items = [
   {
@@ -111,11 +111,11 @@ const Home = () => {
     /* Components to be injected into the TopBar*/
     const rightComponents = (
         <>
-            <NavButton to='/register' variant="outline-light" className="mx-2 top-bar-element" >
-            Register
+            <NavButton to="/register" variant="outline-light" className="mx-2 top-bar-element">
+                Register
             </NavButton>
-            <NavButton to='/login' variant="outline-light" className="top-bar-element" >
-            Login
+            <NavButton to="/login" variant="outline-light" className="top-bar-element">
+                Login
             </NavButton>
             <BellFill className="text-light m-2 top-bar-element" size={24} />
             <PersonCircle className="text-light m-2 top-bar-element" size={24} />

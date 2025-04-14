@@ -1,9 +1,7 @@
 import axios from 'axios';
 
-const BASE_URL = process.env.BASE_URL;
-
 const AXIOS_DEFAULTS = {
-    baseURL: BASE_URL,
+    baseURL: 'http://localhost:3000',
     headers: {
         'Content-Type': 'application/json',
     },

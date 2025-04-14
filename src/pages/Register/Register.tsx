@@ -62,15 +62,11 @@ const Register: React.FC = () => {
 
     return (
         <FormContainer>
-            <NavButton to="/" className='back-button'> 
-              <ArrowLeft className="me-1" />
-              Back to home 
+            <NavButton to="/" className="back-button">
+                <ArrowLeft className="me-1" />
+                Back to home
             </NavButton>
-            <AuthForm 
-                title="PHOTOCOMP" 
-                onSubmit={handleSubmit} 
-                error={error}
-            >
+            <AuthForm title="PHOTOCOMP" onSubmit={handleSubmit} error={error}>
                 <FormRow>
                     <FormInput
                         id="formfirstName"
