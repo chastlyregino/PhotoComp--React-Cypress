@@ -10,7 +10,7 @@ interface AuthFormProps {
 
 const AuthForm: React.FC<AuthFormProps> = ({ title, onSubmit, error, children }) => {
     return (
-        <div className="auth-form">
+        <div className="auth-form" style={{ fontFamily: 'CapsuleWeb' }}>
             <h1 className="auth-title">{title}</h1>
             {error && <Alert variant="danger">{error}</Alert>}
             <Form onSubmit={onSubmit}>{children}</Form>

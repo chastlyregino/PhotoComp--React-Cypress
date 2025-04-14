@@ -4,6 +4,7 @@ import './styles/global.css';
 import './styles/footer.css'; 
 import './styles/auth.css'; 
 import './styles/galleryCard.css'
+import './styles/SideBar.css';
 
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';

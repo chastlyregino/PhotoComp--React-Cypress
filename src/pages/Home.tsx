@@ -3,7 +3,7 @@ import { Col, Row } from 'react-bootstrap';
 import { BellFill, PersonCircle } from 'react-bootstrap-icons';
 
 import Gallery from '../components/Gallery';
-import Sidebar from '../components/bars/SideBar';
+import Sidebar from '../components/bars/SideBar/SideBar';
 import TopBar from '../components/bars/TopBar/TopBar';
 import SearchBar from '../components/bars/SearchBar/SearchBar';
 import NavButton from '../components/navButton/NavButton';
@@ -129,10 +129,7 @@ const Home = () => {
                     <Sidebar />
                 </Col>
                 <Col style={{ flex: 1, marginLeft: '200px' }}>
-                    <TopBar 
-                        searchComponent={searchComponent}
-                        rightComponents={rightComponents}
-                    />
+                    <TopBar searchComponent={searchComponent} rightComponents={rightComponents} />
                     <div className="p-3">
                         <h1 className="mb-4">Organizations</h1>
                         <Gallery items={items} />

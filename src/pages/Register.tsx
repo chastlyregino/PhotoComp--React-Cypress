@@ -19,7 +19,7 @@ const Register: React.FC = () => {
         password: '',
         username: '',
         firstName: '',
-        lastName: ''
+        lastName: '',
     });
 
     const [error, setError] = useState<string | null>(null);
@@ -28,7 +28,7 @@ const Register: React.FC = () => {
         const { id, value } = e.target;
         setUserData(prev => ({
             ...prev,
-            [id.replace('form', '').toLowerCase()]: value
+            [id.replace('form', '').toLowerCase()]: value,
         }));
     };
 
@@ -46,7 +46,7 @@ const Register: React.FC = () => {
             const response = await registerUser({ email, password, username, firstName, lastName });
             const token = response.data.data.token;
             const user = response.data.data.user;
-            
+
             localStorage.setItem('token', token);
             localStorage.setItem('user', JSON.stringify(user));
 
@@ -61,11 +61,7 @@ const Register: React.FC = () => {
 
     return (
         <FormContainer>
-            <AuthForm 
-                title="PHOTOCOMP" 
-                onSubmit={handleSubmit} 
-                error={error}
-            >
+            <AuthForm title="PHOTOCOMP" onSubmit={handleSubmit} error={error}>
                 <FormInput
                     id="formEmail"
                     type="email"
@@ -74,7 +70,7 @@ const Register: React.FC = () => {
                     onChange={handleChange}
                     required
                 />
-                
+
                 <FormInput
                     id="formPassword"
                     type="password"
@@ -114,11 +110,8 @@ const Register: React.FC = () => {
                 <FormButton type="submit" variant="light">
                     Register
                 </FormButton>
-                
-                <FormButton 
-                    type="button" 
-                    onClick={() => navigate('/login')}
-                >
+
+                <FormButton type="button" onClick={() => navigate('/login')}>
                     Already have an account? Login
                 </FormButton>
             </AuthForm>

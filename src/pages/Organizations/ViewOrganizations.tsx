@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Col, Row } from 'react-bootstrap';
 import { BellFill, PersonCircle } from 'react-bootstrap-icons';
 
-import Sidebar from '../../components/bars/SideBar';
+import Sidebar from '../../components/bars/SideBar/SideBar';
 import TopBar from '../../components/bars/TopBar/TopBar';
 import SearchBar from '../../components/bars/SearchBar/SearchBar';
 import NavButton from '../../components/navButton/NavButton';
@@ -50,7 +50,7 @@ const Organizations: React.FC = () => {
                 <Col md="auto">
                     <Sidebar />
                 </Col>
-                <Col>
+                <Col style={{ flex: 1, marginLeft: '200px' }}>
                     <TopBar searchComponent={searchComponent} rightComponents={rightComponents} />
                     <div className="p-3 bg-dark text-white">
                         <h1 className="mb-4">Organizations</h1>
