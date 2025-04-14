@@ -3,6 +3,7 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 import './styles/global.css'; 
 import './styles/footer.css'; 
 import './styles/auth.css'; 
+import './styles/organizationRow.css';
 import './styles/galleryCard.css'
 import './styles/SideBar.css';
 
