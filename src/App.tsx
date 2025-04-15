@@ -7,6 +7,7 @@ import Organizations from './pages/Organizations/ViewOrganizations';
 import ProtectedRoute from './components/routes/ProtectedRoute/ProtectedRoute';
 import Footer from './components/bars/Footer/Footer';
 import AccountSettings from './pages/AccountSettings/AccountSettings';
+import CreateOrganization from './pages/Organizations/CreateOrganization';
 
 
 function App() {
@@ -17,6 +18,14 @@ function App() {
                 <Route path="/login" element={<Login />} />
                 <Route path="/" element={<Home />} />
                 <Route path="/organizations" element={<Organizations />} />
+                <Route
+                    path="/organizations/create"
+                    element={
+                        <ProtectedRoute>
+                            <CreateOrganization />
+                        </ProtectedRoute>
+                    }
+                />
                 <Route
                     path="/"
                     element={

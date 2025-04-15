@@ -9,7 +9,7 @@ import './styles/SideBar.css';
 import './styles/layout.css';
 import './styles/navBarButton.css';
 import './styles/accountSettings.css';
-
+import './styles/createOrganization.css';
 
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';

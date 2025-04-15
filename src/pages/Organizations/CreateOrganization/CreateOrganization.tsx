@@ -1,0 +1,200 @@
+import React, { useState } from 'react';
+import { Container, Form, Button, Row, Col } from 'react-bootstrap';
+import { ArrowLeft } from 'react-bootstrap-icons';
+import { NavLink, useNavigate } from 'react-router-dom';
+
+interface OrganizationData {
+  name: string;
+  logo: File | null;
+}
+
+const CreateOrganization: React.FC = () => {
+  const navigate = useNavigate();
+  const [organizationData, setOrganizationData] = useState<OrganizationData>({
+    name: '',
+    logo: null
+  });
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setOrganizationData({
+      ...organizationData,
+      name: e.target.value
+    });
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      
+      // Check file type
+      if (!file.type.match('image.*')) {
+        setError('Please select an image file');
+        return;
+      }
+      
+      // Check file size (e.g., limit to 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        setError('File size should not exceed 5MB');
+        return;
+      }
+
+      setOrganizationData({
+        ...organizationData,
+        logo: file
+      });
+      
+      // Create preview URL
+      const reader = new FileReader();
+      reader.onload = () => {
+        setPreviewUrl(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+      
+      setError(null);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    
+    // Form validation
+    if (!organizationData.name.trim()) {
+      setError('Organization name is required');
+      return;
+    }
+    
+    setIsSubmitting(true);
+    setError(null);
+    
+    // Create form data for file upload
+    const formData = new FormData();
+    formData.append('name', organizationData.name);
+    if (organizationData.logo) {
+      formData.append('logo', organizationData.logo);
+    }
+    
+    try {
+      // API call would go here
+      // const response = await createOrganization(formData);
+      
+      // For now, we'll just simulate a successful response
+      console.log('Organization data to submit:', {
+        name: organizationData.name,
+        logo: organizationData.logo ? organizationData.logo.name : 'No logo selected'
+      });
+      
+      // Redirect to organizations page
+      navigate('/organizations');
+    } catch (error) {
+      console.error('Error creating organization:', error);
+      setError('Failed to create organization. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="create-organization-page bg-dark text-light min-vh-100">
+      {/* Header with back button */}
+      <div className="py-3 mb-4">
+        <Container fluid>
+          <Row className="align-items-center">
+            <Col xs={12} className="d-flex align-items-center">
+              <NavLink to="/organizations" className="text-light text-decoration-none">
+                <ArrowLeft className="me-2" />
+                Back to Organizations
+              </NavLink>
+            </Col>
+          </Row>
+        </Container>
+      </div>
+
+      {/* Main Content */}
+      <Container fluid className="px-4">
+        <Row className="justify-content-center">
+          <Col xs={12} md={8} lg={6}>
+            <h1 className="text-center mb-5" style={{ fontFamily: 'Michroma, sans-serif' }}>Organizations</h1>
+            
+            <div className="text-center mb-5">
+              <h2 className="fs-1" style={{ fontFamily: 'Michroma, sans-serif' }}>
+                Start to create your Organization below!
+              </h2>
+            </div>
+
+            {error && (
+              <div className="alert alert-danger my-3" role="alert">
+                {error}
+              </div>
+            )}
+
+            <Form onSubmit={handleSubmit}>
+              <Form.Group className="mb-4" controlId="organizationName">
+                <Form.Label style={{ fontFamily: 'Michroma, sans-serif' }} className="fs-4">
+                  Organization Name
+                </Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="Enter organization name"
+                  value={organizationData.name}
+                  onChange={handleNameChange}
+                  className="bg-white border-secondary py-3"
+                />
+              </Form.Group>
+
+              <Form.Group className="mb-4" controlId="organizationLogo">
+                <Form.Label style={{ fontFamily: 'Michroma, sans-serif' }} className="fs-4">
+                  Upload your Organization logo
+                </Form.Label>
+                
+                {previewUrl && (
+                  <div className="mb-3 text-center">
+                    <img 
+                      src={previewUrl} 
+                      alt="Logo preview" 
+                      style={{ maxHeight: '200px', maxWidth: '100%' }} 
+                      className="border rounded"
+                    />
+                  </div>
+                )}
+                
+                <div className="custom-file-upload">
+                  <Form.Control
+                    type="file"
+                    onChange={handleFileChange}
+                    accept="image/*"
+                    className="bg-white border-secondary"
+                  />
+                </div>
+              </Form.Group>
+
+              <div className="d-flex justify-content-between mt-5">
+                <Button
+                  variant="secondary"
+                  onClick={() => navigate('/organizations')}
+                  disabled={isSubmitting}
+                  className="py-2 px-4"
+                >
+                  Cancel
+                </Button>
+                
+                <Button
+                  variant="secondary"
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="py-2 px-4"
+                >
+                  {isSubmitting ? 'Creating...' : 'Create Organization'}
+                </Button>
+              </div>
+            </Form>
+          </Col>
+        </Row>
+      </Container>
+    </div>
+  );
+};
+
+export default CreateOrganization;
