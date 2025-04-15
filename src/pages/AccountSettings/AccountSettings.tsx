@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { Container, Row, Col, Form, Button, InputGroup } from 'react-bootstrap';
-import { ArrowLeft } from 'react-bootstrap-icons';
-import { useNavigate } from 'react-router-dom';
+import { ArrowLeft, BoxArrowRight } from 'react-bootstrap-icons';
+import { useNavigate, NavLink } from 'react-router-dom';
 import AuthContext from '../../context/AuthContext';
 import NavButton from '../../components/navButton/NavButton';
 import FormInput from '../../components/forms/FormInput/FormInput';
@@ -127,16 +127,18 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ className = '' }) => 
         <Container fluid>
           <Row className="align-items-center">
             <Col xs={3} className="d-flex align-items-center">
-              <NavButton to="/" variant="link" className="text-light text-decoration-none">
+              <NavLink to="/" className="text-light text-decoration-none">
                 <ArrowLeft className="me-2" />
                 Back to Home
-              </NavButton>
+              </NavLink>
             </Col>
             <Col xs={6} className="text-center">
               <h2 className="mb-0">Account Settings</h2>
             </Col>
             <Col xs={3} className="text-end">
-              {/* Placeholder for notifications or avatar */}
+              <NavLink to="/logout" className="text-light">
+                <BoxArrowRight size={24} />
+              </NavLink>
             </Col>
           </Row>
         </Container>
@@ -153,7 +155,7 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ className = '' }) => 
             <div className="user-info mb-5">
               <p className="text-center mb-3" style={{ fontSize: '1.50rem' }}>Account name: {user?.firstName} {user?.lastName}</p>
               <p className="text-center mb-3" style={{ fontSize: '1.50rem' }}>Account Email: {user?.email}</p>
-              <p className="text-center mb-5" style={{ fontSize: '1.50rem' }}>Account Type: {user?.role || 'User'}</p>
+              <p className="text-center mb-5" style={{ fontSize: '1.50rem' }}>Account Type: {user?.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1).toLowerCase() : 'User'}</p>
             </div>
 
             {/* Combined form for both password change and delete account to avoid separation */}
