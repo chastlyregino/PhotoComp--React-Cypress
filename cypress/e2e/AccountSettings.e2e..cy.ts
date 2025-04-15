@@ -162,7 +162,7 @@ describe('Account Settings Page', () => {
       cy.contains('Back to Home').click();
       
       // Should navigate to home page
-      cy.url().should('eq', Cypress.config().baseUrl + '/');
+      cy.url().should('eq', Cypress.config('baseUrl') + '/');
     });
   });
 });
