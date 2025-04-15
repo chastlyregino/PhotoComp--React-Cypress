@@ -85,7 +85,6 @@ export const getPublicOrganizationEvents = async (
         throw error;
     }
 };
-
 // Create a new organization
 export const createOrganization = async (formData: FormData) => {
     try {

@@ -7,7 +7,8 @@ import Organizations from './pages/Organizations/ViewOrganizations';
 import ProtectedRoute from './components/routes/ProtectedRoute/ProtectedRoute';
 import Footer from './components/bars/Footer/Footer';
 import AccountSettings from './pages/AccountSettings/AccountSettings';
-import CreateOrganization from './pages/Organizations/CreateOrganization';
+import CreateOrganization from './pages/Organizations/CreateOrganization/CreateOrganization';
+
 
 
 function App() {
