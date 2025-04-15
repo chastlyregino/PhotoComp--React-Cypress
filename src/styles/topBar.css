@@ -18,5 +18,16 @@
 
 .top-navbar {
     min-height: 60px;
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    margin-left: 250px;
+    width: calc(100% - 200px);
 }
 
+@media (max-width: 768px) {
+    .top-navbar {
+        margin-left: 0;
+        width: 100%;
+    }
+}

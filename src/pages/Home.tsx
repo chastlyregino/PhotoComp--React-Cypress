@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
+import AuthContext from '../context/AuthContext';
 import { Col, Row, Button, Container } from 'react-bootstrap';
 import { BellFill, PersonCircle } from 'react-bootstrap-icons';
 
@@ -11,6 +12,7 @@ import { Organization, getPublicOrganizations } from '../context/OrgService';
 
 
 const Home = () => {
+  const { user, token } = useContext(AuthContext);
   const [searchTerm, setSearchTerm] = useState('');
   const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [displayCount, setDisplayCount] = useState<number>(3); // Start with 3 rows
@@ -75,12 +77,18 @@ const Home = () => {
 
   const rightComponents = (
     <>
-      <NavButton to='/register' variant="outline-light" className="mx-2 top-bar-element">
-        Register
-      </NavButton>
-      <NavButton to='/login' variant="outline-light" className="top-bar-element">
-        Login
-      </NavButton>
+      {user && token ? (
+        <></>
+      ) : (
+        <>
+          <NavButton to='/register' variant="outline-light" className="mx-2 top-bar-element">
+            Register
+          </NavButton>
+          <NavButton to='/login' variant="outline-light" className="top-bar-element">
+            Login
+          </NavButton>
+        </>
+      )}
       <BellFill className="text-light m-2 top-bar-element" size={24} />
       <PersonCircle className="text-light m-2 top-bar-element" size={24} />
     </>
@@ -94,14 +102,14 @@ const Home = () => {
         <Col md="auto" className="sidebar-container">
           <Sidebar />
         </Col>
-        <Col className="main-content">
+        <Col className="main-content p-0">
           <TopBar 
             searchComponent={searchComponent}
             rightComponents={rightComponents}
           />
 
           <Container fluid className="px-4 py-3">
-            <h1 className="mb-4">Organizations</h1>
+            <h1 className="mb-4 page-title">Organizations & Event</h1>
             
             {loading && organizations.length === 0 ? (
               <div className="text-center p-5">Loading organizations...</div>

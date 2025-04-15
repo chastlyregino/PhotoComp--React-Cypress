@@ -51,7 +51,7 @@ export const getPublicOrganizations = async (lastEvaluatedKey?: string, limit: n
   try {
     const response = await noAuthInstance.get<OrganizationsResponse>('/guests', {
       params: {
-        lastEvaluatedKey,
+        lastEvaluatedKey: lastEvaluatedKey ? JSON.stringify(lastEvaluatedKey) : undefined,
         limit
       }
     });
