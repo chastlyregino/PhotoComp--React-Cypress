@@ -88,7 +88,7 @@ export const getPublicOrganizationEvents = async (
 // Create a new organization
 export const createOrganization = async (formData: FormData) => {
     try {
-        const response = await axiosInstance.post('/api/organizations', formData, {
+        const response = await axiosInstance.post('/organizations', formData, {
             headers: {
                 'Content-Type': 'multipart/form-data'
             }
@@ -103,7 +103,7 @@ export const createOrganization = async (formData: FormData) => {
 // Update an existing organization
 export const updateOrganization = async (organizationId: string, formData: FormData) => {
     try {
-        const response = await axiosInstance.put(`/api/organizations/${organizationId}`, formData, {
+        const response = await axiosInstance.put(`/organizations/${organizationId}`, formData, {
             headers: {
                 'Content-Type': 'multipart/form-data'
             }
@@ -118,7 +118,7 @@ export const updateOrganization = async (organizationId: string, formData: FormD
 // Delete an organization
 export const deleteOrganization = async (organizationId: string) => {
     try {
-        const response = await axiosInstance.delete(`/api/organizations/${organizationId}`);
+        const response = await axiosInstance.delete(`/organizations/${organizationId}`);
         return response.data;
     } catch (error) {
         console.error(`Error deleting organization ${organizationId}:`, error);

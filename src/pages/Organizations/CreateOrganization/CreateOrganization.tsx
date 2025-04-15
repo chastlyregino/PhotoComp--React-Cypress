@@ -168,34 +168,41 @@ const CreateOrganization: React.FC = () => {
                   </div>
                 )}
                 
-                <div className="custom-file-upload">
-                  <Form.Control
-                    type="file"
-                    onChange={handleFileChange}
-                    accept="image/*"
-                    className="bg-white border-secondary"
-                  />
+                {/* File upload wrapper with controlled width */}
+                <div>
+                  <div style={{ width: '66.7%' }}> {/* This makes it 2/3 width */}
+                    <Form.Control
+                      type="file"
+                      onChange={handleFileChange}
+                      accept="image/*"
+                      className="bg-white text-dark border-secondary rounded-3"
+                    />
+                  </div>
                 </div>
               </Form.Group>
 
-              <div className="d-flex justify-content-between mt-5">
-                <Button
-                  variant="secondary"
-                  onClick={() => navigate('/organizations')}
-                  disabled={isSubmitting}
-                  className="py-2 px-4"
-                >
-                  Cancel
-                </Button>
+              <div className="position-relative mt-5 pt-5">
+                <div className="position-absolute start-0 ms-3">
+                  <Button
+                    variant="secondary"
+                    onClick={() => navigate('/organizations')}
+                    disabled={isSubmitting}
+                    className="py-2 px-4"
+                  >
+                    Cancel
+                  </Button>
+                </div>
                 
-                <Button
-                  variant="secondary"
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="py-2 px-4"
-                >
-                  {isSubmitting ? 'Creating...' : 'Create Organization'}
-                </Button>
+                <div className="position-absolute end-0">
+                  <Button
+                    variant="secondary"
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="py-2 px-4"
+                  >
+                    {isSubmitting ? 'Creating...' : 'Create Organization'}
+                  </Button>
+                </div>
               </div>
             </Form>
           </Col>
