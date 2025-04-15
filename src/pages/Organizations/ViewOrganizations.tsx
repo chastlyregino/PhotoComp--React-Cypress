@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
-import { Col, Row } from 'react-bootstrap';
+import { Button, Col, Row } from 'react-bootstrap';
 import * as icon from 'react-bootstrap-icons';
 import { NavLink } from 'react-router-dom';
 
@@ -8,14 +8,14 @@ import TopBar from '../../components/bars/TopBar/TopBar';
 import SearchBar from '../../components/bars/SearchBar/SearchBar';
 import NavButton from '../../components/navButton/NavButton';
 import GalleryCard from '../../components/cards/galleryCard/GalleryCard';
-import { getPublicOrganizations } from '../../context/OrgService';
+import { Organization, getPublicOrganizations } from '../../context/OrgService';
 import AuthContext from '../../context/AuthContext';
 
 const Organizations: React.FC = () => {
     const { user, token } = useContext(AuthContext);
     const [searchTerm, setSearchTerm] = useState('');
-    const [organizations, setOrganizations] = useState<any[]>([]);
-    const [lastKey, setLastKey] = useState<string | undefined>(undefined);
+    const [organizations, setOrganizations] = useState<Organization[]>([]);
+    const [lastEvaluatedKey, setLastEvaluatedKey] = useState<string | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
     const [hasMore, setHasMore] = useState<boolean>(true);
@@ -77,43 +77,49 @@ const Organizations: React.FC = () => {
         </>
     );
 
+    const fetchOrganizations = async (key: string | undefined = undefined) => {
+        setLoading(true);
+        try {
+            const orgs = await getPublicOrganizations(key);
+            if (key) {
+                setOrganizations(prev => [...prev, ...orgs.data.organizations]);
+            } else {
+                setOrganizations(orgs.data.organizations);
+            }
+            setLastEvaluatedKey(orgs.lastEvaluatedKey); // update for next fetch
+            setHasMore(orgs.lastEvaluatedKey !== null); // if there's no more key, no more data
+            setLoading(false);
+        } catch (err) {
+            setError('Failed to fetch organizations');
+        }
+    };
+
     useEffect(() => {
         if (fetchedRef.current) return;
         fetchedRef.current = true;
         fetchOrganizations();
     }, []);
 
-    const fetchOrganizations = async () => {
-        setLoading(true);
-        try {
-            const orgs = await getPublicOrganizations(lastKey, 9);
-            console.log(orgs);
-            setOrganizations(prev => [...prev, ...orgs.data.organizations]);
-            setLastKey(orgs.lastEvaluatedKey ?? undefined); // update for next fetch
-            setHasMore(!!orgs.lastEvaluatedKey); // if there's no more key, no more data
-        } catch (err) {
-            setError('Failed to fetch organizations');
-        }
-    };
-
     const handleLoadMore = () => {
         if (!loading && hasMore) {
-            fetchOrganizations();
+                fetchOrganizations(lastEvaluatedKey ?? undefined);
         }
     };
 
     return (
         <>
             <Row className="g-0">
-                <Col md="auto">
+                <Col md="auto" className="sidebar-container">
                     <Sidebar />
                 </Col>
-                <Col style={{ flex: 1, marginLeft: '200px' }}>
+                <Col className="main-content p-0">
                     <Row>
+                    <div className="sticky-top bg-dark z-3">
                         <TopBar
                             searchComponent={searchComponent}
                             rightComponents={rightComponents}
                         />
+                    </div>
                     </Row>
                     <div className="p-3 bg-dark text-white">
                         <Row>
@@ -128,21 +134,21 @@ const Organizations: React.FC = () => {
                                         <GalleryCard
                                             key={org.id}
                                             item={org}
-                                            className={`organizations-card`}
+                                            className={`organization-card`}
                                         />
                                     </div>
                                 </Col>
                             ))}
 
                             {hasMore && (
-                                <div className="flex justify-center mt-6">
-                                    <button
+                                <div className="text-center mt-4 mb-4">
+                                    <Button
                                         onClick={handleLoadMore}
-                                        //disabled={loading}
-                                        className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+                                        disabled={loading}
+                                        //className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
                                     >
                                         {loading ? 'Loading...' : 'Load More'}
-                                    </button>
+                                    </Button>
                                 </div>
                             )}
                         </Row>
