@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import AuthContext from '../context/AuthContext';
+import AuthContext from '../../context/AuthContext';
 import { Col, Row, Button, Container } from 'react-bootstrap';
 import * as icon from 'react-bootstrap-icons';
 

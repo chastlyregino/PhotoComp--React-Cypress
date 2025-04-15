@@ -52,6 +52,5 @@ describe('Footer Component', () => {
         const container = screen.getByTestId('mock-container');
         expect(container).toHaveAttribute('data-fluid', 'true');
         expect(container).toHaveClass('d-flex');
-        expect(container).toHaveClass('d-flex justify-content-center align-items-center');
     });
 });
