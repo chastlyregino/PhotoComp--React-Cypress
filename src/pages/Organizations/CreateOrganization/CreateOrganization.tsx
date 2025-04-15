@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Container, Form, Button, Row, Col } from 'react-bootstrap';
 import { ArrowLeft } from 'react-bootstrap-icons';
 import { NavLink, useNavigate } from 'react-router-dom';
+import { createOrganization } from '../../../context/OrgService';
 
 interface OrganizationData {
   name: string;
@@ -65,6 +66,11 @@ const CreateOrganization: React.FC = () => {
       setError('Organization name is required');
       return;
     }
+
+    if (!organizationData.logo) {
+      setError('Organization logo is required');
+      return;
+    }
     
     setIsSubmitting(true);
     setError(null);
@@ -72,25 +78,27 @@ const CreateOrganization: React.FC = () => {
     // Create form data for file upload
     const formData = new FormData();
     formData.append('name', organizationData.name);
+    
     if (organizationData.logo) {
       formData.append('logo', organizationData.logo);
     }
     
     try {
-      // API call would go here
-      // const response = await createOrganization(formData);
-      
-      // For now, we'll just simulate a successful response
-      console.log('Organization data to submit:', {
-        name: organizationData.name,
-        logo: organizationData.logo ? organizationData.logo.name : 'No logo selected'
-      });
+      // Make API call to create organization
+      const response = await createOrganization(formData);
+      console.log('Organization created successfully:', response);
       
       // Redirect to organizations page
       navigate('/organizations');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating organization:', error);
-      setError('Failed to create organization. Please try again.');
+      
+      // Handle specific error messages from the API
+      if (error.response && error.response.data && error.response.data.message) {
+        setError(error.response.data.message);
+      } else {
+        setError('Failed to create organization. Please try again.');
+      }
     } finally {
       setIsSubmitting(false);
     }
