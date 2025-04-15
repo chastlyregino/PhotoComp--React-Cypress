@@ -1,7 +1,7 @@
 // import '../../styles/auth.css';
 import AuthContext from '../../context/AuthContext';
 import { useState, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { loginUser } from '../../context/AuthService';
 import { ArrowLeft } from 'react-bootstrap-icons';
 
@@ -59,10 +59,10 @@ const Login: React.FC = () => {
 
     return (
         <FormContainer>
-            <NavButton to="/" className="back-button">
+            <NavLink to="/" className="back-button text-white">
                 <ArrowLeft className="me-1" />
                 Back to home
-            </NavButton>
+            </NavLink>
             <AuthForm title="PHOTOCOMP" onSubmit={handleSubmit} error={error}>
                 <FormInput
                     id="formEmail"
