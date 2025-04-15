@@ -46,7 +46,7 @@ describe('BackButton Component', () => {
 
         const button = screen.getByTestId('mock-button');
         expect(button).toHaveTextContent('Back');
-        expect(button).toHaveAttribute('data-variant', 'primary');
+        expect(button).toHaveAttribute('data-variant', 'primary custom-create-button');
     });
 
     test('renders with custom text', () => {
@@ -67,7 +67,7 @@ describe('BackButton Component', () => {
         renderWithRouter(<NavButton variant="outline-dark">Back</NavButton>);
 
         const button = screen.getByTestId('mock-button');
-        expect(button).toHaveAttribute('data-variant', 'outline-dark');
+        expect(button).toHaveAttribute('data-variant', 'outline-dark custom-create-button');
     });
 
     test('navigates to specified route when clicked', () => {
