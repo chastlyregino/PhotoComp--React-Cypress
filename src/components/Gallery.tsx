@@ -10,20 +10,11 @@ interface GalleryProps {
     type?: 'organization' | 'event' | 'photo';
     useNewCard?: boolean;
 }
-<<<<<<< HEAD
-<<<<<<< HEAD
-
-const Gallery: React.FC<GalleryProps> = ({ items, type = 'organization', useNewCard = true }) => {
-=======
-test
-=======
->>>>>>> 06af71f (add account settings page)
 const Gallery: React.FC<GalleryProps> = ({ 
     items, 
     type = 'organization',
     useNewCard = true 
 }) => {
->>>>>>> b90473a (set upstream)
     return (
         <Container fluid className="py-4">
             <Row className="g-4">
