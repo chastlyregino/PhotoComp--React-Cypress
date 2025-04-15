@@ -2,8 +2,6 @@
 import React from 'react';
 import AccountSettings from '../../src/pages/AccountSettings/AccountSettings';
 
-// Create a wrapper that passes data and intercepts API calls
-
 describe('AccountSettings Component', () => {
   beforeEach(() => {
     // Instead of stubbing, intercept actual API calls
@@ -112,16 +110,36 @@ describe('AccountSettings Component', () => {
     });
 
     it('successfully deletes account', () => {
-      mountComponent();
+      // Create a spy just for this specific test
+      const logoutSpy = cy.spy().as('logoutSpy');
+      
+      // Pass the spy directly to our component via modified context
+      const customAuthContext = {
+        user: {
+          id: '123',
+          email: 'test@example.com',
+          firstName: 'Test',
+          lastName: 'User',
+          role: 'user'
+        },
+        token: 'test-token',
+        setUser: cy.stub(),
+        setToken: cy.stub(),
+        logout: logoutSpy
+      };
+
+      // Mount with our custom context
+      cy.mountWithAuth(<AccountSettings />, customAuthContext);
 
       // Type correct confirmation
       cy.get('#deleteConfirmation').type('Delete');
 
-      // Click delete button
+      // Click delete button and wait for API call
       cy.contains('button', 'Delete Account').click();
-
-      // Check if logout was called
-      cy.get('@logoutStub').should('have.been.called');
+      cy.wait('@deleteAccount');
+      
+      // Check if our spy was called
+      cy.get('@logoutSpy').should('have.been.called');
     });
   });
 
