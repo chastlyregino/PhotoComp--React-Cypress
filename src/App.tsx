@@ -5,6 +5,7 @@ import Register from './pages/Register/Register';
 import Login from './pages/Login/Login';
 import Organizations from './pages/Organizations/ViewOrganizations';
 import Events from './pages/Events/ViewEvents';
+import Photos from './pages/Photos/viewPhotos';
 import ProtectedRoute from './components/routes/ProtectedRoute/ProtectedRoute';
 import Footer from './components/bars/Footer/Footer';
 import AccountSettings from './pages/AccountSettings/AccountSettings';
