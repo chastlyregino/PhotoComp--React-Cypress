@@ -1,6 +1,7 @@
-import { mount } from 'cypress/react';  // Updated from cypress/react18
-import { BrowserRouter } from 'react-router-dom';
+// cypress/support/component.ts
+import { mount } from 'cypress/react';
 import React from 'react';
+import { BrowserRouter } from 'react-router-dom';
 import AuthContext, { AuthContextType } from '../../src/context/AuthContext';
 
 // Import global styles
@@ -25,12 +26,12 @@ declare global {
       ): Chainable<void>;
       mountWithRouter(
         component: React.ReactNode,
-        options?: any
+        options?: object
       ): Chainable<any>;
       mountWithAuth(
         component: React.ReactNode,
         authContext?: Partial<AuthContextType>,
-        options?: any
+        options?: object
       ): Chainable<any>;
     }
   }
@@ -48,12 +49,8 @@ Cypress.Commands.add('mount', mount);
 
 // Mount with Router
 Cypress.Commands.add('mountWithRouter', (component, options = {}) => {
-  return mount(
-    <BrowserRouter>
-      {component}
-    </BrowserRouter>,
-    options
-  );
+  const wrapped = React.createElement(BrowserRouter, {}, component);
+  return mount(wrapped, options);
 });
 
 // Mount with Router and Auth
@@ -67,12 +64,15 @@ Cypress.Commands.add('mountWithAuth', (component, authContext = {}, options = {}
     ...authContext
   };
   
-  return mount(
-    <BrowserRouter>
-      <AuthContext.Provider value={defaultAuthContext}>
-        {component}
-      </AuthContext.Provider>
-    </BrowserRouter>,
-    options
+  const wrapped = React.createElement(
+    BrowserRouter, 
+    {}, 
+    React.createElement(
+      AuthContext.Provider, 
+      { value: defaultAuthContext }, 
+      component
+    )
   );
+  
+  return mount(wrapped, options);
 });
