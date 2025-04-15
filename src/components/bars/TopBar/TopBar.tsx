@@ -23,9 +23,9 @@ const TopBar: React.FC<TopBarProps> = ({
             className={`py-2 top-navbar position-sticky ${className}`}
             data-bs-theme={variant}
             expand="lg"
-            style={{top:0, zIndex: 999}}
+            style={{ top: 0, zIndex: 999 }}
         >
-            <Container fluid >
+            <Container fluid>
                 <Row className="w-100 align-items-center">
                     <Col xs={12} md={9} className="px-0">
                         {searchComponent}
