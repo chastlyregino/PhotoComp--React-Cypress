@@ -165,15 +165,18 @@ describe('AccountSettings Component', () => {
     const deleteButton = screen.getByRole('button', { name: /Delete Account/i });
     expect(deleteButton).toBeDisabled();
     
-    // Type incorrect confirmation
-    fireEvent.change(screen.getByLabelText(/Type "Delete" to confirm:/i), {
+    // Use getAllByLabelText instead of getByLabelText to handle multiple elements
+    const confirmationInputs = screen.getAllByLabelText(/Type "Delete" to confirm:/i);
+    
+    // Type incorrect confirmation in the first input (desktop version)
+    fireEvent.change(confirmationInputs[0], {
       target: { value: 'delete' } // lowercase, shouldn't work
     });
     
     expect(deleteButton).toBeDisabled();
     
     // Type correct confirmation
-    fireEvent.change(screen.getByLabelText(/Type "Delete" to confirm:/i), {
+    fireEvent.change(confirmationInputs[0], {
       target: { value: 'Delete' }
     });
     
@@ -185,8 +188,11 @@ describe('AccountSettings Component', () => {
     
     renderWithRouter(<AccountSettings />, { authContext: mockAuthContext });
     
+    // Get all confirmation inputs and use the first one (desktop version)
+    const confirmationInputs = screen.getAllByLabelText(/Type "Delete" to confirm:/i);
+    
     // Type correct confirmation
-    fireEvent.change(screen.getByLabelText(/Type "Delete" to confirm:/i), {
+    fireEvent.change(confirmationInputs[0], {
       target: { value: 'Delete' }
     });
     
@@ -209,8 +215,11 @@ describe('AccountSettings Component', () => {
     
     renderWithRouter(<AccountSettings />, { authContext: mockAuthContext });
     
+    // Get all confirmation inputs and use the first one (desktop version)
+    const confirmationInputs = screen.getAllByLabelText(/Type "Delete" to confirm:/i);
+    
     // Type correct confirmation
-    fireEvent.change(screen.getByLabelText(/Type "Delete" to confirm:/i), {
+    fireEvent.change(confirmationInputs[0], {
       target: { value: 'Delete' }
     });
     
