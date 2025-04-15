@@ -1,53 +1,17 @@
 describe('Account Settings Page', () => {
-    // Mock user data for testing
-    const mockUser = {
-      id: '123',
-      email: 'test@example.com',
-      firstName: 'Test',
-      lastName: 'User',
-      role: 'user'
-    };
-  
-    beforeEach(() => {
-      // Intercept API calls and set up mocks
-      cy.intercept('PATCH', '/api/auth/password', (req) => {
-        if (req.body.currentPassword === 'wrongpassword') {
-          return req.reply({
-            statusCode: 401,
-            body: { 
-              message: 'Current password is incorrect' 
-            }
-          });
-        }
-        return req.reply({
-          statusCode: 200,
-          body: { 
-            status: 'success',
-            message: 'Password updated successfully' 
-          }
-        });
-      }).as('changePassword');
-  
-      cy.intercept('DELETE', '/api/auth/users/*', (req) => {
-        return req.reply({
-          statusCode: 200,
-          body: { 
-            status: 'success',
-            message: 'Account deleted successfully' 
-          }
-        });
-      }).as('deleteAccount');
-  
-      // Set up local storage with mock auth data
-      cy.window().then((win) => {
-        win.localStorage.setItem('token', 'test-token');
-        win.localStorage.setItem('user', JSON.stringify(mockUser));
-      });
-  
-      // Visit the account settings page
-      cy.visit('/account-settings');
-    });
-  
+  beforeEach(() => {
+    // Set up mock user
+    cy.setupMockUser();
+    
+    // Set up API mocks with default success responses
+    cy.mockPasswordChange({ success: true });
+    cy.mockAccountDeletion({ success: true });
+    
+    // Visit the account settings page
+    cy.visit('/account-settings');
+  });
+
+  describe('User Information Display', () => {
     it('displays user information correctly', () => {
       // Check if the page title is displayed
       cy.contains('h2', 'Account Settings').should('be.visible');
@@ -56,12 +20,14 @@ describe('Account Settings Page', () => {
       cy.contains('h3', 'Personal Information').should('be.visible');
       
       // Check if user info is displayed correctly
-      cy.contains(`Account name: ${mockUser.firstName} ${mockUser.lastName}`).should('be.visible');
-      cy.contains(`Account Email: ${mockUser.email}`).should('be.visible');
-      cy.contains(`Account Type: ${mockUser.role}`).should('be.visible');
+      cy.contains('Account name: Test User').should('be.visible');
+      cy.contains('Account Email: test@example.com').should('be.visible');
+      cy.contains('Account Type: user').should('be.visible');
     });
-  
-    it('validates password change form fields', () => {
+  });
+
+  describe('Password Change', () => {
+    it('validates required form fields', () => {
       // Try submitting with empty current password
       cy.contains('button', 'Save Changes').click();
       cy.contains('Current password is required').should('be.visible');
@@ -71,24 +37,24 @@ describe('Account Settings Page', () => {
       cy.contains('button', 'Save Changes').click();
       cy.contains('New password is required').should('be.visible');
       
-      // Fill new password but with mismatched confirmation
-      cy.get('#newPassword').type('newpassword123');
-      cy.get('#confirmPassword').type('differentpassword');
-      cy.contains('button', 'Save Changes').click();
-      cy.contains('New passwords do not match').should('be.visible');
-      
-      // Fill new password that's too short
-      cy.get('#newPassword').clear().type('short');
-      cy.get('#confirmPassword').clear().type('short');
+      // Test password length validation
+      cy.fillPasswordForm('password123', 'short', 'short');
       cy.contains('button', 'Save Changes').click();
       cy.contains('Password must be at least 8 characters long').should('be.visible');
     });
-  
+
+    it('validates password match', () => {
+      // Fill non-matching passwords
+      cy.fillPasswordForm('password123', 'newpassword123', 'differentpassword');
+      cy.contains('button', 'Save Changes').click();
+      cy.contains('New passwords do not match').should('be.visible');
+    });
+
     it('successfully changes password', () => {
       // Fill form with valid data
-      cy.get('#currentPassword').type('password123');
-      cy.get('#newPassword').type('newpassword123');
-      cy.get('#confirmPassword').type('newpassword123');
+      cy.get('#currentPassword').clear().type('password123');
+      cy.get('#newPassword').clear().type('newpassword123');
+      cy.get('#confirmPassword').clear().type('newpassword123');
       
       // Submit the form
       cy.contains('button', 'Save Changes').click();
@@ -104,12 +70,10 @@ describe('Account Settings Page', () => {
       cy.get('#newPassword').should('have.value', '');
       cy.get('#confirmPassword').should('have.value', '');
     });
-  
+
     it('handles incorrect current password', () => {
       // Fill form with wrong current password
-      cy.get('#currentPassword').type('wrongpassword');
-      cy.get('#newPassword').type('newpassword123');
-      cy.get('#confirmPassword').type('newpassword123');
+      cy.fillPasswordForm('wrongpassword', 'newpassword123', 'newpassword123');
       
       // Submit the form
       cy.contains('button', 'Save Changes').click();
@@ -120,12 +84,12 @@ describe('Account Settings Page', () => {
       // Check for error message
       cy.contains('Current password is incorrect').should('be.visible');
     });
-  
+
     it('resets form fields when cancel button is clicked', () => {
       // Fill form fields
-      cy.get('#currentPassword').type('password123');
-      cy.get('#newPassword').type('newpassword123');
-      cy.get('#confirmPassword').type('newpassword123');
+      cy.get('#currentPassword').clear().type('password123');
+      cy.get('#newPassword').clear().type('newpassword123');
+      cy.get('#confirmPassword').clear().type('newpassword123');
       
       // Click cancel button
       cy.contains('button', 'Cancel').click();
@@ -135,8 +99,10 @@ describe('Account Settings Page', () => {
       cy.get('#newPassword').should('have.value', '');
       cy.get('#confirmPassword').should('have.value', '');
     });
-  
-    it('validates account deletion confirmation', () => {
+  });
+
+  describe('Account Deletion', () => {
+    it('validates delete confirmation input', () => {
       // Delete button should be disabled initially
       cy.contains('button', 'Delete Account').should('be.disabled');
       
@@ -148,7 +114,7 @@ describe('Account Settings Page', () => {
       cy.get('#deleteConfirmation').clear().type('Delete');
       cy.contains('button', 'Delete Account').should('not.be.disabled');
     });
-  
+
     it('successfully deletes account', () => {
       // Type correct confirmation
       cy.get('#deleteConfirmation').type('Delete');
@@ -168,15 +134,10 @@ describe('Account Settings Page', () => {
         expect(win.localStorage.getItem('user')).to.be.null;
       });
     });
-  
+
     it('handles error when deleting account', () => {
-      // Intercept and mock a failure
-      cy.intercept('DELETE', '/api/auth/users/*', {
-        statusCode: 500,
-        body: { 
-          message: 'Failed to delete account' 
-        }
-      }).as('deleteAccountError');
+      // Override the default mock with a failure case
+      cy.mockAccountDeletion({ success: false });
       
       // Type correct confirmation
       cy.get('#deleteConfirmation').type('Delete');
@@ -185,7 +146,7 @@ describe('Account Settings Page', () => {
       cy.contains('button', 'Delete Account').click();
       
       // Wait for the API call
-      cy.wait('@deleteAccountError');
+      cy.wait('@deleteAccount');
       
       // Check for error message
       cy.contains('Failed to delete account').should('be.visible');
@@ -193,7 +154,9 @@ describe('Account Settings Page', () => {
       // Should not redirect
       cy.url().should('include', '/account-settings');
     });
-  
+  });
+
+  describe('Navigation', () => {
     it('navigates back to home when back button is clicked', () => {
       // Click the back button
       cy.contains('Back to Home').click();
@@ -202,3 +165,4 @@ describe('Account Settings Page', () => {
       cy.url().should('eq', Cypress.config().baseUrl + '/');
     });
   });
+});
