@@ -38,6 +38,7 @@ const Organizations: React.FC = () => {
             onChange={handleSearchChange}
             onSubmit={handleSearchSubmit}
             placeholder="Search organizations..."
+            className="ms-3"
         />
     );
 
@@ -113,14 +114,14 @@ const Organizations: React.FC = () => {
                     <Sidebar />
                 </Col>
                 <Col className="main-content p-0">
-                    <Row>
                     <div className="sticky-top bg-dark z-3">
-                        <TopBar
-                            searchComponent={searchComponent}
-                            rightComponents={rightComponents}
-                        />
+                        <Row>
+                            <TopBar
+                                searchComponent={searchComponent}
+                                rightComponents={rightComponents}
+                            />
+                        </Row>
                     </div>
-                    </Row>
                     <div className="p-3 bg-dark text-white">
                         <Row>
                             <h1 className="mb-4">Organizations</h1>

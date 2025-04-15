@@ -72,6 +72,7 @@ const Home = () => {
             onChange={handleSearchChange}
             onSubmit={handleSearchSubmit}
             placeholder="Search organizations..."
+            className="ms-2"
         />
     );
 
