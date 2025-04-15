@@ -1,26 +1,22 @@
 /// <reference types="cypress" />
 import React from 'react';
-import { BrowserRouter as Router } from 'react-router-dom';
-import AuthContext from '../../src/context/AuthContext';
 import AccountSettings from '../../src/pages/AccountSettings/AccountSettings';
 import * as AuthService from '../../src/context/AuthService';
 
-// Extend Window interface to include our custom property
-declare global {
-  interface Window {
-    mockAuthContext?: any;
-  }
-}
-
 describe('AccountSettings Component', () => {
   beforeEach(() => {
-    // Stub AuthService functions
-    cy.stub(AuthService, 'changePassword').as('changePasswordStub');
-    cy.stub(AuthService, 'deleteAccount').as('deleteAccountStub');
+    // Set up the stubs before each test
+    cy.stub(AuthService, 'changePassword')
+      .as('changePasswordStub')
+      .callsFake(() => Promise.resolve({ data: { status: 'success' } }));
+    
+    cy.stub(AuthService, 'deleteAccount')
+      .as('deleteAccountStub')
+      .callsFake(() => Promise.resolve({ data: { status: 'success' } }));
   });
 
-  // Define setup function
-  const setupComponent = (options: any = {}) => {
+  // Define setup function for component tests
+  const mountComponent = (options: any = {}) => {
     const {
       user = {
         id: '123',
@@ -39,61 +35,15 @@ describe('AccountSettings Component', () => {
       setToken: cy.stub().as('setTokenStub'),
       logout: cy.stub().as('logoutStub')
     };
-
-    // Visit the page
-    cy.visit('/account-settings', {
-      onBeforeLoad(win) {
-        // Stub window.localStorage
-        Object.defineProperty(win, 'localStorage', {
-          value: {
-            getItem: cy.stub().as('getItemStub'),
-            setItem: cy.stub().as('setItemStub'),
-            removeItem: cy.stub().as('removeItemStub')
-          }
-        });
-
-        // Mock the Auth context
-        win.mockAuthContext = mockAuthContext;
-      }
-    });
-
-    return {
-      user,
-      mockAuthContext
-    };
+    
+    // Mount the component with context
+    cy.mountWithAuth(<AccountSettings />, mockAuthContext);
   };
 
-  describe('E2E Tests', () => {
-    beforeEach(() => {
-      // Setup mock user in localStorage
-      cy.window().then(win => {
-        const user = {
-          id: '123',
-          email: 'test@example.com',
-          firstName: 'Test',
-          lastName: 'User',
-          role: 'user'
-        };
-        win.localStorage.setItem('token', 'test-token');
-        win.localStorage.setItem('user', JSON.stringify(user));
-      });
-
-      // Mock the API requests
-      cy.intercept('PATCH', '/api/auth/password', {
-        statusCode: 200,
-        body: { status: 'success', message: 'Password updated successfully' }
-      }).as('changePassword');
-
-      cy.intercept('DELETE', '/api/auth/users/*', {
-        statusCode: 200,
-        body: { status: 'success', message: 'Account deleted successfully' }
-      }).as('deleteAccount');
-
-      // Visit the account settings page
-      cy.visit('/account-settings');
-    });
-
-    it('displays user information correctly', () => {
+  describe('Component Tests', () => {
+    it('displays account information correctly', () => {
+      mountComponent();
+      
       cy.contains('Account Settings').should('be.visible');
       cy.contains('Personal Information').should('be.visible');
       cy.contains('Account name: Test User').should('be.visible');
@@ -102,23 +52,30 @@ describe('AccountSettings Component', () => {
     });
 
     it('validates password change form', () => {
+      mountComponent();
+      
       // Try submitting empty form
       cy.contains('button', 'Save Changes').click();
+      
       cy.contains('Current password is required').should('be.visible');
-
+      
       // Fill current password but leave new passwords empty
       cy.get('#currentPassword').type('password123');
       cy.contains('button', 'Save Changes').click();
+      
       cy.contains('New password is required').should('be.visible');
-
+      
       // Test password mismatch
       cy.get('#newPassword').type('newpassword123');
       cy.get('#confirmPassword').type('differentpassword');
       cy.contains('button', 'Save Changes').click();
+      
       cy.contains('New passwords do not match').should('be.visible');
     });
 
     it('successfully changes password', () => {
+      mountComponent();
+      
       // Fill form with valid data
       cy.get('#currentPassword').type('password123');
       cy.get('#newPassword').type('newpassword123');
@@ -126,9 +83,6 @@ describe('AccountSettings Component', () => {
       
       // Submit the form
       cy.contains('button', 'Save Changes').click();
-      
-      // Wait for API request
-      cy.wait('@changePassword');
       
       // Check success message
       cy.contains('Password successfully updated').should('be.visible');
@@ -140,6 +94,8 @@ describe('AccountSettings Component', () => {
     });
 
     it('validates delete account confirmation', () => {
+      mountComponent();
+      
       // Delete button should be disabled initially
       cy.contains('button', 'Delete Account').should('be.disabled');
       
@@ -153,17 +109,64 @@ describe('AccountSettings Component', () => {
     });
 
     it('successfully deletes account', () => {
+      mountComponent();
+      
       // Type correct confirmation
       cy.get('#deleteConfirmation').type('Delete');
       
       // Click delete button
       cy.contains('button', 'Delete Account').click();
       
-      // Wait for API request
-      cy.wait('@deleteAccount');
+      // Check if logout was called
+      cy.get('@logoutStub').should('have.been.called');
+    });
+  });
+
+  describe('Testing error cases', () => {
+    it('handles password change API error', () => {
+      // Override the stub for this specific test
+      cy.stub(AuthService, 'changePassword')
+        .as('changePasswordStub')
+        .callsFake(() => {
+          return Promise.reject({
+            response: { data: { message: 'Current password is incorrect' } }
+          });
+        });
       
-      // Should redirect to login page
-      cy.url().should('include', '/login');
+      mountComponent();
+      
+      // Fill form with valid data
+      cy.get('#currentPassword').type('password123');
+      cy.get('#newPassword').type('newpassword123');
+      cy.get('#confirmPassword').type('newpassword123');
+      
+      // Submit the form
+      cy.contains('button', 'Save Changes').click();
+      
+      // Check error message
+      cy.contains('Current password is incorrect').should('be.visible');
+    });
+
+    it('handles delete account API error', () => {
+      // Override the stub for this specific test
+      cy.stub(AuthService, 'deleteAccount')
+        .as('deleteAccountStub')
+        .callsFake(() => {
+          return Promise.reject({
+            response: { data: { message: 'Failed to delete account' } }
+          });
+        });
+      
+      mountComponent();
+      
+      // Type correct confirmation
+      cy.get('#deleteConfirmation').type('Delete');
+      
+      // Click delete button
+      cy.contains('button', 'Delete Account').click();
+      
+      // Check error message
+      cy.contains('Failed to delete account').should('be.visible');
     });
   });
 });
