@@ -38,6 +38,12 @@ function App() {
                         </ProtectedRoute>
                     }
                 />
+                <Route 
+                    path="/organizations/:id/events/:eid"
+                    element={
+                        <Photos />
+                    }
+                />
             </Routes>
             <Footer />
         </>
