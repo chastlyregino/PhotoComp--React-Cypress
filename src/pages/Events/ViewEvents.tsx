@@ -13,6 +13,7 @@ import {
     Event,
     getPublicOrganizations,
     getPublicOrganizationEvents,
+    OrganizationsResponse,
 } from '../../context/OrgService';
 import AuthContext from '../../context/AuthContext';
 
@@ -132,16 +133,16 @@ const Events: React.FC = () => {
         </>
     );
 
-    const fetchOrganizations = async (key: string | undefined = undefined): Promise<Organization[]> => {
+    const fetchOrganizations = async (key: string | undefined = undefined): Promise<OrganizationsResponse | null> => {
         setLoading(true);
         try {
             const orgs = await getPublicOrganizations(key);
-            const newOrgs = orgs.data.organizations;
+            const newOrgs = orgs;
     
             if (key) {
-                setOrganizations(prev => [...prev, ...newOrgs]);
+                setOrganizations(prev => [...prev, ...newOrgs.data.organizations]);
             } else {
-                setOrganizations(newOrgs);
+                setOrganizations(newOrgs.data.organizations);
             }
     
             setlastEvaluatedKeyOrg(orgs.lastEvaluatedKey);
@@ -152,26 +153,29 @@ const Events: React.FC = () => {
         } catch (err) {
             setError('Failed to fetch organizations');
             setLoading(false);
-            return [];
+            return null;
         }
     };
     
 
-    const fetchEventsForOrganizations = async (orgs: Organization[]) => {
+    const fetchEventsForOrganizations = async (orgs: OrganizationsResponse | null) => {
         const newEvents: Event[] = [];
         const newEventKeys: Record<string, string | null> = {};
 
-        for (const org of orgs) {
-            try {
-                const res = await getPublicOrganizationEvents(org.name);
-                // console.log(org.name)
-                // console.log(res)
-                newEvents.push(...res.data.events);
-                newEventKeys[org.id] = res.lastEvaluatedKey ?? null;
-            } catch {
-                console.error(`Failed to fetch events for org ${org.id}`);
+        if(orgs){
+            for (const org of orgs.data.organizations) {
+                try {
+                    const res = await getPublicOrganizationEvents(org.name);
+                    // console.log(org.name)
+                    // console.log(res)
+                    newEvents.push(...res.data.events);
+                    newEventKeys[org.id] = res.lastEvaluatedKey ?? null;
+                } catch {
+                    console.error(`Failed to fetch events for org ${org.id}`);
+                }
             }
         }
+        
 
         setEvents(prev => [...prev, ...newEvents]);
         setlastEvaluatedKeyOrgEvent(prev => ({ ...prev, ...newEventKeys }));
@@ -227,9 +231,13 @@ const Events: React.FC = () => {
         let moreOrgsFetched = false;
         if (allFetched && lastEvaluatedKeyOrg !== null) {
             const newOrgs = await fetchOrganizations(lastEvaluatedKeyOrg);
-            await fetchEventsForOrganizations(newOrgs);
-            newOrgKey = newOrgs.length > 0 ? newOrgs[0].lastEvaluatedKey : null; // Use newOrgs to get the key
-            moreOrgsFetched = newOrgs.length > 0 ? true : false;
+            if(newOrgs){
+                console.log(`newOrgsEvalKey: ${newOrgs}`)
+                await fetchEventsForOrganizations(newOrgs);
+                newOrgKey = newOrgs.data.organizations.length > 0 ? newOrgs.lastEvaluatedKey : null; // Use newOrgs to get the key
+                moreOrgsFetched = newOrgs.data.organizations.length > 0 ? true : false;
+            }
+            
         }
     
         // Determine if there's more data
@@ -239,7 +247,7 @@ const Events: React.FC = () => {
         console.log('Has more events:', anyOrgHasMoreEvents);
         console.log('Has more orgs:', canFetchMoreOrgs);
     
-        setHasMore(anyOrgHasMoreEvents || canFetchMoreOrgs);
+        setHasMore(anyOrgHasMoreEvents || moreOrgsFetched);
         setLoading(false);
     };
     
