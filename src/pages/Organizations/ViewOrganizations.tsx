@@ -51,7 +51,7 @@ const Organizations: React.FC = () => {
                         {/* Create Organization should only appear when a user is logged in */}
                         <NavButton
                             to="/organizations/create"
-                            className="mx-2 top-bar-element custom-create-button"
+                            variant="outline-light" className="mx-1 top-bar-element"
                         >
                             Create Organization
                         </NavButton>
@@ -66,7 +66,7 @@ const Organizations: React.FC = () => {
                     </>
                 ) : (
                     <>
-                        <NavButton to='/register' variant="outline-light" className="mx-2 top-bar-element">
+                        <NavButton to='/register' variant="outline-light" className="mx-1 top-bar-element">
                             Register
                         </NavButton>
                         <NavButton to='/login' variant="outline-light" className="top-bar-element">

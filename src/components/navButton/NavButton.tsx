@@ -22,7 +22,7 @@ const BackButton: React.FC<BackButtonProps> = ({
     };
 
     return (
-        <Button variant={`${className} custom-create-button`} onClick={handleClick}>
+        <Button className={`${className}`} variant={`${variant} custom-create-button`} onClick={handleClick}>
             {children || 'Back'}
         </Button>
     );
