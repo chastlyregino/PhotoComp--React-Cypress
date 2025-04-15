@@ -203,11 +203,38 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ className = '' }) => 
                 />
               </Form.Group>
               
+              {/* Updated button container with proper spacing and alignment */}
               <div className="d-flex justify-content-between mb-5">
-                <Button variant="secondary" onClick={handleCancel} disabled={isLoading}>
+                <Button 
+                  variant="secondary" 
+                  onClick={handleCancel} 
+                  disabled={isLoading}
+                  style={{ 
+                    minWidth: '160px', 
+                    height: '35px',
+                    fontSize: '14px',
+                    whiteSpace: 'nowrap',
+                    paddingLeft: '8px',
+                    paddingRight: '8px'
+                  }}
+                  className=""
+                >
                   Cancel
                 </Button>
-                <Button variant="primary" type="submit" disabled={isLoading}>
+                <Button 
+                  variant="secondary" 
+                  type="submit" 
+                  disabled={isLoading}
+                  style={{ 
+                    minWidth: '160px', 
+                    height: '35px', 
+                    fontSize: '14px',
+                    whiteSpace: 'nowrap',
+                    paddingLeft: '8px',
+                    paddingRight: '8px'
+                  }}
+                  className=""
+                >
                   {isLoading ? 'Processing...' : 'Save Changes'}
                 </Button>
               </div>
@@ -240,6 +267,7 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ className = '' }) => 
                   variant="danger" 
                   onClick={handleDeleteAccount}
                   disabled={deleteConfirmation !== 'Delete' || isLoading}
+                  className="px-4 py-2"
                 >
                   {isLoading ? 'Processing...' : 'Delete Account'}
                 </Button>
