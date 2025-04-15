@@ -1,3 +1,4 @@
+
 import { defineConfig } from 'cypress';
 
 export default defineConfig({
@@ -12,6 +13,7 @@ export default defineConfig({
       framework: 'react',
       bundler: 'vite',
     },
+    indexHtmlFile: 'cypress/support/component-index.html',
     setupNodeEvents(on, config) {
       // implement node event listeners here
     },
