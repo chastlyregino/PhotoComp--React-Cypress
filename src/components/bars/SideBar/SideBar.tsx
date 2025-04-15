@@ -44,7 +44,7 @@ const Sidebar: React.FC = () => {
                     </NavLink>
 
                     <NavLink
-                        to="/:id/events"
+                        to="/organizations/:id/events"
                         className={({ isActive }) =>
                             `nav-link d-flex align-items-center gap-2 sidebar-link ${
                                 isActive ? 'active' : ''
