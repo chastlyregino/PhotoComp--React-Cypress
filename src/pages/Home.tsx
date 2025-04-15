@@ -78,24 +78,28 @@ const Home = () => {
     /* Components to be injected into the TopBar*/
     const rightComponents = (
         <>
-            {user && token ? (
-                <></>
-            ) : (
-                <>
-              <NavButton to='/register' variant="outline-light" className="mx-2 top-bar-element">
-                Register
-              </NavButton>
-              <NavButton to='/login' variant="outline-light" className="top-bar-element">
-                Login
-              </NavButton>
-                </>
-            )}
-            <NavLink to="/account-settings" className="text-light top-bar-element">
-                <icon.GearFill size={24} />
-            </NavLink>
-            <NavLink to="/logout" className="text-light top-bar-element">
-                <icon.BoxArrowRight size={24} />
-            </NavLink>
+            <div className="d-flex align-items-center gap-3">
+                {user && token ? (
+                    <>
+                        <NavLink to="/account-settings" className="text-light top-bar-element">
+                            <icon.GearFill size={24} />
+                        </NavLink>
+                        <NavLink to="/logout" className="text-light top-bar-element">
+                            <icon.BoxArrowRight size={24} />
+                        </NavLink>
+                    </>
+                ) : (
+                    <>
+                        <NavButton to='/register' variant="outline-light" className="mx-2 top-bar-element">
+                            Register
+                        </NavButton>
+                        <NavButton to='/login' variant="outline-light" className="top-bar-element">
+                            Login
+                        </NavButton>
+                    </>
+                )}
+                
+            </div>
         </>
       );
 

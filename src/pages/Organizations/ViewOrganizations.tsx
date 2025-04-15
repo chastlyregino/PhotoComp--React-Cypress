@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
 import { Col, Row } from 'react-bootstrap';
 import * as icon from 'react-bootstrap-icons';
 import { NavLink } from 'react-router-dom';
@@ -9,8 +9,10 @@ import SearchBar from '../../components/bars/SearchBar/SearchBar';
 import NavButton from '../../components/navButton/NavButton';
 import GalleryCard from '../../components/cards/galleryCard/GalleryCard';
 import { getPublicOrganizations } from '../../context/OrgService';
+import AuthContext from '../../context/AuthContext';
 
 const Organizations: React.FC = () => {
+    const { user, token } = useContext(AuthContext);
     const [searchTerm, setSearchTerm] = useState('');
     const [organizations, setOrganizations] = useState<any[]>([]);
     const [lastKey, setLastKey] = useState<string | undefined>(undefined);
@@ -43,19 +45,34 @@ const Organizations: React.FC = () => {
     const rightComponents = (
         <>
             <div className="d-flex align-items-center gap-3">
-                {/* Create Organization should only appear when a user is logged in */}
-                <NavButton
-                    to="/organizations/create"
-                    className="mx-2 top-bar-element custom-create-button"
-                >
-                    Create Organization
-                </NavButton>
-                <NavLink to="/account-settings" className="text-light top-bar-element">
-                    <icon.GearFill size={24} />
-                </NavLink>
-                <NavLink to="/logout" className="text-light top-bar-element">
-                    <icon.BoxArrowRight size={24} />
-                </NavLink>
+                {user && token ? (
+                    <>
+                        {/* Create Organization should only appear when a user is logged in */}
+                        <NavButton
+                            to="/organizations/create"
+                            className="mx-2 top-bar-element custom-create-button"
+                        >
+                            Create Organization
+                        </NavButton>
+                    
+                
+                        <NavLink to="/account-settings" className="text-light top-bar-element">
+                            <icon.GearFill size={24} />
+                        </NavLink>
+                        <NavLink to="/logout" className="text-light top-bar-element">
+                            <icon.BoxArrowRight size={24} />
+                        </NavLink>
+                    </>
+                ) : (
+                    <>
+                        <NavButton to='/register' variant="outline-light" className="mx-2 top-bar-element">
+                            Register
+                        </NavButton>
+                        <NavButton to='/login' variant="outline-light" className="top-bar-element">
+                            Login
+                        </NavButton>
+                    </>
+                )}
             </div>
         </>
     );
