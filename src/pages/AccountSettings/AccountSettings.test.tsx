@@ -1,7 +1,7 @@
 import React from 'react';
 import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { renderWithRouter } from '../../utils/test-utils';
-import AccountSettings from './Accountsettings';
+import AccountSettings from './AccountSettings';
 import { changePassword, deleteAccount } from '../../context/AuthService';
 
 // Mock the AuthService functions
