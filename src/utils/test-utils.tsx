@@ -3,9 +3,10 @@ import { render, RenderOptions } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 
 // Mock AuthContext
-import AuthContext from '../context/AuthContext';
+import AuthContext, { AuthContextType } from '../context/AuthContext';
 
-const mockAuthContext = {
+// Create a properly typed mock auth context
+const mockAuthContext: AuthContextType = {
     user: null,
     token: null,
     setUser: jest.fn(),
@@ -15,7 +16,7 @@ const mockAuthContext = {
 
 interface CustomRenderOptions extends Omit<RenderOptions, 'wrapper'> {
     route?: string;
-    authContext?: typeof mockAuthContext;
+    authContext?: AuthContextType; // Update to use the explicit type
 }
 
 /**
