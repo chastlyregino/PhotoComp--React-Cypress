@@ -2,6 +2,13 @@ import React from 'react';
 import { fireEvent, screen, waitFor } from '@testing-library/react';
 import AccountSettings from './AccountSettings';
 import { renderWithRouter } from '../../utils/test-utils';
+import { changePassword, deleteAccount } from '../../services/AccountService';
+
+// Mock the AccountService functions
+jest.mock('../../services/AccountService', () => ({
+  changePassword: jest.fn(),
+  deleteAccount: jest.fn()
+}));
 
 // Mock user for AuthContext
 const mockUser = {
@@ -73,6 +80,10 @@ describe('AccountSettings Component', () => {
     
     fireEvent.click(screen.getByRole('button', { name: /Save Changes/i }));
     
+    await waitFor(() => {
+      expect(screen.getByText(/New password is required/i)).toBeInTheDocument();
+    });
+    
     // Fill non-matching passwords
     fireEvent.change(screen.getByLabelText(/New Password:/i), {
       target: { value: 'newpassword123' }
@@ -86,6 +97,65 @@ describe('AccountSettings Component', () => {
     
     await waitFor(() => {
       expect(screen.getByText(/New passwords do not match/i)).toBeInTheDocument();
+    });
+  });
+
+  test('successfully changes password', async () => {
+    (changePassword as jest.Mock).mockResolvedValue({ data: { status: 'success' } });
+    
+    renderWithRouter(<AccountSettings />, { authContext: mockAuthContext });
+    
+    // Fill out form with valid data
+    fireEvent.change(screen.getByLabelText(/Current Password:/i), {
+      target: { value: 'password123' }
+    });
+    
+    fireEvent.change(screen.getByLabelText(/New Password:/i), {
+      target: { value: 'newpassword123' }
+    });
+    
+    fireEvent.change(screen.getByLabelText(/Confirm Password:/i), {
+      target: { value: 'newpassword123' }
+    });
+    
+    fireEvent.click(screen.getByRole('button', { name: /Save Changes/i }));
+    
+    await waitFor(() => {
+      expect(changePassword).toHaveBeenCalledWith('password123', 'newpassword123');
+      expect(screen.getByText(/Password successfully updated/i)).toBeInTheDocument();
+    });
+    
+    // Check form is reset
+    expect(screen.getByLabelText(/Current Password:/i)).toHaveValue('');
+    expect(screen.getByLabelText(/New Password:/i)).toHaveValue('');
+    expect(screen.getByLabelText(/Confirm Password:/i)).toHaveValue('');
+  });
+
+  test('handles password change API error', async () => {
+    (changePassword as jest.Mock).mockRejectedValue({
+      response: { data: { message: 'Current password is incorrect' } }
+    });
+    
+    renderWithRouter(<AccountSettings />, { authContext: mockAuthContext });
+    
+    // Fill out form
+    fireEvent.change(screen.getByLabelText(/Current Password:/i), {
+      target: { value: 'wrongpassword' }
+    });
+    
+    fireEvent.change(screen.getByLabelText(/New Password:/i), {
+      target: { value: 'newpassword123' }
+    });
+    
+    fireEvent.change(screen.getByLabelText(/Confirm Password:/i), {
+      target: { value: 'newpassword123' }
+    });
+    
+    fireEvent.click(screen.getByRole('button', { name: /Save Changes/i }));
+    
+    await waitFor(() => {
+      expect(changePassword).toHaveBeenCalledWith('wrongpassword', 'newpassword123');
+      expect(screen.getByText(/Current password is incorrect/i)).toBeInTheDocument();
     });
   });
 
@@ -108,13 +178,51 @@ describe('AccountSettings Component', () => {
     });
     
     expect(deleteButton).not.toBeDisabled();
+  });
+
+  test('successfully deletes account', async () => {
+    (deleteAccount as jest.Mock).mockResolvedValue({ data: { status: 'success' } });
+    
+    renderWithRouter(<AccountSettings />, { authContext: mockAuthContext });
+    
+    // Type correct confirmation
+    fireEvent.change(screen.getByLabelText(/Type "Delete" to confirm:/i), {
+      target: { value: 'Delete' }
+    });
     
     // Click delete button
-    fireEvent.click(deleteButton);
+    fireEvent.click(screen.getByRole('button', { name: /Delete Account/i }));
     
-    // Check if logout and navigate are called
-    expect(mockAuthContext.logout).toHaveBeenCalledTimes(1);
-    expect(mockNavigate).toHaveBeenCalledWith('/login');
+    await waitFor(() => {
+      // Check if API was called with user ID
+      expect(deleteAccount).toHaveBeenCalledWith('123');
+      // Check if logout and navigate are called
+      expect(mockAuthContext.logout).toHaveBeenCalledTimes(1);
+      expect(mockNavigate).toHaveBeenCalledWith('/login');
+    });
+  });
+
+  test('handles delete account API error', async () => {
+    (deleteAccount as jest.Mock).mockRejectedValue({
+      response: { data: { message: 'Failed to delete account' } }
+    });
+    
+    renderWithRouter(<AccountSettings />, { authContext: mockAuthContext });
+    
+    // Type correct confirmation
+    fireEvent.change(screen.getByLabelText(/Type "Delete" to confirm:/i), {
+      target: { value: 'Delete' }
+    });
+    
+    // Click delete button
+    fireEvent.click(screen.getByRole('button', { name: /Delete Account/i }));
+    
+    await waitFor(() => {
+      expect(deleteAccount).toHaveBeenCalledWith('123');
+      expect(screen.getByText(/Failed to delete account/i)).toBeInTheDocument();
+      // Should not navigate away on error
+      expect(mockNavigate).not.toHaveBeenCalled();
+    });
   });
 
   test('cancel button resets form fields', () => {
