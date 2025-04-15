@@ -14,7 +14,7 @@ interface AccountSettingsProps {
 const AccountSettings: React.FC<AccountSettingsProps> = ({ className = '' }) => {
   const navigate = useNavigate();
   const { user, logout } = useContext(AuthContext);
-  
+
   // Form states
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -27,18 +27,18 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ className = '' }) => 
   // Handle password change
   const handlePasswordChange = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
+
     // Validation
     if (!currentPassword) {
       setError('Current password is required');
       return;
     }
-    
+
     if (!newPassword) {
       setError('New password is required');
       return;
     }
-    
+
     if (newPassword !== confirmPassword) {
       setError('New passwords do not match');
       return;
@@ -51,14 +51,14 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ className = '' }) => 
 
     setError(null);
     setIsLoading(true);
-    
+
     try {
       // Call the API to change password
       await changePassword(currentPassword, newPassword);
-      
+
       // Set success message and reset form
       setSuccess('Password successfully updated');
-      
+
       // Reset form
       setCurrentPassword('');
       setNewPassword('');
@@ -85,12 +85,12 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ className = '' }) => 
 
     setError(null);
     setIsLoading(true);
-    
+
     try {
       // Call the API to delete account
       if (user && user.id) {
         await deleteAccount(user.id);
-        
+
         // Log out and redirect
         logout();
         navigate('/login');
@@ -122,8 +122,8 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ className = '' }) => 
 
   return (
     <div className={`account-settings bg-dark text-light min-vh-100 ${className}`}>
-      {/* Header */}
-      <div className="border-bottom border-secondary py-3">
+      {/* Header - No border */}
+      <div className="py-3">
         <Container fluid>
           <Row className="align-items-center">
             <Col xs={3} className="d-flex align-items-center">
@@ -143,134 +143,164 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ className = '' }) => 
       </div>
 
       {/* Main Content */}
-      <Container fluid className="py-5">
+      <Container fluid className="py-3">
         {/* Account Info Section */}
         <Row className="justify-content-center mb-5">
           <Col xs={12} md={8} lg={6}>
-            <h3 className="text-center mb-4">Personal Information</h3>
-            
+            <h3 className="text-center mb-3">Personal Information</h3>
+
             {/* Display user information */}
             <div className="user-info mb-5">
-              <p className="text-center mb-3">Account name: {user?.firstName} {user?.lastName}</p>
-              <p className="text-center mb-3">Account Email: {user?.email}</p>
-              <p className="text-center mb-5">Account Type: {user?.role || 'User'}</p>
+              <p className="text-center mb-3" style={{ fontSize: '1.50rem' }}>Account name: {user?.firstName} {user?.lastName}</p>
+              <p className="text-center mb-3" style={{ fontSize: '1.50rem' }}>Account Email: {user?.email}</p>
+              <p className="text-center mb-5" style={{ fontSize: '1.50rem' }}>Account Type: {user?.role || 'User'}</p>
             </div>
 
-            {/* Password change form */}
-            <Form onSubmit={handlePasswordChange}>
+            {/* Combined form for both password change and delete account to avoid separation */}
+            <div className="account-actions">
               {error && (
                 <div className="alert alert-danger" role="alert">
                   {error}
                 </div>
               )}
-              
+
               {success && (
                 <div className="alert alert-success" role="alert">
                   {success}
                 </div>
               )}
-              
-              <Form.Group className="mb-4" controlId="currentPassword">
-                <Form.Label>Current Password:</Form.Label>
-                <Form.Control 
-                  type="password" 
-                  placeholder="Enter current password"
-                  value={currentPassword}
-                  onChange={(e) => setCurrentPassword(e.target.value)}
-                  className="bg-dark border-secondary text-light"
-                />
-              </Form.Group>
-              
-              <Form.Group className="mb-4" controlId="newPassword">
-                <Form.Label>New Password:</Form.Label>
-                <Form.Control 
-                  type="password" 
-                  placeholder="Enter new password"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  className="bg-dark border-secondary text-light"
-                />
-              </Form.Group>
-              
-              <Form.Group className="mb-5" controlId="confirmPassword">
-                <Form.Label>Confirm Password:</Form.Label>
-                <Form.Control 
-                  type="password" 
-                  placeholder="Confirm new password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="bg-dark border-secondary text-light"
-                />
-              </Form.Group>
-              
-              {/* Updated button container with proper spacing and alignment */}
-              <div className="d-flex justify-content-between mb-5">
-                <Button 
-                  variant="secondary" 
-                  onClick={handleCancel} 
-                  disabled={isLoading}
-                  style={{ 
-                    minWidth: '160px', 
-                    height: '35px',
-                    fontSize: '14px',
-                    whiteSpace: 'nowrap',
-                    paddingLeft: '8px',
-                    paddingRight: '8px'
-                  }}
-                  className=""
-                >
-                  Cancel
-                </Button>
-                <Button 
-                  variant="secondary" 
-                  type="submit" 
-                  disabled={isLoading}
-                  style={{ 
-                    minWidth: '160px', 
-                    height: '35px', 
-                    fontSize: '14px',
-                    whiteSpace: 'nowrap',
-                    paddingLeft: '8px',
-                    paddingRight: '8px'
-                  }}
-                  className=""
-                >
-                  {isLoading ? 'Processing...' : 'Save Changes'}
-                </Button>
-              </div>
-            </Form>
 
-            {/* Delete Account Section */}
-            <div className="delete-account border-top border-secondary pt-4 mt-5">
-              <h4 className="text-center text-danger mb-4">Delete Account?</h4>
-              
-              <Row className="align-items-center mb-3">
-                <Col xs={12} md={6} className="text-md-end mb-3 mb-md-0">
-                  <Form.Label htmlFor="deleteConfirmation">
+              {/* Password change section */}
+              <div className="password-change mb-5">
+                <Form.Group className="mb-4" controlId="currentPassword">
+                  <Form.Label>Current Password:</Form.Label>
+                  <Form.Control
+                    type="password"
+                    placeholder="Enter current password"
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    className="bg-white text-dark border-secondary"
+                  />
+                </Form.Group>
+
+                <Form.Group className="mb-4" controlId="newPassword">
+                  <Form.Label>New Password:</Form.Label>
+                  <Form.Control
+                    type="password"
+                    placeholder="Enter new password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    className="bg-white text-dark border-secondary"
+                  />
+                </Form.Group>
+
+                <Form.Group className="mb-4" controlId="confirmPassword">
+                  <Form.Label>Confirm Password:</Form.Label>
+                  <Form.Control
+                    type="password"
+                    placeholder="Confirm new password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="bg-white text-dark border-secondary"
+                  />
+                </Form.Group>
+
+                {/* Password change buttons */}
+                <div className="d-flex justify-content-between mb-5">
+                  <Button
+                    variant="secondary"
+                    onClick={handleCancel}
+                    disabled={isLoading}
+                    style={{
+                      minWidth: '160px',
+                      height: '35px',
+                      fontSize: '14px',
+                      whiteSpace: 'nowrap',
+                      paddingLeft: '8px',
+                      paddingRight: '8px',
+                      marginLeft: '-50px' // Move button LEFT by 50px
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handlePasswordChange(e as any);
+                    }}
+                    disabled={isLoading}
+                    style={{
+                      minWidth: '160px',
+                      height: '35px',
+                      fontSize: '14px',
+                      whiteSpace: 'nowrap',
+                      paddingLeft: '8px',
+                      paddingRight: '8px',
+                      marginRight: '-50px' // Move button RIGHT by 50px
+                    }}
+                  >
+                    {isLoading ? 'Processing...' : 'Save Changes'}
+                  </Button>
+                </div>
+              </div>
+
+              {/* Delete Account Section - No border or margin that would create a line, with space between heading and content */}
+              <div className="delete-section" style={{ borderTop: 'none', marginTop: '-20px' }}>
+                <h4 className="text-center mb-4 fs-5">Delete Account?</h4>
+
+                {/* For medium screens and up - inline display */}
+                <div className="d-none d-md-flex align-items-center justify-content-center">
+                  <Form.Label htmlFor="deleteConfirmation" className="me-3 mb-0">
                     Type "Delete" to confirm:
                   </Form.Label>
-                </Col>
-                <Col xs={12} md={6}>
                   <Form.Control
                     id="deleteConfirmation"
                     type="text"
                     placeholder="Type 'Delete'"
                     value={deleteConfirmation}
                     onChange={(e) => setDeleteConfirmation(e.target.value)}
-                    className="bg-dark border-secondary text-light"
+                    className="bg-white text-dark border-secondary me-3"
+                    style={{ width: '150px' }}
                   />
-                </Col>
-              </Row>
-              
-              <div className="text-center mt-4">
-                <Button 
-                  variant="danger" 
-                  onClick={handleDeleteAccount}
-                  disabled={deleteConfirmation !== 'Delete' || isLoading}
-                  className="px-4 py-2"
-                >
-                  {isLoading ? 'Processing...' : 'Delete Account'}
-                </Button>
+                  <Button
+                    variant="danger"
+                    onClick={handleDeleteAccount}
+                    disabled={deleteConfirmation !== 'Delete' || isLoading}
+                    className="px-3 py-1"
+                    size="sm"
+                  >
+                    {isLoading ? 'Processing...' : 'Delete Account'}
+                  </Button>
+                </div>
+
+                {/* For small screens - stacked display with smaller text */}
+                <div className="d-flex d-md-none flex-column align-items-center">
+                  <Form.Label htmlFor="deleteConfirmationMobile" className="mb-1 small">
+                    Type "Delete" to confirm:
+                  </Form.Label>
+                  <div className="d-flex mb-2 align-items-center">
+                    <Form.Control
+                      id="deleteConfirmationMobile"
+                      type="text"
+                      placeholder="Type 'Delete'"
+                      value={deleteConfirmation}
+                      onChange={(e) => setDeleteConfirmation(e.target.value)}
+                      className="bg-white text-dark border-secondary me-2"
+                      style={{ width: '120px' }}
+                      size="sm"
+                    />
+                    <Button
+                      variant="danger"
+                      onClick={handleDeleteAccount}
+                      disabled={deleteConfirmation !== 'Delete' || isLoading}
+                      className="px-2 py-1"
+                      size="sm"
+                    >
+                      {isLoading ? '...' : 'Delete'}
+                    </Button>
+                  </div>
+                </div>
               </div>
             </div>
           </Col>
