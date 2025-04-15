@@ -8,6 +8,7 @@ import ProtectedRoute from './components/routes/ProtectedRoute/ProtectedRoute';
 import Footer from './components/bars/Footer/Footer';
 import AccountSettings from './pages/AccountSettings/AccountSettings';
 
+
 function App() {
     return (
         <>
