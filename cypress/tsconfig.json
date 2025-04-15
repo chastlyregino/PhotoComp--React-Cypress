@@ -3,7 +3,9 @@
         "target": "es5",
         "lib": ["es5", "dom"],
         "sourceMap": true,
-        "types": ["cypress", "node"]
+        "types": ["cypress", "node", "cypress/react18"],
+        "jsx": "react-jsx",
+        "esModuleInterop": true
     },
-    "include": ["**/*.ts"]
+    "include": ["**/*.ts", "**/*.tsx"]
 }

@@ -1,10 +1,20 @@
-import React from 'react';
+/// <reference types="cypress" />
 import { mount } from 'cypress/react18';
+import * as React from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
-import AuthContext from '../../src/context/AuthContext';
-import AccountSettings from '../../src/pages/AccountSettings/AccountSettings';
+import type { User, AuthContextType } from '../../src/context/AuthContext';
+
+// Define the props for AccountSettings component
+interface AccountSettingsProps {
+  className?: string;
+}
+
+// Type the component as a React.FC
+type AccountSettingsComponent = React.FC<AccountSettingsProps>;
 
 describe('AccountSettings Component', () => {
+
+  
   // Common setup for mocking services
   const setupComponent = (options = {}) => {
     const {
@@ -30,30 +40,26 @@ describe('AccountSettings Component', () => {
       logout: mockLogoutFn
     };
 
-    // Mock the service functions
-    cy.stub(window, 'require')
-      .withArgs('../../src/context/AuthService')
-      .returns({
-        changePassword: mockChangePasswordFn,
-        deleteAccount: mockDeleteAccountFn
-      });
+    // Importing components dynamically to avoid TypeScript JSX issues
+    cy.wrap(null).then(() => {
+      // Import AuthContext
+      const AuthContext = require('../../src/context/AuthContext').default;
+      // Import AccountSettings component
+      const AccountSettings = require('../../src/pages/AccountSettings/AccountSettings').default as AccountSettingsComponent;
 
-    // Mock the useNavigate hook
-    cy.stub(window, 'require')
-      .withArgs('react-router-dom')
-      .returns({
-        ...window.require('react-router-dom'),
-        useNavigate: () => mockNavigateFn
-      });
-
-    // Mount the component with mocked context
-    mount(
-      <Router>
-        <AuthContext.Provider value={mockAuthContext}>
-          <AccountSettings />
-        </AuthContext.Provider>
-      </Router>
-    );
+      // Mount the component with mocked context
+      mount(
+        React.createElement(
+          Router,
+          {},
+          React.createElement(
+            AuthContext.Provider,
+            { value: mockAuthContext },
+            React.createElement(AccountSettings, {})
+          )
+        )
+      );
+    });
     
     return {
       user,
