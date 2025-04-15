@@ -139,47 +139,44 @@ const Events: React.FC = () => {
         </>
     );
 
-    const fetchOrganizations = async (
-        key: string | undefined = undefined
-    ): Promise<OrganizationsResponse | null> => {
+    const fetchOrganizations = async (key: string | undefined = undefined): Promise<Organization[]> => {
         setLoading(true);
         try {
             const orgs = await getPublicOrganizations(key);
-            const newOrgs = orgs;
-
+            const newOrgs = orgs.data.organizations;
+    
             if (key) {
-                setOrganizations(prev => [...prev, ...newOrgs.data.organizations]);
+                setOrganizations(prev => [...prev, ...newOrgs]);
             } else {
-                setOrganizations(newOrgs.data.organizations);
+                setOrganizations(newOrgs);
             }
-
+    
             setlastEvaluatedKeyOrg(orgs.lastEvaluatedKey);
             setHasMore(orgs.lastEvaluatedKey !== null);
             setLoading(false);
-            console.log(newOrgs);
+            console.log(newOrgs)
             return newOrgs;
         } catch (err) {
             setError('Failed to fetch organizations');
             setLoading(false);
-            return null;
+            return [];
         }
     };
+    
 
-    const fetchEventsForOrganizations = async (orgs: OrganizationsResponse | null) => {
+    const fetchEventsForOrganizations = async (orgs: Organization[]) => {
         const newEvents: Event[] = [];
         const newEventKeys: Record<string, string | null> = {};
 
-        if (orgs) {
-            for (const org of orgs.data.organizations) {
-                try {
-                    const res = await getPublicOrganizationEvents(org.name);
-                    // console.log(org.name)
-                    // console.log(res)
-                    newEvents.push(...res.data.events);
-                    newEventKeys[org.id] = res.lastEvaluatedKey ?? null;
-                } catch {
-                    console.error(`Failed to fetch events for org ${org.id}`);
-                }
+        for (const org of orgs) {
+            try {
+                const res = await getPublicOrganizationEvents(org.name);
+                // console.log(org.name)
+                // console.log(res)
+                newEvents.push(...res.data.events);
+                newEventKeys[org.id] = res.lastEvaluatedKey ?? null;
+            } catch {
+                console.error(`Failed to fetch events for org ${org.id}`);
             }
         }
 
