@@ -4,6 +4,7 @@ import Home from './pages/Home';
 import Register from './pages/Register/Register';
 import Login from './pages/Login/Login';
 import Organizations from './pages/Organizations/ViewOrganizations';
+import Events from './pages/Events/ViewEvents';
 import ProtectedRoute from './components/routes/ProtectedRoute/ProtectedRoute';
 import Footer from './components/bars/Footer/Footer';
 import AccountSettings from './pages/AccountSettings/AccountSettings';
@@ -27,14 +28,7 @@ function App() {
                         </ProtectedRoute>
                     }
                 />
-                <Route
-                    path="/"
-                    element={
-                        <ProtectedRoute>
-                            <Home />
-                        </ProtectedRoute>
-                    }
-                />
+                <Route path="/organizations/:id/events" element={<Events />} />
                 <Route
                     path="/account-settings"
                     element={
