@@ -3,7 +3,6 @@ import { Navbar, Nav } from 'react-bootstrap';
 import * as icon from 'react-bootstrap-icons';
 import { NavLink, useParams } from 'react-router-dom';
 import logo from '../../../assets/PhotoCompLogo.png';
-import '../../../styles/SideBar.css';
 
 const Sidebar: React.FC = () => {
     const { id, eid } = useParams();
