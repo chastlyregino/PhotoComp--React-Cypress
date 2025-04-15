@@ -55,54 +55,55 @@
 }
 
 .card-description {
-  color: white;
-  padding: 0.75rem;
-  border-radius: 4px;
-  margin-top: auto;
-  font-size: 0.9rem;
+    color: white;
+    padding: 0.75rem;
+    border-radius: 4px;
+    margin-top: auto;
+    font-size: 0.9rem;
 }
 
 .organization-badge {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  color: white;
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
-  z-index: 2;
-  font-size: 0.8rem;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    z-index: 2;
+    font-size: 0.8rem;
 }
 
 .photo .card-overlay {
     background: none;
 }
 
-.organization-card, .event {
-  transition: transform 0.2s ease;
+.organization-card,
+.event {
+    transition: transform 0.2s ease;
 }
 
-.organization-card:hover, .event:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+.organization-card:hover,
+.event:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .card-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0,0,0,0.8);
-  border-radius: 0.25rem;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    border-radius: 0.25rem;
 }
 
 .card-content {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 1rem;
-  color: white;
-  z-index: 1;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 1rem;
+    color: white;
+    z-index: 1;
 }
-

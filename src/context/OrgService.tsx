@@ -48,18 +48,18 @@ export interface EventsResponse {
 }
 
 export const getPublicOrganizations = async (lastEvaluatedKey?: string, limit: number = 9) => {
-  try {
-    const response = await noAuthInstance.get<OrganizationsResponse>('/guests', {
-      params: {
-        lastEvaluatedKey: lastEvaluatedKey ? JSON.stringify(lastEvaluatedKey) : undefined,
-        limit
-      }
-    });
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching public organizations:', error);
-    throw error;
-  }
+    try {
+        const response = await noAuthInstance.get<OrganizationsResponse>('/guests', {
+            params: {
+                lastEvaluatedKey: lastEvaluatedKey ? JSON.stringify(lastEvaluatedKey) : undefined,
+                limit,
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching public organizations:', error);
+        throw error;
+    }
 };
 
 export const getPublicOrganizationEvents = async (
