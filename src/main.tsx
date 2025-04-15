@@ -1,6 +1,5 @@
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
-<<<<<<< HEAD
 import './styles/global.css';
 import './styles/footer.css';
 import './styles/auth.css';
@@ -9,13 +8,8 @@ import './styles/galleryCard.css';
 import './styles/SideBar.css';
 import './styles/layout.css';
 import './styles/navBarButton.css';
-=======
-import './styles/global.css'; 
-import './styles/footer.css'; 
-import './styles/auth.css'; 
-import './styles/galleryCard.css';
 import './styles/accountSettings.css';
->>>>>>> 06af71f (add account settings page)
+
 
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
