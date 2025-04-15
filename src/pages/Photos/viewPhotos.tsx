@@ -40,7 +40,7 @@ const Photos: React.FC = () => {
     const rightComponents = (
         <>
             <div className="d-flex align-items-center gap-3">
-                {/* Create Organization should only appear when a user is logged in */}
+                {/* Create Organization should only appear when an Admin is logged in */}
                 <NavButton
                     to="/:eid/events/:id/upload"
                     className="mx-2 top-bar-element custom-create-button"
