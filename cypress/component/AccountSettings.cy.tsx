@@ -1,39 +1,21 @@
 /// <reference types="cypress" />
 import React from 'react';
 import AccountSettings from '../../src/pages/AccountSettings/AccountSettings';
-// Do not import AuthService directly
 
-// Declare global window interface extension
-declare global {
-  interface Window {
-    mockAuthService: {
-      changePassword: any;
-      deleteAccount: any;
-    };
-  }
-}
+// Create a wrapper that passes data and intercepts API calls
 
 describe('AccountSettings Component', () => {
   beforeEach(() => {
-    // Create mock functions that will be attached to window
-    cy.window().then(win => {
-      // Create the mock service with stub functions
-      win.mockAuthService = {
-        changePassword: cy.stub().as('changePasswordStub')
-          .callsFake(() => Promise.resolve({ data: { status: 'success' } })),
-        deleteAccount: cy.stub().as('deleteAccountStub')
-          .callsFake(() => Promise.resolve({ data: { status: 'success' } }))
-      };
-      
-      // Monkey patch the imports
-      // @ts-ignore - Ignoring TypeScript errors for the require override
-      win.require = function(path: string) {
-        if (path.includes('AuthService')) {
-          return win.mockAuthService;
-        }
-        return null;
-      };
-    });
+    // Instead of stubbing, intercept actual API calls
+    cy.intercept('PATCH', '/api/auth/password', {
+      statusCode: 200,
+      body: { status: 'success', message: 'Password updated successfully' }
+    }).as('changePassword');
+    
+    cy.intercept('DELETE', '/api/auth/users/*', {
+      statusCode: 200,
+      body: { status: 'success', message: 'Account deleted successfully' }
+    }).as('deleteAccount');
   });
 
   // Define setup function for component tests
@@ -145,13 +127,11 @@ describe('AccountSettings Component', () => {
 
   describe('Testing error cases', () => {
     it('handles password change API error', () => {
-      // Override the stub for this specific test
-      cy.window().then(win => {
-        win.mockAuthService.changePassword = cy.stub().as('changePasswordStub')
-          .callsFake(() => Promise.reject({
-            response: { data: { message: 'Current password is incorrect' } }
-          }));
-      });
+      // Override the intercept for this specific test
+      cy.intercept('PATCH', '/api/auth/password', {
+        statusCode: 401,
+        body: { message: 'Current password is incorrect' }
+      }).as('changePasswordError');
 
       mountComponent();
 
@@ -168,13 +148,11 @@ describe('AccountSettings Component', () => {
     });
 
     it('handles delete account API error', () => {
-      // Override the stub for this specific test
-      cy.window().then(win => {
-        win.mockAuthService.deleteAccount = cy.stub().as('deleteAccountStub')
-          .callsFake(() => Promise.reject({
-            response: { data: { message: 'Failed to delete account' } }
-          }));
-      });
+      // Override the intercept for this specific test
+      cy.intercept('DELETE', '/api/auth/users/*', {
+        statusCode: 500,
+        body: { message: 'Failed to delete account' }
+      }).as('deleteAccountError');
 
       mountComponent();
 
