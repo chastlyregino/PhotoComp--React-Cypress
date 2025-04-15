@@ -4,8 +4,8 @@ import { renderWithRouter } from '../../utils/test-utils';
 import AccountSettings from './Accountsettings';
 import { changePassword, deleteAccount } from '../../context/AuthService';
 
-// Mock the AccountService functions
-jest.mock('../../services/AccountService', () => ({
+// Mock the AuthService functions
+jest.mock('../../context/AuthService', () => ({
   changePassword: jest.fn(),
   deleteAccount: jest.fn()
 }));
