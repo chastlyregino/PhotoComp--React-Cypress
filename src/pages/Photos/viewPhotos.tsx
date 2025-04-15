@@ -98,13 +98,13 @@ const Photos: React.FC = () => {
                         <Row>
                             {error && <p className="text-red-500">{error}</p>}
 
-                            {photos.map(org => (
+                            {photos.map(photo => (
                                 <Col>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
                                         <GalleryCard
-                                            key={org.id}
-                                            item={org}
-                                            className={`organizations-card`}
+                                            key={photo.id}
+                                            item={photo}
+                                            className={`photo-card`}
                                         />
                                     </div>
                                 </Col>
