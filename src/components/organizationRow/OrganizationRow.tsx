@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from 'react-bootstrap';
-import { ChevronRight } from 'react-bootstrap-icons';
 import { useNavigate } from 'react-router-dom';
 import GalleryCard from '../cards/galleryCard/GalleryCard';
 import { Organization, Event, getPublicOrganizationEvents } from '../../context/OrgService'
@@ -95,12 +94,11 @@ const OrganizationRow: React.FC<OrganizationRowProps> = ({ organization }) => {
                 flexShrink: 0 
               }}>
                 <Button 
-                  variant="outline-primary" 
+                  className='p-1'
+                  variant="primary" 
                   onClick={handleSeeMore}
-                  className="rounded-circle"
-                  style={{ width: '50px', height: '50px' }}
                 >
-                  <ChevronRight />
+                See more
                 </Button>
               </div>
             )}
@@ -114,7 +112,8 @@ const OrganizationRow: React.FC<OrganizationRowProps> = ({ organization }) => {
                 flexShrink: 0 
               }}>
                 <Button 
-                  variant="outline-primary" 
+                  className='p-1'
+                  variant="primary" 
                   onClick={handleSeeAll}
                 >
                   See All

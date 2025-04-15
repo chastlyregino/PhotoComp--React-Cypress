@@ -1,3 +1,6 @@
+.page-title {
+  color: #fff;
+}
 
 .sidebar-container {
   width: 200px;
@@ -14,6 +17,7 @@
   min-height: 100vh;
   padding-bottom: 60px; 
   position: relative;
+    background-color: #212529;
 }
 
 .footer {
