@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import AuthContext from '../../context/AuthContext';
 import NavButton from '../../components/navButton/NavButton';
 import FormInput from '../../components/forms/FormInput/FormInput';
+import { changePassword, deleteAccount } from '../../context/AuthService';
 
 interface AccountSettingsProps {
   className?: string;
@@ -21,6 +22,7 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ className = '' }) => 
   const [deleteConfirmation, setDeleteConfirmation] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Handle password change
   const handlePasswordChange = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -29,6 +31,11 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ className = '' }) => 
     // Validation
     if (!currentPassword) {
       setError('Current password is required');
+      return;
+    }
+    
+    if (!newPassword) {
+      setError('New password is required');
       return;
     }
     
@@ -43,21 +50,29 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ className = '' }) => 
     }
 
     setError(null);
+    setIsLoading(true);
     
     try {
-      // This will be implemented with actual API calls later
-      console.log('Password change request:', { currentPassword, newPassword });
+      // Call the API to change password
+      await changePassword(currentPassword, newPassword);
       
-      // Mock success
+      // Set success message and reset form
       setSuccess('Password successfully updated');
       
       // Reset form
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to update password:', err);
-      setError('Failed to update password. Please try again.');
+      // Check if the error has a specific message about incorrect password
+      if (err.response && err.response.data && err.response.data.message) {
+        setError(err.response.data.message);
+      } else {
+        setError('Failed to update password. Please try again.');
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -69,17 +84,29 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ className = '' }) => 
     }
 
     setError(null);
+    setIsLoading(true);
     
     try {
-      // This will be implemented with actual API calls later
-      console.log('Account deletion requested');
-      
-      // Log out and redirect
-      logout();
-      navigate('/login');
-    } catch (err) {
+      // Call the API to delete account
+      if (user && user.id) {
+        await deleteAccount(user.id);
+        
+        // Log out and redirect
+        logout();
+        navigate('/login');
+      } else {
+        throw new Error('User ID not found');
+      }
+    } catch (err: any) {
       console.error('Failed to delete account:', err);
-      setError('Failed to delete account. Please try again.');
+      // Check if the error has a specific message
+      if (err.response && err.response.data && err.response.data.message) {
+        setError(err.response.data.message);
+      } else {
+        setError('Failed to delete account. Please try again.');
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -177,11 +204,11 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ className = '' }) => 
               </Form.Group>
               
               <div className="d-flex justify-content-between mb-5">
-                <Button variant="secondary" onClick={handleCancel}>
+                <Button variant="secondary" onClick={handleCancel} disabled={isLoading}>
                   Cancel
                 </Button>
-                <Button variant="primary" type="submit">
-                  Save Changes
+                <Button variant="primary" type="submit" disabled={isLoading}>
+                  {isLoading ? 'Processing...' : 'Save Changes'}
                 </Button>
               </div>
             </Form>
@@ -212,9 +239,9 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ className = '' }) => 
                 <Button 
                   variant="danger" 
                   onClick={handleDeleteAccount}
-                  disabled={deleteConfirmation !== 'Delete'}
+                  disabled={deleteConfirmation !== 'Delete' || isLoading}
                 >
-                  Delete Account
+                  {isLoading ? 'Processing...' : 'Delete Account'}
                 </Button>
               </div>
             </div>

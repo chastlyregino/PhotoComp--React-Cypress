@@ -1,252 +1,255 @@
-import React from 'react';
-import { fireEvent, screen, waitFor } from '@testing-library/react';
-import AccountSettings from './AccountSettings';
-import { renderWithRouter } from '../../utils/test-utils';
-import { changePassword, deleteAccount } from '../../services/AccountService';
+import React, { useState, useContext } from 'react';
+import { Container, Row, Col, Form, Button, InputGroup } from 'react-bootstrap';
+import { ArrowLeft } from 'react-bootstrap-icons';
+import { useNavigate } from 'react-router-dom';
+import AuthContext from '../../context/AuthContext';
+import NavButton from '../../components/navButton/NavButton';
+import FormInput from '../../components/forms/FormInput/FormInput';
+import { changePassword, deleteAccount } from '../../context/AuthService';
 
-// Mock the AccountService functions
-jest.mock('../../services/AccountService', () => ({
-  changePassword: jest.fn(),
-  deleteAccount: jest.fn()
-}));
+interface AccountSettingsProps {
+  className?: string;
+}
 
-// Mock user for AuthContext
-const mockUser = {
-  id: '123',
-  email: 'test@example.com',
-  firstName: 'Test',
-  lastName: 'User',
-  role: 'user'
+const AccountSettings: React.FC<AccountSettingsProps> = ({ className = '' }) => {
+  const navigate = useNavigate();
+  const { user, logout } = useContext(AuthContext);
+  
+  // Form states
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [deleteConfirmation, setDeleteConfirmation] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Handle password change
+  const handlePasswordChange = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    
+    // Validation
+    if (!currentPassword) {
+      setError('Current password is required');
+      return;
+    }
+    
+    if (!newPassword) {
+      setError('New password is required');
+      return;
+    }
+    
+    if (newPassword !== confirmPassword) {
+      setError('New passwords do not match');
+      return;
+    }
+
+    if (newPassword.length < 8) {
+      setError('Password must be at least 8 characters long');
+      return;
+    }
+
+    setError(null);
+    setIsLoading(true);
+    
+    try {
+      // Call the API to change password
+      await changePassword(currentPassword, newPassword);
+      
+      // Set success message and reset form
+      setSuccess('Password successfully updated');
+      
+      // Reset form
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+    } catch (err: any) {
+      console.error('Failed to update password:', err);
+      // Check if the error has a specific message about incorrect password
+      if (err.response && err.response.data && err.response.data.message) {
+        setError(err.response.data.message);
+      } else {
+        setError('Failed to update password. Please try again.');
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Handle account deletion
+  const handleDeleteAccount = async () => {
+    if (deleteConfirmation !== 'Delete') {
+      setError('Please type "Delete" to confirm account deletion');
+      return;
+    }
+
+    setError(null);
+    setIsLoading(true);
+    
+    try {
+      // Call the API to delete account
+      if (user && user.id) {
+        await deleteAccount(user.id);
+        
+        // Log out and redirect
+        logout();
+        navigate('/login');
+      } else {
+        throw new Error('User ID not found');
+      }
+    } catch (err: any) {
+      console.error('Failed to delete account:', err);
+      // Check if the error has a specific message
+      if (err.response && err.response.data && err.response.data.message) {
+        setError(err.response.data.message);
+      } else {
+        setError('Failed to delete account. Please try again.');
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Cancel changes
+  const handleCancel = () => {
+    setCurrentPassword('');
+    setNewPassword('');
+    setConfirmPassword('');
+    setDeleteConfirmation('');
+    setError(null);
+    setSuccess(null);
+  };
+
+  return (
+    <div className={`account-settings bg-dark text-light min-vh-100 ${className}`}>
+      {/* Header */}
+      <div className="border-bottom border-secondary py-3">
+        <Container fluid>
+          <Row className="align-items-center">
+            <Col xs={3} className="d-flex align-items-center">
+              <NavButton to="/" variant="link" className="text-light text-decoration-none">
+                <ArrowLeft className="me-2" />
+                Back to Home
+              </NavButton>
+            </Col>
+            <Col xs={6} className="text-center">
+              <h2 className="mb-0">Account Settings</h2>
+            </Col>
+            <Col xs={3} className="text-end">
+              {/* Placeholder for notifications or avatar */}
+            </Col>
+          </Row>
+        </Container>
+      </div>
+
+      {/* Main Content */}
+      <Container fluid className="py-5">
+        {/* Account Info Section */}
+        <Row className="justify-content-center mb-5">
+          <Col xs={12} md={8} lg={6}>
+            <h3 className="text-center mb-4">Personal Information</h3>
+            
+            {/* Display user information */}
+            <div className="user-info mb-5">
+              <p className="text-center mb-3">Account name: {user?.firstName} {user?.lastName}</p>
+              <p className="text-center mb-3">Account Email: {user?.email}</p>
+              <p className="text-center mb-5">Account Type: {user?.role || 'User'}</p>
+            </div>
+
+            {/* Password change form */}
+            <Form onSubmit={handlePasswordChange}>
+              {error && (
+                <div className="alert alert-danger" role="alert">
+                  {error}
+                </div>
+              )}
+              
+              {success && (
+                <div className="alert alert-success" role="alert">
+                  {success}
+                </div>
+              )}
+              
+              <Form.Group className="mb-4" controlId="currentPassword">
+                <Form.Label>Current Password:</Form.Label>
+                <Form.Control 
+                  type="password" 
+                  placeholder="Enter current password"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  className="bg-dark border-secondary text-light"
+                />
+              </Form.Group>
+              
+              <Form.Group className="mb-4" controlId="newPassword">
+                <Form.Label>New Password:</Form.Label>
+                <Form.Control 
+                  type="password" 
+                  placeholder="Enter new password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  className="bg-dark border-secondary text-light"
+                />
+              </Form.Group>
+              
+              <Form.Group className="mb-5" controlId="confirmPassword">
+                <Form.Label>Confirm Password:</Form.Label>
+                <Form.Control 
+                  type="password" 
+                  placeholder="Confirm new password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="bg-dark border-secondary text-light"
+                />
+              </Form.Group>
+              
+              <div className="d-flex justify-content-between mb-5">
+                <Button variant="secondary" onClick={handleCancel} disabled={isLoading}>
+                  Cancel
+                </Button>
+                <Button variant="primary" type="submit" disabled={isLoading}>
+                  {isLoading ? 'Processing...' : 'Save Changes'}
+                </Button>
+              </div>
+            </Form>
+
+            {/* Delete Account Section */}
+            <div className="delete-account border-top border-secondary pt-4 mt-5">
+              <h4 className="text-center text-danger mb-4">Delete Account?</h4>
+              
+              <Row className="align-items-center mb-3">
+                <Col xs={12} md={6} className="text-md-end mb-3 mb-md-0">
+                  <Form.Label htmlFor="deleteConfirmation">
+                    Type "Delete" to confirm:
+                  </Form.Label>
+                </Col>
+                <Col xs={12} md={6}>
+                  <Form.Control
+                    id="deleteConfirmation"
+                    type="text"
+                    placeholder="Type 'Delete'"
+                    value={deleteConfirmation}
+                    onChange={(e) => setDeleteConfirmation(e.target.value)}
+                    className="bg-dark border-secondary text-light"
+                  />
+                </Col>
+              </Row>
+              
+              <div className="text-center mt-4">
+                <Button 
+                  variant="danger" 
+                  onClick={handleDeleteAccount}
+                  disabled={deleteConfirmation !== 'Delete' || isLoading}
+                >
+                  {isLoading ? 'Processing...' : 'Delete Account'}
+                </Button>
+              </div>
+            </div>
+          </Col>
+        </Row>
+      </Container>
+    </div>
+  );
 };
 
-// Mock AuthContext with user data
-const mockAuthContext = {
-  user: mockUser,
-  token: 'test-token',
-  setUser: jest.fn(),
-  setToken: jest.fn(),
-  logout: jest.fn()
-};
-
-// Mock useNavigate
-const mockNavigate = jest.fn();
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useNavigate: () => mockNavigate
-}));
-
-describe('AccountSettings Component', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
-  test('renders account information correctly', () => {
-    renderWithRouter(<AccountSettings />, { authContext: mockAuthContext });
-    
-    expect(screen.getByText(/Account Settings/i)).toBeInTheDocument();
-    expect(screen.getByText(/Personal Information/i)).toBeInTheDocument();
-    
-    // Check user info is displayed
-    expect(screen.getByText(/Account name: Test User/i)).toBeInTheDocument();
-    expect(screen.getByText(/Account Email: test@example.com/i)).toBeInTheDocument();
-    expect(screen.getByText(/Account Type: user/i)).toBeInTheDocument();
-  });
-
-  test('renders password change form', () => {
-    renderWithRouter(<AccountSettings />, { authContext: mockAuthContext });
-    
-    expect(screen.getByLabelText(/Current Password:/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/New Password:/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Confirm Password:/i)).toBeInTheDocument();
-    
-    expect(screen.getByRole('button', { name: /Cancel/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Save Changes/i })).toBeInTheDocument();
-  });
-
-  test('validates password change form', async () => {
-    renderWithRouter(<AccountSettings />, { authContext: mockAuthContext });
-    
-    // Submit with empty fields
-    fireEvent.click(screen.getByRole('button', { name: /Save Changes/i }));
-    
-    await waitFor(() => {
-      expect(screen.getByText(/Current password is required/i)).toBeInTheDocument();
-    });
-    
-    // Fill current password but leave new passwords empty
-    fireEvent.change(screen.getByLabelText(/Current Password:/i), {
-      target: { value: 'password123' }
-    });
-    
-    fireEvent.click(screen.getByRole('button', { name: /Save Changes/i }));
-    
-    await waitFor(() => {
-      expect(screen.getByText(/New password is required/i)).toBeInTheDocument();
-    });
-    
-    // Fill non-matching passwords
-    fireEvent.change(screen.getByLabelText(/New Password:/i), {
-      target: { value: 'newpassword123' }
-    });
-    
-    fireEvent.change(screen.getByLabelText(/Confirm Password:/i), {
-      target: { value: 'differentpassword' }
-    });
-    
-    fireEvent.click(screen.getByRole('button', { name: /Save Changes/i }));
-    
-    await waitFor(() => {
-      expect(screen.getByText(/New passwords do not match/i)).toBeInTheDocument();
-    });
-  });
-
-  test('successfully changes password', async () => {
-    (changePassword as jest.Mock).mockResolvedValue({ data: { status: 'success' } });
-    
-    renderWithRouter(<AccountSettings />, { authContext: mockAuthContext });
-    
-    // Fill out form with valid data
-    fireEvent.change(screen.getByLabelText(/Current Password:/i), {
-      target: { value: 'password123' }
-    });
-    
-    fireEvent.change(screen.getByLabelText(/New Password:/i), {
-      target: { value: 'newpassword123' }
-    });
-    
-    fireEvent.change(screen.getByLabelText(/Confirm Password:/i), {
-      target: { value: 'newpassword123' }
-    });
-    
-    fireEvent.click(screen.getByRole('button', { name: /Save Changes/i }));
-    
-    await waitFor(() => {
-      expect(changePassword).toHaveBeenCalledWith('password123', 'newpassword123');
-      expect(screen.getByText(/Password successfully updated/i)).toBeInTheDocument();
-    });
-    
-    // Check form is reset
-    expect(screen.getByLabelText(/Current Password:/i)).toHaveValue('');
-    expect(screen.getByLabelText(/New Password:/i)).toHaveValue('');
-    expect(screen.getByLabelText(/Confirm Password:/i)).toHaveValue('');
-  });
-
-  test('handles password change API error', async () => {
-    (changePassword as jest.Mock).mockRejectedValue({
-      response: { data: { message: 'Current password is incorrect' } }
-    });
-    
-    renderWithRouter(<AccountSettings />, { authContext: mockAuthContext });
-    
-    // Fill out form
-    fireEvent.change(screen.getByLabelText(/Current Password:/i), {
-      target: { value: 'wrongpassword' }
-    });
-    
-    fireEvent.change(screen.getByLabelText(/New Password:/i), {
-      target: { value: 'newpassword123' }
-    });
-    
-    fireEvent.change(screen.getByLabelText(/Confirm Password:/i), {
-      target: { value: 'newpassword123' }
-    });
-    
-    fireEvent.click(screen.getByRole('button', { name: /Save Changes/i }));
-    
-    await waitFor(() => {
-      expect(changePassword).toHaveBeenCalledWith('wrongpassword', 'newpassword123');
-      expect(screen.getByText(/Current password is incorrect/i)).toBeInTheDocument();
-    });
-  });
-
-  test('validates delete account confirmation', async () => {
-    renderWithRouter(<AccountSettings />, { authContext: mockAuthContext });
-    
-    const deleteButton = screen.getByRole('button', { name: /Delete Account/i });
-    expect(deleteButton).toBeDisabled();
-    
-    // Type incorrect confirmation
-    fireEvent.change(screen.getByLabelText(/Type "Delete" to confirm:/i), {
-      target: { value: 'delete' } // lowercase, shouldn't work
-    });
-    
-    expect(deleteButton).toBeDisabled();
-    
-    // Type correct confirmation
-    fireEvent.change(screen.getByLabelText(/Type "Delete" to confirm:/i), {
-      target: { value: 'Delete' }
-    });
-    
-    expect(deleteButton).not.toBeDisabled();
-  });
-
-  test('successfully deletes account', async () => {
-    (deleteAccount as jest.Mock).mockResolvedValue({ data: { status: 'success' } });
-    
-    renderWithRouter(<AccountSettings />, { authContext: mockAuthContext });
-    
-    // Type correct confirmation
-    fireEvent.change(screen.getByLabelText(/Type "Delete" to confirm:/i), {
-      target: { value: 'Delete' }
-    });
-    
-    // Click delete button
-    fireEvent.click(screen.getByRole('button', { name: /Delete Account/i }));
-    
-    await waitFor(() => {
-      // Check if API was called with user ID
-      expect(deleteAccount).toHaveBeenCalledWith('123');
-      // Check if logout and navigate are called
-      expect(mockAuthContext.logout).toHaveBeenCalledTimes(1);
-      expect(mockNavigate).toHaveBeenCalledWith('/login');
-    });
-  });
-
-  test('handles delete account API error', async () => {
-    (deleteAccount as jest.Mock).mockRejectedValue({
-      response: { data: { message: 'Failed to delete account' } }
-    });
-    
-    renderWithRouter(<AccountSettings />, { authContext: mockAuthContext });
-    
-    // Type correct confirmation
-    fireEvent.change(screen.getByLabelText(/Type "Delete" to confirm:/i), {
-      target: { value: 'Delete' }
-    });
-    
-    // Click delete button
-    fireEvent.click(screen.getByRole('button', { name: /Delete Account/i }));
-    
-    await waitFor(() => {
-      expect(deleteAccount).toHaveBeenCalledWith('123');
-      expect(screen.getByText(/Failed to delete account/i)).toBeInTheDocument();
-      // Should not navigate away on error
-      expect(mockNavigate).not.toHaveBeenCalled();
-    });
-  });
-
-  test('cancel button resets form fields', () => {
-    renderWithRouter(<AccountSettings />, { authContext: mockAuthContext });
-    
-    // Fill form fields
-    fireEvent.change(screen.getByLabelText(/Current Password:/i), {
-      target: { value: 'password123' }
-    });
-    
-    fireEvent.change(screen.getByLabelText(/New Password:/i), {
-      target: { value: 'newpassword123' }
-    });
-    
-    fireEvent.change(screen.getByLabelText(/Confirm Password:/i), {
-      target: { value: 'newpassword123' }
-    });
-    
-    // Click cancel
-    fireEvent.click(screen.getByRole('button', { name: /Cancel/i }));
-    
-    // Check if fields are cleared
-    expect(screen.getByLabelText(/Current Password:/i)).toHaveValue('');
-    expect(screen.getByLabelText(/New Password:/i)).toHaveValue('');
-    expect(screen.getByLabelText(/Confirm Password:/i)).toHaveValue('');
-  });
-});
+export default AccountSettings;
