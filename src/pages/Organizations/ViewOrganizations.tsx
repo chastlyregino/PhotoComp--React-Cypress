@@ -144,9 +144,9 @@ const Organizations: React.FC = () => {
                                     </div>
                                 </Col>
                             ))}
-
-                            {hasMore && (
-                                <div className="text-center mt-4 mb-4">
+                            <div className="text-center mt-4 mb-4">
+                                {hasMore && (
+                                
                                     <Button
                                         onClick={handleLoadMore}
                                         disabled={loading}
@@ -154,8 +154,9 @@ const Organizations: React.FC = () => {
                                     >
                                         {loading ? 'Loading...' : 'Load More'}
                                     </Button>
-                                </div>
-                            )}
+                                
+                                )}
+                            </div>
                         </Row>
                     </div>
                 </Col>
