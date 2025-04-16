@@ -9,17 +9,17 @@ export interface UserDetails {
 }
 
 export interface MembershipRequest {
-  PK: string;
-  SK: string;
-  GSI1PK: string;
-  GSI1SK: string;
-  userId: string;
-  status: string;
-  requestDate: string;
-  organizationName: string;
-  type: string;
-  message?: string;
-  userDetails?: UserDetails;
+    PK: string;
+    SK: string;
+    GSI1PK: string;
+    GSI1SK: string;
+    userId: string;
+    status: string;
+    requestDate: string;
+    organizationName: string;
+    type: string;
+    message?: string;
+    userDetails?: UserDetails;
 }
 
 interface MembershipCardProps {
@@ -28,24 +28,20 @@ interface MembershipCardProps {
     onSelect: (id: string) => void;
 }
 
-const MembershipCard: React.FC<MembershipCardProps> = ({ 
-  request, 
-  isSelected,
-  onSelect
-}) => {
-  const requestId = request.SK.split('#')[1] || request.userId;
-  
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
-  };
-  const firstName  = request.userDetails?.firstName;
-  const lastName = request.userDetails?.lastName;
-  const displayName = `${firstName} ${lastName}`;
+const MembershipCard: React.FC<MembershipCardProps> = ({ request, isSelected, onSelect }) => {
+    const requestId = request.SK.split('#')[1] || request.userId;
+
+    const formatDate = (dateString: string) => {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+        });
+    };
+    const firstName = request.userDetails?.firstName;
+    const lastName = request.userDetails?.lastName;
+    const displayName = `${firstName} ${lastName}`;
 
     return (
         <Card

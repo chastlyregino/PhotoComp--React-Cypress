@@ -101,12 +101,15 @@ export const createOrganization = async (formData: FormData) => {
 };
 
 // Create a new event for an organization
-export const createEvent = async (orgId: string, eventData: { title: string; description: string; date: string }) => {
+export const createEvent = async (
+    orgId: string,
+    eventData: { title: string; description: string; date: string }
+) => {
     try {
         const response = await axiosInstance.post(`/organizations/${orgId}/events`, eventData, {
             headers: {
-                'Content-Type': 'application/json'
-            }
+                'Content-Type': 'application/json',
+            },
         });
         return response.data;
     } catch (error) {

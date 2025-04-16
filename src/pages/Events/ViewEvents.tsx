@@ -13,7 +13,7 @@ import {
     Event,
     getPublicOrganizations,
     getPublicOrganizationEvents,
-    OrganizationsResponse
+    OrganizationsResponse,
 } from '../../context/OrgService';
 import AuthContext from '../../context/AuthContext';
 

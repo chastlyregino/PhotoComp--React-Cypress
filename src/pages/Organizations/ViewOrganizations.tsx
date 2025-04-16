@@ -111,7 +111,8 @@ const Organizations: React.FC = () => {
         } else {
             const filtered = organizations.filter(org => {
                 const nameMatch = org.name.toLowerCase().includes(searchTerm.toLowerCase());
-                const descMatch = org.description?.toLowerCase().includes(searchTerm.toLowerCase()) || false;
+                const descMatch =
+                    org.description?.toLowerCase().includes(searchTerm.toLowerCase()) || false;
                 return nameMatch || descMatch;
             });
             setFilteredOrganizations(filtered);
@@ -146,26 +147,23 @@ const Organizations: React.FC = () => {
                                     <h1 className="mb-4">Organizations</h1>
                                 </Col>
                             </Row>
-                            
-                            {error && (
-                                <Alert variant="danger">{error}</Alert>
-                            )}
-                            
+
+                            {error && <Alert variant="danger">{error}</Alert>}
+
                             <Row>
                                 {loading && organizations.length === 0 ? (
                                     <div className="text-center p-5">Loading organizations...</div>
                                 ) : filteredOrganizations.length === 0 ? (
                                     <div className="text-center p-5">
-                                        {searchTerm 
-                                            ? 'No matching organizations found.' 
-                                            : 'No organizations available.'
-                                        }
-                                        
+                                        {searchTerm
+                                            ? 'No matching organizations found.'
+                                            : 'No organizations available.'}
+
                                         {user && token && (
                                             <div className="mt-4">
-                                                <Button 
-                                                    variant="primary" 
-                                                    as={NavLink} 
+                                                <Button
+                                                    variant="primary"
+                                                    as={NavLink}
                                                     to="/organizations/create"
                                                 >
                                                     Create Your First Organization
@@ -187,7 +185,7 @@ const Organizations: React.FC = () => {
                                     </div>
                                 )}
                             </Row>
-                            
+
                             {hasMore && organizations.length > 0 && (
                                 <Row className="mt-4">
                                     <Col className="text-center">
