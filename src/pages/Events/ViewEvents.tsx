@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import { Button, Col, Row } from 'react-bootstrap';
 import * as icon from 'react-bootstrap-icons';
-import { NavLink, useParams } from 'react-router-dom';
+import { NavLink, useParams, useNavigate } from 'react-router-dom';
 
 import Sidebar from '../../components/bars/SideBar/SideBar';
 import TopBar from '../../components/bars/TopBar/TopBar';
@@ -17,6 +17,7 @@ import {
 import AuthContext from '../../context/AuthContext';
 
 const Events: React.FC = () => {
+    const navigate = useNavigate();
     const { user, token } = useContext(AuthContext);
     const [searchTerm, setSearchTerm] = useState('');
     const [organizations, setOrganizations] = useState<Organization[]>([]);
@@ -58,9 +59,9 @@ const Events: React.FC = () => {
             <div className="d-flex align-items-center gap-3">
                 {user && token ? (
                     <>
-                        {/* Create Event should only appear when an admin user is logged in */}
+                        {/* Create Event button for admin users */}
                         <NavButton
-                            to="/organizations/:id/events/create"
+                            to={`/organizations/${id}/events/create`}
                             variant="outline-light"
                             className="mx-1 top-bar-element"
                         >
@@ -280,18 +281,33 @@ const Events: React.FC = () => {
                         <Row>
                             {error && <p className="text-red-500">{error}</p>}
 
-                            {events.map(event => (
-                                <Col>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
-                                        <GalleryCard
-                                            key={event.id}
-                                            item={event}
-                                            className={`event-card`}
-                                            orgName={event.GSI2PK}
-                                        />
-                                    </div>
-                                </Col>
-                            ))}
+                            {events.length === 0 && !loading ? (
+                                <div className="text-center p-5">
+                                    <p>No events found for this organization.</p>
+                                    {user && token && (
+                                        <Button 
+                                            variant="primary" 
+                                            onClick={() => navigate(`/organizations/${id}/events/create`)}
+                                            className="mt-3"
+                                        >
+                                            Create Your First Event
+                                        </Button>
+                                    )}
+                                </div>
+                            ) : (
+                                events.map(event => (
+                                    <Col key={event.id}>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+                                            <GalleryCard
+                                                item={event}
+                                                className={`event-card`}
+                                                orgName={event.GSI2PK}
+                                            />
+                                        </div>
+                                    </Col>
+                                ))
+                            )}
+                            
                             <div className="text-center mt-4 mb-4">
                                 {hasMore && (
                                     <div className="text-center mt-4 mb-4">
