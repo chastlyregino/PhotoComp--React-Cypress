@@ -14,6 +14,8 @@ import Footer from './components/bars/Footer/Footer';
 import AccountSettings from './pages/AccountSettings/AccountSettings';
 import CreateOrganization from './pages/Organizations/CreateOrganization/CreateOrganization';
 import Logout from "./pages/Logout"
+import UploadEventPhoto from './pages/Events/UploadEventPhoto';
+
 
 
 function App() {
@@ -25,7 +27,7 @@ function App() {
                 <Route path="/logout" element={<Logout />} />
                 <Route path="/" element={<Home />} />
                 <Route path="/organizations" element={<Organizations />} />
-                <Route path="/events" element={<Events/>} />
+                <Route path="/events" element={<Events />} />
                 <Route
                     path="/organizations/create"
                     element={
@@ -35,8 +37,8 @@ function App() {
                     }
                 />
                 <Route path="/organizations/:id/events" element={<SingleEvents />} />
-                <Route path="/account-settings" element={<AccountSettings/>} />
-                 <Route
+                <Route path="/account-settings" element={<AccountSettings />} />
+                <Route
                     path="/organizations/:orgId/members/requests"
                     element={
                         <ProtectedRoute>
@@ -44,7 +46,7 @@ function App() {
                         </ProtectedRoute>
                     }
                 />
-                 <Route
+                <Route
                     path="/organizations/:orgId/members"
                     element={
                         <ProtectedRoute>
@@ -60,6 +62,14 @@ function App() {
                         </ProtectedRoute>
                     }
                 />
+                <Route path="/organizations/:orgId/events/:eventId/photos/upload"
+                    element={
+                        <ProtectedRoute>
+                            <UploadEventPhoto />
+                        </ProtectedRoute>
+                    }
+                />
+
             </Routes>
             <Footer />
         </>
