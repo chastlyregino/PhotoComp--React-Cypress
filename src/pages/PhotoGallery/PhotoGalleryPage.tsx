@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Container, Row, Col, Button, Dropdown } from 'react-bootstrap';
-import { Search, Download, Heart, PersonCircle, Grid3x3Gap } from 'react-bootstrap-icons';
+import { Search, Download, Heart, PersonCircle, Grid3x3Gap, X } from 'react-bootstrap-icons';
 import PhotoCarousel from '../../components/PhotoCarousel/PhotoCarousel';
 import axios from 'axios';
 import { useParams, useNavigate, NavLink } from 'react-router-dom';
@@ -315,12 +315,20 @@ const PhotoGalleryPage: React.FC = () => {
           </div>
           
           <div className="photo-gallery-page bg-dark min-vh-100">
-            {/* Gallery action button */}
+            {/* Grey X button to return to gallery */}
             <Container fluid className="pt-3 pb-1">
               <Row>
                 <Col className="d-flex justify-content-end">
-                  <Button variant="outline-light" onClick={handleBackToGallery} className="me-3">
-                    Back to Gallery
+                  <Button 
+                    variant="link" 
+                    onClick={handleBackToGallery} 
+                    className="me-3 d-flex align-items-center justify-content-center text-secondary"
+                    style={{ 
+                      padding: '0',
+                      border: 'none'
+                    }}
+                  >
+                    <X size={24} />
                   </Button>
                 </Col>
               </Row>
