@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useState, useEffect, useContext } from 'react';
+import { NavLink, useParams } from 'react-router-dom';
 import { Col, Row, Container, Alert } from 'react-bootstrap';
-import { BellFill, PersonCircle } from 'react-bootstrap-icons';
+import AuthContext from '../../context/AuthContext';
+import * as icon from 'react-bootstrap-icons';
 
 import NavButton from '../../components/navButton/NavButton'
 import Sidebar from '../../components/bars/SideBar/SideBar';
@@ -17,6 +18,7 @@ import {
 } from '../../context/MemberService';
 
 const Members: React.FC = () => {
+  const { user, token } = useContext(AuthContext);
   const { orgId } = useParams<{ orgId: string }>();
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -139,11 +141,35 @@ const Members: React.FC = () => {
     />
   );
 
+  /* Components to be injected into the TopBar*/
   const rightComponents = (
-    <>
-      <BellFill className="text-light m-2 top-bar-element" size={24} />
-      <PersonCircle className="text-light m-2 top-bar-element" size={24} />
-    </>
+      <>
+          <div className="d-flex align-items-center gap-3">
+              {user && token ? (
+                  <>
+                      <NavLink to="/account-settings" className="text-light top-bar-element">
+                          <icon.GearFill size={24} />
+                      </NavLink>
+                      <NavLink to="/logout" className="text-light top-bar-element">
+                          <icon.BoxArrowRight size={24} />
+                      </NavLink>
+                  </>
+              ) : (
+                  <>
+                      <NavButton
+                          to="/register"
+                          variant="outline-light"
+                          className="mx-1 top-bar-element"
+                      >
+                          Register
+                      </NavButton>
+                      <NavButton to="/login" variant="outline-light" className="top-bar-element">
+                          Login
+                      </NavButton>
+                  </>
+              )}
+          </div>
+      </>
   );
 
   return (
