@@ -10,6 +10,7 @@ import NavButton from '../../components/navButton/NavButton';
 import GalleryCard from '../../components/cards/galleryCard/GalleryCard';
 import {
     Organization,
+    OrganizationsResponse,
     Event,
     getPublicOrganizations,
     getPublicOrganizationEvents,
@@ -130,30 +131,31 @@ const Events: React.FC = () => {
         </>
     );
 
-    const fetchOrganizations = async (key: string | undefined = undefined): Promise<OrganizationsResponse> => {
+    const fetchOrganizations = async (
+        key: string | undefined = undefined
+    ): Promise<OrganizationsResponse | null> => {
         setLoading(true);
         try {
             const orgs = await getPublicOrganizations(key);
             const newOrgs = orgs;
-    
+
             if (key) {
                 setOrganizations(prev => [...prev, ...newOrgs.data.organizations]);
             } else {
                 setOrganizations(newOrgs.data.organizations);
             }
-    
+
             setlastEvaluatedKeyOrg(orgs.lastEvaluatedKey);
             setHasMore(orgs.lastEvaluatedKey !== null);
             setLoading(false);
-            console.log(newOrgs)
+            console.log(newOrgs);
             return newOrgs;
         } catch (err) {
             setError('Failed to fetch organizations');
             setLoading(false);
-            return null as unknown as OrganizationsResponse;
+            return null;
         }
     };
-    
 
     const fetchEventsForOrganizations = async (orgs: Organization[]) => {
         const newEvents: Event[] = [];
@@ -182,10 +184,10 @@ const Events: React.FC = () => {
         const initialize = async () => {
             setLoading(true);
             const newOrgs = await fetchOrganizations();
-            //console.log(newOrgs)
-            await fetchEventsForOrganizations(newOrgs.data.organizations);
-            // console.log(newEvents)
-            setLoading(false);
+            if (newOrgs) {
+                await fetchEventsForOrganizations(newOrgs.data.organizations);
+                setLoading(false);
+            }
         };
 
         initialize();
@@ -194,20 +196,21 @@ const Events: React.FC = () => {
     const loadMore = async () => {
         if (loading) return;
         setLoading(true);
-    
+
         let allFetched = true;
         const newEvents: Event[] = [];
         const updatedKeys: Record<string, string | null> = { ...lastEvaluatedKeyOrgEvent };
-    
+
         // Fetch more events for current orgs
-        for (const org of organizations) { // Use `organizations` here
+        for (const org of organizations) {
+            // Use `organizations` here
             const nextKey = lastEvaluatedKeyOrgEvent[org.id];
             if (nextKey !== null) {
                 try {
                     const res = await getPublicOrganizationEvents(org.id, nextKey);
                     newEvents.push(...res.data.events);
                     updatedKeys[org.id] = res.lastEvaluatedKey ?? null;
-    
+
                     if (res.lastEvaluatedKey !== null) {
                         allFetched = false;
                     }
@@ -216,30 +219,29 @@ const Events: React.FC = () => {
                 }
             }
         }
-    
+
         setEvents(prev => [...prev, ...newEvents]);
         setlastEvaluatedKeyOrgEvent(updatedKeys);
-    
+
         // If all events were fetched, try fetching more orgs
         let newOrgKey = lastEvaluatedKeyOrg;
         let moreOrgsFetched = false;
         if (allFetched && lastEvaluatedKeyOrg !== null) {
             const newOrgs = await fetchOrganizations(lastEvaluatedKeyOrg);
-            if(newOrgs) {
+            if (newOrgs) {
                 await fetchEventsForOrganizations(newOrgs.data.organizations);
                 newOrgKey = newOrgs.data.organizations.length > 0 ? newOrgs.lastEvaluatedKey : null; // Use newOrgs to get the key
                 moreOrgsFetched = newOrgs.data.organizations.length > 0 ? true : false;
             }
-            
         }
-    
+
         // Determine if there's more data
         const anyOrgHasMoreEvents = Object.values(updatedKeys).some(k => k !== null);
         const canFetchMoreOrgs = newOrgKey !== null;
-    
+
         console.log('Has more events:', anyOrgHasMoreEvents);
         console.log('Has more orgs:', canFetchMoreOrgs);
-    
+
         setHasMore(canFetchMoreOrgs);
         setLoading(false);
     };

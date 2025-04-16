@@ -56,12 +56,16 @@ const OrganizationRow: React.FC<OrganizationRowProps> = ({ organization }) => {
                     paddingBottom: '10px',
                     whiteSpace: 'nowrap',
                     scrollbarWidth: 'thin',
-                    msOverflowStyle: 'none'
+                    msOverflowStyle: 'none',
                 }}
             >
                 {/* Organization Card */}
                 <div style={{ minWidth: '350px', flexShrink: 0, display: 'inline-block' }}>
-                    <GalleryCard item={organization} className="organization-card" orgName={organization.name} />
+                    <GalleryCard
+                        item={organization}
+                        className="organization-card"
+                        orgName={organization.name}
+                    />
                 </div>
 
                 {/* Event Cards */}
@@ -80,7 +84,11 @@ const OrganizationRow: React.FC<OrganizationRowProps> = ({ organization }) => {
                                     display: 'inline-block',
                                 }}
                             >
-                                <GalleryCard item={event} className="event" orgName={event.GSI2PK}/>
+                                <GalleryCard
+                                    item={event}
+                                    className="event"
+                                    orgName={event.GSI2PK}
+                                />
                             </div>
                         ))}
 

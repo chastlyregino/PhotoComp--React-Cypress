@@ -9,7 +9,11 @@ import SearchBar from '../../components/bars/SearchBar/SearchBar';
 import NavButton from '../../components/navButton/NavButton';
 import GalleryCard from '../../components/cards/galleryCard/GalleryCard';
 import { isMemberOfOrg } from '../../context/AuthService';
-import { Event, getPublicOrganizationEvents, getOrganizationEvents } from '../../context/OrgService';
+import {
+    Event,
+    getPublicOrganizationEvents,
+    getOrganizationEvents,
+} from '../../context/OrgService';
 import AuthContext from '../../context/AuthContext';
 import { sendJoinRequest } from '../../context/MembershipService';
 
@@ -38,12 +42,12 @@ const SingleEvents: React.FC = () => {
         if (!id) return;
 
         const fetchEvents = async () => {
-            let response; 
+            let response;
             try {
                 setLoading(true);
                 setError(null);
-                
-                if (!user || !token) { 
+
+                if (!user || !token) {
                     response = await getPublicOrganizationEvents(id);
                 } else {
                     try {
@@ -56,7 +60,7 @@ const SingleEvents: React.FC = () => {
                         response = await getPublicOrganizationEvents(id);
                     }
                 }
-                
+
                 setEvents(response.data.events);
                 setFilteredEvents(response.data.events);
                 setLastEvaluatedKey(response.lastEvaluatedKey);
@@ -78,7 +82,8 @@ const SingleEvents: React.FC = () => {
         } else {
             const filtered = events.filter(event => {
                 const titleMatch = event.title.toLowerCase().includes(searchTerm.toLowerCase());
-                const descMatch = event.description?.toLowerCase().includes(searchTerm.toLowerCase()) || false;
+                const descMatch =
+                    event.description?.toLowerCase().includes(searchTerm.toLowerCase()) || false;
                 return titleMatch || descMatch;
             });
             setFilteredEvents(filtered);
@@ -95,18 +100,18 @@ const SingleEvents: React.FC = () => {
 
     const handleLoadMore = async () => {
         if (loading || !hasMore || !id) return;
-        
+
         try {
             setLoading(true);
             const response = await getPublicOrganizationEvents(id, lastEvaluatedKey ?? undefined);
             const existingEventIds = new Map(events.map(event => [event.id, true]));
-            
+
             const newEvents = response.data.events.filter(event => !existingEventIds.has(event.id));
-            
+
             if (newEvents.length > 0) {
                 setEvents(prev => [...prev, ...newEvents]);
             }
-            
+
             setLastEvaluatedKey(response.lastEvaluatedKey);
             setHasMore(response.lastEvaluatedKey !== null);
             setLoading(false);
@@ -155,7 +160,7 @@ const SingleEvents: React.FC = () => {
             className="ms-3"
         />
     );
-    
+
     const rightComponents = (
         <>
             <div className="d-flex align-items-center gap-3">
@@ -217,7 +222,10 @@ const SingleEvents: React.FC = () => {
                                 <icon.PersonLinesFill size={24} />
                             </NavLink>
                         )}
-                        <NavLink to={`/organizations/${id}/details`} className="text-light top-bar-element">
+                        <NavLink
+                            to={`/organizations/${id}/details`}
+                            className="text-light top-bar-element"
+                        >
                             <icon.ListUl size={24} />
                         </NavLink>
                     </>

@@ -33,9 +33,9 @@ export const changePassword = async (currentPassword: string, newPassword: strin
  */
 export const deleteAccount = async (userId: string) => {
     return axiosInstance.delete(`/api/auth/users/${userId}`);
-  };
+};
 
-interface UserOrgRelationship {
+export interface UserOrgRelationship {
     GSI1PK: string;
     joinedAt: string;
     role: string;
@@ -48,7 +48,9 @@ interface UserOrgRelationship {
     type: string;
 }
 
-export const isMemberOfOrg = async (userId: string, orgId:string):Promise<{status:string, data: {data:{membership:UserOrgRelationship}}}> => {
-  return axiosInstance.get(`/users/${userId}/members/${orgId}`);
-}
-
+export const isMemberOfOrg = async (
+    userId: string,
+    orgId: string
+): Promise<{ status: string; data: { data: { membership: UserOrgRelationship } } }> => {
+    return axiosInstance.get(`/users/${userId}/members/${orgId}`);
+};
