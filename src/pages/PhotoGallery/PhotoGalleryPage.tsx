@@ -6,6 +6,7 @@ import axios from 'axios';
 import { useParams, useNavigate, NavLink } from 'react-router-dom';
 import * as icon from 'react-bootstrap-icons';
 import { getAllPhotos, Photo, getPhotoDownloadUrl } from '../../context/PhotoService';
+import { getPublicOrganizationEvents } from '../../context/OrgService';
 
 // Import navigation components
 import Sidebar from '../../components/bars/SideBar/SideBar';
@@ -42,6 +43,8 @@ const PhotoGalleryPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState<number>(0);
+  const [eventInfo, setEventInfo] = useState<Event | null>(null);
+  const [loadingEvent, setLoadingEvent] = useState<boolean>(true);
   
   // Fetch photos for the current organization and event
   useEffect(() => {
@@ -58,6 +61,30 @@ const PhotoGalleryPage: React.FC = () => {
       };
       
       fetchPhotos();
+    }
+  }, [selectedOrg, selectedEvent]);
+  
+  // Fetch event details
+  useEffect(() => {
+    if (selectedOrg && selectedEvent) {
+      const fetchEventDetails = async () => {
+        try {
+          setLoadingEvent(true);
+          const response = await getPublicOrganizationEvents(selectedOrg);
+          const event = response.data.events.find((e: Event) => e.id === selectedEvent);
+          
+          if (event) {
+            setEventInfo(event);
+          }
+          
+          setLoadingEvent(false);
+        } catch (err) {
+          console.error('Error fetching event details:', err);
+          setLoadingEvent(false);
+        }
+      };
+      
+      fetchEventDetails();
     }
   }, [selectedOrg, selectedEvent]);
   
@@ -315,10 +342,24 @@ const PhotoGalleryPage: React.FC = () => {
           </div>
           
           <div className="photo-gallery-page bg-dark min-vh-100">
-            {/* Grey X button to return to gallery */}
+            {/* Event title and X button */}
             <Container fluid className="pt-3 pb-1">
-              <Row>
-                <Col className="d-flex justify-content-end">
+              <Row className="align-items-center">
+                <Col>
+                  {loadingEvent ? (
+                    <div className="text-light">Loading event details...</div>
+                  ) : eventInfo ? (
+                    <div className="d-flex align-items-center flex-wrap text-light">
+                      <h2 className="mb-0 me-3">{eventInfo.title}</h2>
+                      {eventInfo.description && (
+                        <span className="text-secondary fs-5">
+                          - {eventInfo.description}
+                        </span>
+                      )}
+                    </div>
+                  ) : null}
+                </Col>
+                <Col xs="auto" className="d-flex justify-content-end">
                   <Button 
                     variant="link" 
                     onClick={handleBackToGallery} 
@@ -334,15 +375,20 @@ const PhotoGalleryPage: React.FC = () => {
               </Row>
             </Container>
 
+            {/* Add space between title and carousel */}
+            <div className="mt-4"></div>
+
             {/* Main carousel section */}
             {selectedOrg && selectedEvent ? (
-              <PhotoCarousel 
-                orgName={selectedOrg} 
-                eventId={selectedEvent} 
-                activeIndex={currentPhotoIndex}
-                preferredSize="large"
-                onIndexChange={handleCarouselChange}
-              />
+              <div className="position-relative">
+                <PhotoCarousel 
+                  orgName={selectedOrg} 
+                  eventId={selectedEvent} 
+                  activeIndex={currentPhotoIndex}
+                  preferredSize="large"
+                  onIndexChange={handleCarouselChange}
+                />
+              </div>
             ) : (
               <Container className="text-center text-white my-5">
                 <p>Please select an organization and event to view photos</p>

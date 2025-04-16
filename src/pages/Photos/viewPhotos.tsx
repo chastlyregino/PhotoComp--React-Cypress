@@ -9,6 +9,7 @@ import SearchBar from '../../components/bars/SearchBar/SearchBar';
 import NavButton from '../../components/navButton/NavButton';
 import GalleryCard from '../../components/cards/galleryCard/GalleryCard';
 import { getAllPhotos, Photo } from '../../context/PhotoService';
+import { getPublicOrganizationEvents, Event } from '../../context/OrgService';
 import AuthContext from '../../context/AuthContext';
 
 const Photos: React.FC = () => {
@@ -18,9 +19,36 @@ const Photos: React.FC = () => {
     const [filteredPhotos, setFilteredPhotos] = useState<Photo[]>([]);
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
+    const [eventInfo, setEventInfo] = useState<Event | null>(null);
+    const [loadingEvent, setLoadingEvent] = useState<boolean>(true);
     const fetchedRef = useRef(false);
     const { id, eid } = useParams();
 
+    // Fetch event details
+    useEffect(() => {
+        if (id && eid) {
+            const fetchEventDetails = async () => {
+                try {
+                    setLoadingEvent(true);
+                    const response = await getPublicOrganizationEvents(id);
+                    const event = response.data.events.find(e => e.id === eid);
+                    
+                    if (event) {
+                        setEventInfo(event);
+                    }
+                    
+                    setLoadingEvent(false);
+                } catch (err) {
+                    console.error('Error fetching event details:', err);
+                    setLoadingEvent(false);
+                }
+            };
+            
+            fetchEventDetails();
+        }
+    }, [id, eid]);
+
+    // Fetch photos
     useEffect(() => {
         if (fetchedRef.current) return;
         fetchedRef.current = true;
@@ -185,7 +213,20 @@ const Photos: React.FC = () => {
                     <div className="p-3 bg-dark text-white">
                         <Row className="align-items-center mb-4">
                             <Col>
-                                <h1 className="mb-4">Photos</h1>
+                                {loadingEvent ? (
+                                    <h1 className="mb-4">Loading event details...</h1>
+                                ) : eventInfo ? (
+                                    <div className="d-flex align-items-center flex-wrap mb-4">
+                                        <h1 className="mb-0 me-3">{eventInfo.title}</h1>
+                                        {eventInfo.description && (
+                                            <span className="text-secondary fs-5">
+                                                - {eventInfo.description}
+                                            </span>
+                                        )}
+                                    </div>
+                                ) : (
+                                    <h1 className="mb-4">Photos</h1>
+                                )}
                             </Col>
 
                             <Col xs="auto" className="ms-auto me-5">
