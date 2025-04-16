@@ -50,7 +50,9 @@ export interface PhotoUploadResponse {
  */
 export const getAllPhotos = async (orgName: string, eventId: string): Promise<PhotosResponse> => {
     try {
-        const response = await axiosInstance.get<PhotosResponse>(`/organizations/${orgName}/events/${eventId}/photos`);
+        const response = await axiosInstance.get<PhotosResponse>(
+            `/organizations/${orgName}/events/${eventId}/photos`
+        );
         return response.data;
     } catch (error) {
         console.error('Error fetching photos of an event:', error);
@@ -65,15 +67,19 @@ export const getAllPhotos = async (orgName: string, eventId: string): Promise<Ph
  * @param formData FormData containing the photo file and metadata
  * @returns Promise with the response data
  */
-export const uploadEventPhoto = async (orgId: string, eventId: string, formData: FormData): Promise<PhotoUploadResponse> => {
+export const uploadEventPhoto = async (
+    orgId: string,
+    eventId: string,
+    formData: FormData
+): Promise<PhotoUploadResponse> => {
     try {
         const response = await axiosInstance.post<PhotoUploadResponse>(
             `/organizations/${orgId}/events/${eventId}/photos`,
             formData,
             {
                 headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
+                    'Content-Type': 'multipart/form-data',
+                },
             }
         );
         return response.data;

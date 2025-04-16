@@ -11,7 +11,11 @@ import GalleryCard from '../../components/cards/galleryCard/GalleryCard';
 import { getAllPhotos, Photo } from '../../context/PhotoService';
 import { getPublicOrganizationEvents, Event } from '../../context/OrgService';
 import AuthContext from '../../context/AuthContext';
-import { EventsResponse, changeEventPublicity, getOrganizationEvents } from '../../context/OrgService';
+import {
+    EventsResponse,
+    changeEventPublicity,
+    getOrganizationEvents,
+} from '../../context/OrgService';
 import {
     attendEvent,
     getEventAttendees,
@@ -98,9 +102,15 @@ const Photos: React.FC = () => {
         fetchedRef.current = true;
         fetchPhotos();
         checkIfAdmin();
-        fetchEventAttendees();
+        fetchEventAttendees()
         fetchEventPublicity();
     }, []);
+
+    // useEffect(() => {
+    //     if (user && id && eid) {
+    //         fetchEventAttendees();
+    //     }
+    // }, [user, id, eid]);
 
     const fetchPhotos = async () => {
         if (id && eid) {
@@ -147,7 +157,11 @@ const Photos: React.FC = () => {
         if (id && eid) {
             try {
                 const response = await changeEventPublicity(id, eid);
-                if (response && response.data && typeof response.data.events[0].isPublic === 'boolean') {
+                if (
+                    response &&
+                    response.data &&
+                    typeof response.data.events[0].isPublic === 'boolean'
+                ) {
                     // Update event publicity based on response from API
                     setEventPublicity(response.data.events[0].isPublic);
                 }
@@ -157,19 +171,22 @@ const Photos: React.FC = () => {
                 throw error;
             }
         }
-    };    
+    };
 
     const fetchEventAttendees = async () => {
         if (id && eid && user) {
             try {
                 const res = await getEventAttendees(id, eid);
                 const attendees: EventUser[] = res.data.userEvent;
-
-                const isAttending = attendees.find(attendee => attendee.id === user.id);
-
-                if (isAttending) {
-                    setIsEventAttendee(isAttending);
+                if(attendees) {
+                    const isAttending = attendees.find(attendee => attendee.id === user.id);
+                    console.log(`attendees: ${attendees}`)
+                    console.log(isAttending)
+                    if (isAttending) {
+                        setIsEventAttendee(isAttending);
+                    }
                 }
+                
             } catch (error) {
                 console.error(`Error fetching attendees for event ${eid}:`, error);
             }
@@ -178,9 +195,10 @@ const Photos: React.FC = () => {
 
     const handleAttendEvent = async () => {
         if (!id || !eid || !user) return;
-    
+
         try {
             const response = await attendEvent(id, eid);
+            console.log(`attendees: ${response}`)
             if (response && response.data && response.data.userEvent) {
                 setIsEventAttendee(response.data.userEvent); // ✅ Mark user as attending
             }
@@ -192,11 +210,11 @@ const Photos: React.FC = () => {
 
     const fetchEventPublicity = async () => {
         if (!id || !eid) return;
-    
+
         try {
             const response = await getOrganizationEvents(id);
             const event = response.data.events.find(e => e.id === eid);
-    
+
             if (event && typeof event.isPublic === 'boolean') {
                 setEventPublicity(event.isPublic); // Update state with the actual event's publicity value
             } else {
@@ -207,7 +225,6 @@ const Photos: React.FC = () => {
             setError('Could not load event publicity.');
         }
     };
-    
 
     /* Components to be injected into the TopBar*/
     const searchComponent = (
@@ -259,22 +276,20 @@ const Photos: React.FC = () => {
     );
 
     const pageActionComponents = (
-        <>
-            <div className="d-flex align-items-center gap-3">
-                {user && token ? (
-                    <>
-                        {/* Attend Event button for users who haven't registered for the event */}
-                        <NavButton
-                            to={`/organizations/${id}/events/${eid}/apply`}
-                            variant="outline-light"
-                            className="mx-1 top-bar-element"
-                        >
-                            Attend Event
-                        </NavButton>
+        <div className="d-flex align-items-center gap-3">
+            {!isEventAttendee && (
+                <div className="custom-create-button top-bar-element">
+                    <Button onClick={handleAttendEvent} className="w-100">
+                        Attend Event
+                    </Button>
+                </div>
+            )}
+            
 
             <div className="custom-create-button">
-                {user && token && (
-                    isAdminUser ? (
+                {user &&
+                    token &&
+                    (isAdminUser ? (
                         <Button onClick={changePublicity}>
                             {eventPublicity ? (
                                 <icon.UnlockFill size={24} />
@@ -282,15 +297,11 @@ const Photos: React.FC = () => {
                                 <icon.LockFill size={24} />
                             )}
                         </Button>
+                    ) : eventPublicity ? (
+                        <icon.UnlockFill size={24} />
                     ) : (
-
-                        eventPublicity ? (
-                            <icon.UnlockFill size={24} />
-                        ) : (
-                            <icon.LockFill size={24} />
-                        )
-                    )
-                )}
+                        <icon.LockFill size={24} />
+                    ))}
             </div>
 
             <NavLink
@@ -301,7 +312,6 @@ const Photos: React.FC = () => {
             </NavLink>
         </div>
     );
-    
 
     return (
         <>

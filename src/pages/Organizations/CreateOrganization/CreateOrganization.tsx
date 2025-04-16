@@ -13,38 +13,38 @@ import NavButton from '../../../components/navButton/NavButton';
 import { NavLink } from 'react-router-dom';
 
 interface OrganizationData {
-  name: string;
-  description?: string;
-  logo: File | null;
+    name: string;
+    description?: string;
+    logo: File | null;
 }
 
 const CreateOrganization: React.FC = () => {
-  const navigate = useNavigate();
-  const { user, token } = useContext(AuthContext);
-  const [organizationData, setOrganizationData] = useState<OrganizationData>({
-    name: '',
-    description: '',
-    logo: null
-  });
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
-
-  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setOrganizationData({
-      ...organizationData,
-      name: e.target.value
+    const navigate = useNavigate();
+    const { user, token } = useContext(AuthContext);
+    const [organizationData, setOrganizationData] = useState<OrganizationData>({
+        name: '',
+        description: '',
+        logo: null,
     });
-  };
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+    const [error, setError] = useState<string | null>(null);
+    const [success, setSuccess] = useState<string | null>(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
 
-  const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setOrganizationData({
-      ...organizationData,
-      description: e.target.value
-    });
-  };
+    const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setOrganizationData({
+            ...organizationData,
+            name: e.target.value,
+        });
+    };
+
+    const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        setOrganizationData({
+            ...organizationData,
+            description: e.target.value,
+        });
+    };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
@@ -82,9 +82,9 @@ const CreateOrganization: React.FC = () => {
         setSearchTerm(e.target.value);
     };
 
-  const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-  };
+    const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+    };
 
     /* Components to be injected into the TopBar*/
     const searchComponent = (
@@ -137,50 +137,50 @@ const CreateOrganization: React.FC = () => {
             return;
         }
 
-    if (!organizationData.logo) {
-      setError('Organization logo is required');
-      return;
-    }
-    
-    setIsSubmitting(true);
-    setError(null);
-    
-    // Create form data for file upload
-    const formData = new FormData();
-    formData.append('name', organizationData.name);
-    
-    if (organizationData.description) {
-      formData.append('description', organizationData.description);
-    }
-    
-    if (organizationData.logo) {
-      formData.append('logo', organizationData.logo);
-    }
-    
-    try {
-      // Make API call to create organization
-      const response = await createOrganization(formData);
-      console.log('Organization created successfully:', response);
-      
-      setSuccess('Organization created successfully!');
-      
-      // Redirect to organizations page after a short delay
-      setTimeout(() => {
-        navigate('/organizations');
-      }, 1500);
-    } catch (error: any) {
-      console.error('Error creating organization:', error);
-      
-      // Handle specific error messages from the API
-      if (error.response && error.response.data && error.response.data.message) {
-        setError(error.response.data.message);
-      } else {
-        setError('Failed to create organization. Please try again.');
-      }
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+        if (!organizationData.logo) {
+            setError('Organization logo is required');
+            return;
+        }
+
+        setIsSubmitting(true);
+        setError(null);
+
+        // Create form data for file upload
+        const formData = new FormData();
+        formData.append('name', organizationData.name);
+
+        if (organizationData.description) {
+            formData.append('description', organizationData.description);
+        }
+
+        if (organizationData.logo) {
+            formData.append('logo', organizationData.logo);
+        }
+
+        try {
+            // Make API call to create organization
+            const response = await createOrganization(formData);
+            console.log('Organization created successfully:', response);
+
+            setSuccess('Organization created successfully!');
+
+            // Redirect to organizations page after a short delay
+            setTimeout(() => {
+                navigate('/organizations');
+            }, 1500);
+        } catch (error: any) {
+            console.error('Error creating organization:', error);
+
+            // Handle specific error messages from the API
+            if (error.response && error.response.data && error.response.data.message) {
+                setError(error.response.data.message);
+            } else {
+                setError('Failed to create organization. Please try again.');
+            }
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
 
     return (
         <>
@@ -218,76 +218,93 @@ const CreateOrganization: React.FC = () => {
                                         </h2>
                                     </div>
 
-                  {error && (
-                    <Alert variant="danger" className="my-3">
-                      {error}
-                    </Alert>
-                  )}
+                                    {error && (
+                                        <Alert variant="danger" className="my-3">
+                                            {error}
+                                        </Alert>
+                                    )}
 
-                  {success && (
-                    <Alert variant="success" className="my-3">
-                      {success}
-                    </Alert>
-                  )}
+                                    {success && (
+                                        <Alert variant="success" className="my-3">
+                                            {success}
+                                        </Alert>
+                                    )}
 
-                  <Form onSubmit={handleSubmit}>
-                    <Form.Group className="mb-4" controlId="organizationName">
-                      <Form.Label style={{ fontFamily: 'Michroma, sans-serif' }} className="fs-4">
-                        Organization Name
-                      </Form.Label>
-                      <Form.Control
-                        type="text"
-                        placeholder="Enter organization name"
-                        value={organizationData.name}
-                        onChange={handleNameChange}
-                        className="bg-white border-secondary py-3"
-                        required
-                      />
-                    </Form.Group>
+                                    <Form onSubmit={handleSubmit}>
+                                        <Form.Group className="mb-4" controlId="organizationName">
+                                            <Form.Label
+                                                style={{ fontFamily: 'Michroma, sans-serif' }}
+                                                className="fs-4"
+                                            >
+                                                Organization Name
+                                            </Form.Label>
+                                            <Form.Control
+                                                type="text"
+                                                placeholder="Enter organization name"
+                                                value={organizationData.name}
+                                                onChange={handleNameChange}
+                                                className="bg-white border-secondary py-3"
+                                                required
+                                            />
+                                        </Form.Group>
 
-                    <Form.Group className="mb-4" controlId="organizationDescription">
-                      <Form.Label style={{ fontFamily: 'Michroma, sans-serif' }} className="fs-4">
-                        Organization Description
-                      </Form.Label>
-                      <Form.Control
-                        as="textarea"
-                        rows={4}
-                        placeholder="Enter organization description"
-                        value={organizationData.description}
-                        onChange={handleDescriptionChange}
-                        className="bg-white border-secondary py-3"
-                      />
-                    </Form.Group>
+                                        <Form.Group
+                                            className="mb-4"
+                                            controlId="organizationDescription"
+                                        >
+                                            <Form.Label
+                                                style={{ fontFamily: 'Michroma, sans-serif' }}
+                                                className="fs-4"
+                                            >
+                                                Organization Description
+                                            </Form.Label>
+                                            <Form.Control
+                                                as="textarea"
+                                                rows={4}
+                                                placeholder="Enter organization description"
+                                                value={organizationData.description}
+                                                onChange={handleDescriptionChange}
+                                                className="bg-white border-secondary py-3"
+                                            />
+                                        </Form.Group>
 
-                    <Form.Group className="mb-4" controlId="organizationLogo">
-                      <Form.Label style={{ fontFamily: 'Michroma, sans-serif' }} className="fs-4">
-                        Upload your Organization logo
-                      </Form.Label>
-                      
-                      {previewUrl && (
-                        <div className="mb-3 text-center">
-                          <img 
-                            src={previewUrl} 
-                            alt="Logo preview" 
-                            style={{ maxHeight: '200px', maxWidth: '100%' }} 
-                            className="border rounded"
-                          />
-                        </div>
-                      )}
-                      
-                      {/* File upload wrapper with controlled width */}
-                      <div>
-                        <div style={{ width: '66.7%' }}> {/* This makes it 2/3 width */}
-                          <Form.Control
-                            type="file"
-                            onChange={handleFileChange}
-                            accept="image/*"
-                            className="bg-white text-dark border-secondary rounded-3"
-                            required
-                          />
-                        </div>
-                      </div>
-                    </Form.Group>
+                                        <Form.Group className="mb-4" controlId="organizationLogo">
+                                            <Form.Label
+                                                style={{ fontFamily: 'Michroma, sans-serif' }}
+                                                className="fs-4"
+                                            >
+                                                Upload your Organization logo
+                                            </Form.Label>
+
+                                            {previewUrl && (
+                                                <div className="mb-3 text-center">
+                                                    <img
+                                                        src={previewUrl}
+                                                        alt="Logo preview"
+                                                        style={{
+                                                            maxHeight: '200px',
+                                                            maxWidth: '100%',
+                                                        }}
+                                                        className="border rounded"
+                                                    />
+                                                </div>
+                                            )}
+
+                                            {/* File upload wrapper with controlled width */}
+                                            <div>
+                                                <div style={{ width: '66.7%' }}>
+                                                    {' '}
+                                                    {/* This makes it 2/3 width */}
+                                                    <Form.Control
+                                                        type="file"
+                                                        onChange={handleFileChange}
+                                                        accept="image/*"
+                                                        className="bg-white text-dark border-secondary rounded-3"
+                                                        required
+                                                    />
+                                                </div>
+                                            </div>
+                                        </Form.Group>
 
                                         <div
                                             className="position-relative mt-5 pt-5"

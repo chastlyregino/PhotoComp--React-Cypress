@@ -13,7 +13,7 @@ import ProtectedRoute from './components/routes/ProtectedRoute/ProtectedRoute';
 import Footer from './components/bars/Footer/Footer';
 import AccountSettings from './pages/AccountSettings/AccountSettings';
 import CreateOrganization from './pages/Organizations/CreateOrganization/CreateOrganization';
-import Logout from "./pages/Logout"
+import Logout from './pages/Logout';
 import UploadEventPhoto from './pages/Events/UploadEventPhoto';
 import CreateEvent from './pages/Events/CreateEvent';
 import PhotoGalleryPage from './pages/PhotoGallery/PhotoGalleryPage';
@@ -71,7 +71,7 @@ function App() {
                         </ProtectedRoute>
                     }
                 />
-                <Route 
+                <Route
                     path="/organizations/:id/events/:eid/photos/upload"
                     element={
                         <ProtectedRoute>
@@ -89,7 +89,7 @@ function App() {
                     }
                 />
             </Routes>
-            <Footer />
+            {/* <Footer /> */}
         </>
     );
 }

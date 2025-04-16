@@ -9,11 +9,11 @@ interface MembershipResponse {
 }
 
 interface ApplicationResponse {
-  status: string;
-  message: string;
-  data: {
-    request: MembershipRequest;
-  };
+    status: string;
+    message: string;
+    data: {
+        request: MembershipRequest;
+    };
 }
 
 export const getOrganizationMembershipRequests = async (organizationId: string) => {
@@ -56,16 +56,19 @@ export const denyMembershipRequest = async (organizationId: string, requestId: s
 };
 
 export const sendJoinRequest = async (organizationId: string, message: string) => {
-  try {
-    const response = await axiosInstance.post<ApplicationResponse>(
-      `/organizations/${organizationId}`,
-      {
-        message
-      }
-    );
-    return response.data;
-  } catch (error) {
-    console.error(`Error fetching membership requests for organization ${organizationId}:`, error);
-    throw error;
-  }
+    try {
+        const response = await axiosInstance.post<ApplicationResponse>(
+            `/organizations/${organizationId}`,
+            {
+                message,
+            }
+        );
+        return response.data;
+    } catch (error) {
+        console.error(
+            `Error fetching membership requests for organization ${organizationId}:`,
+            error
+        );
+        throw error;
+    }
 };
