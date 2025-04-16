@@ -1,11 +1,12 @@
 import React from 'react';
 import { Navbar, Nav } from 'react-bootstrap';
 import * as icon from 'react-bootstrap-icons';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useParams } from 'react-router-dom';
 import logo from '../../../assets/PhotoCompLogo.png';
 import '../../../styles/SideBar.css';
 
 const Sidebar: React.FC = () => {
+    const { id, eid } = useParams();
     return (
         <Navbar
             collapseOnSelect
@@ -44,7 +45,7 @@ const Sidebar: React.FC = () => {
                     </NavLink>
 
                     <NavLink
-                        to="/organizations/:id/events"
+                        to={`/organizations/${id || `:id`}/events`}
                         className={({ isActive }) =>
                             `nav-link d-flex align-items-center gap-2 sidebar-link ${
                                 isActive ? 'active' : ''
@@ -55,7 +56,7 @@ const Sidebar: React.FC = () => {
                     </NavLink>
 
                     <NavLink
-                        to="/organizations/:id/events/:eid"
+                        to={`/organizations/${id || `:id`}/events/${eid || `:eid`}/photos`}
                         className={({ isActive }) =>
                             `nav-link d-flex align-items-center gap-2 sidebar-link ${
                                 isActive ? 'active' : ''
