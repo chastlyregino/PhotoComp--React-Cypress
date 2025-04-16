@@ -3,7 +3,6 @@ import { fireEvent, screen } from '@testing-library/react';
 import GalleryCard from './GalleryCard';
 import { renderWithRouter } from '../../../utils/test-utils';
 
-// Mock react-bootstrap Card component
 jest.mock('react-bootstrap', () => ({
     Card: ({
         children,
@@ -22,7 +21,6 @@ jest.mock('react-bootstrap', () => ({
     ),
 }));
 
-// Mock useNavigate
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
     ...jest.requireActual('react-router-dom'),
@@ -34,7 +32,6 @@ describe('GalleryCard Component', () => {
         mockNavigate.mockClear();
     });
 
-    // Organization card tests
     test('renders organization card correctly', () => {
         const organization = {
             id: '123',
@@ -69,7 +66,6 @@ describe('GalleryCard Component', () => {
         expect(mockNavigate).toHaveBeenCalledWith('/organizations/testorg/events');
     });
 
-    // Event card tests
     test('renders event card correctly', () => {
         const event = {
             id: '456',
@@ -85,7 +81,6 @@ describe('GalleryCard Component', () => {
         expect(screen.getByText('Test Event')).toBeInTheDocument();
         expect(screen.getByText('This is a test event')).toBeInTheDocument();
 
-        // Check organization badge is displayed
         expect(screen.getByText('TESTORG')).toBeInTheDocument();
     });
 

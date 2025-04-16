@@ -36,7 +36,7 @@ jest.mock('react-router-dom', () => ({
     useNavigate: () => mockNavigate,
 }));
 
-describe('BackButton Component', () => {
+describe('NavButton Component', () => {
     beforeEach(() => {
         mockNavigate.mockClear();
     });

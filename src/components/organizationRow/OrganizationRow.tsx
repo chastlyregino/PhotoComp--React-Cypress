@@ -56,8 +56,7 @@ const OrganizationRow: React.FC<OrganizationRowProps> = ({ organization }) => {
                     paddingBottom: '10px',
                     whiteSpace: 'nowrap',
                     scrollbarWidth: 'thin',
-                    msOverflowStyle: 'none',
-                    WebkitOverflowScrolling: 'touch',
+                    msOverflowStyle: 'none'
                 }}
             >
                 {/* Organization Card */}

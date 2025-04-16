@@ -3,13 +3,13 @@ import AuthContext from '../../context/AuthContext';
 import { Col, Row, Button, Container } from 'react-bootstrap';
 import * as icon from 'react-bootstrap-icons';
 
-import Sidebar from '../components/bars/SideBar/SideBar';
-import TopBar from '../components/bars/TopBar/TopBar';
-import SearchBar from '../components/bars/SearchBar/SearchBar';
-import NavButton from '../components/navButton/NavButton';
+import Sidebar from '../../components/bars/SideBar/SideBar';
+import TopBar from '../../components/bars/TopBar/TopBar';
+import SearchBar from '../../components/bars/SearchBar/SearchBar';
+import NavButton from '../../components/navButton/NavButton';
 import { NavLink } from 'react-router-dom';
-import OrganizationRow from '../components/organizationRow/OrganizationRow';
-import { Organization, getPublicOrganizations } from '../context/OrgService';
+import OrganizationRow from '../../components/organizationRow/OrganizationRow';
+import { Organization, getPublicOrganizations } from '../../context/OrgService';
 
 const Home = () => {
     const { user, token } = useContext(AuthContext);
