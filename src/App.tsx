@@ -6,6 +6,7 @@ import Login from './pages/Login/Login';
 import Members from './pages/Members/Members'
 import Membership from './pages/Membership/Membership'
 import Organizations from './pages/Organizations/ViewOrganizations';
+import SingleEvents from './pages/Events/SingleEvents';
 import Events from './pages/Events/ViewEvents';
 import Photos from './pages/Photos/viewPhotos';
 import ProtectedRoute from './components/routes/ProtectedRoute/ProtectedRoute';
@@ -22,6 +23,7 @@ function App() {
                 <Route path="/login" element={<Login />} />
                 <Route path="/" element={<Home />} />
                 <Route path="/organizations" element={<Organizations />} />
+                <Route path="/events" element={<Events/>} />
                 <Route
                     path="/organizations/create"
                     element={
@@ -30,7 +32,7 @@ function App() {
                         </ProtectedRoute>
                     }
                 />
-                <Route path="/organizations/:id/events" element={<Events />} />
+                <Route path="/organizations/:id/events" element={<SingleEvents />} />
                 <Route path="/account-settings" element={<AccountSettings/>} />
                  <Route
                     path="/organizations/:orgId/members/requests"
