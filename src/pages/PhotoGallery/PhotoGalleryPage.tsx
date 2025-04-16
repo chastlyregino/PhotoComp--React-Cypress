@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useRef } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Container, Row, Col, Button, Dropdown } from 'react-bootstrap';
 import { Search, Download, Heart, PersonCircle, Grid3x3Gap } from 'react-bootstrap-icons';
 import PhotoCarousel from '../../components/PhotoCarousel/PhotoCarousel';
@@ -37,21 +37,11 @@ const PhotoGalleryPage: React.FC = () => {
   const [events, setEvents] = useState<Event[]>([]);
   const [selectedOrg, setSelectedOrg] = useState<string>(orgId || "GalleryTestOrg");
   const [selectedEvent, setSelectedEvent] = useState<string>(eventId || "3dcf897f-7bcf-4ac7-b38f-860a41615223");
-  const [initialPhotoIndex, setInitialPhotoIndex] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState<number>(0);
-  
-  // Reference to the updated photo index from the carousel
-  const currentPhotoIndexRef = useRef<number>(initialPhotoIndex);
-
-  // Update the current photo index when the carousel changes
-  const handleCarouselChange = (index: number) => {
-    currentPhotoIndexRef.current = index;
-    setCurrentPhotoIndex(index);
-  };
   
   // Fetch photos for the current organization and event
   useEffect(() => {
@@ -71,39 +61,32 @@ const PhotoGalleryPage: React.FC = () => {
     }
   }, [selectedOrg, selectedEvent]);
   
-  // Find the index of the selected photo in the photo list
+  // Find the index of the selected photo in the photo list when photos are loaded
   useEffect(() => {
-    if (photoId && selectedEvent) {
-      const fetchPhotoIndex = async () => {
-        try {
-          const token = localStorage.getItem('token');
-          const axiosInstance = axios.create({
-            baseURL: 'http://localhost:3000',
-            headers: {
-              'Authorization': `Bearer ${token}`
-            }
-          });
-          
-          const response = await axiosInstance.get(`/organizations/${selectedOrg}/events/${selectedEvent}/photos`);
-          
-          if (response.data?.data?.photos) {
-            const photos = response.data.data.photos;
-            const photoIndex = photos.findIndex((photo: any) => photo.id === photoId);
-            
-            if (photoIndex !== -1) {
-              setInitialPhotoIndex(photoIndex);
-              currentPhotoIndexRef.current = photoIndex;
-              setCurrentPhotoIndex(photoIndex);
-            }
-          }
-        } catch (error) {
-          console.error('Error finding photo index:', error);
-        }
-      };
-      
-      fetchPhotoIndex();
+    if (photos.length > 0 && photoId) {
+      const index = photos.findIndex(photo => photo.id === photoId);
+      if (index !== -1) {
+        setCurrentPhotoIndex(index);
+      }
     }
-  }, [photoId, selectedEvent, selectedOrg]);
+  }, [photos, photoId]);
+  
+  // Update the current photo index when the carousel changes
+  const handleCarouselChange = (index: number) => {
+    setCurrentPhotoIndex(index);
+    
+    // Optionally update URL to reflect the current photo
+    // This would make bookmarking and sharing specific photos work better
+    if (photos.length > index) {
+      const currentPhotoId = photos[index].id;
+      // Update URL without reload
+      window.history.replaceState(
+        null, 
+        '', 
+        `/organizations/${selectedOrg}/events/${selectedEvent}/photos/${currentPhotoId}`
+      );
+    }
+  };
 
   // Fetch organizations when component mounts
   useEffect(() => {
@@ -359,7 +342,7 @@ const PhotoGalleryPage: React.FC = () => {
               <PhotoCarousel 
                 orgName={selectedOrg} 
                 eventId={selectedEvent} 
-                initialIndex={initialPhotoIndex}
+                activeIndex={currentPhotoIndex}
                 preferredSize="large"
                 onIndexChange={handleCarouselChange}
               />
