@@ -165,7 +165,7 @@ const Events: React.FC = () => {
                 {user && token ? (
                     <>
                         {/* Only show Members link if user is a member or admin */}
-                        {memberRole && (
+                        {memberRole =='ADMIN' && (
                             <NavLink to={`/organizations/${id}/members`} className="text-light top-bar-element">
                                 <icon.PersonLinesFill size={24} />
                             </NavLink>
