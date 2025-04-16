@@ -1,5 +1,4 @@
-/* Add this to your styles folder */
-
+@import url('https://fonts.googleapis.com/css2?family=Michroma&display=swap');
 .create-organization-page {
     min-height: 100vh;
     background-color: #212529;
@@ -42,6 +41,4 @@
     border: none;
     background: transparent;
   }
-  
-  /* Optional: Add this if you want to use the Michroma font */
-  @import url('https://fonts.googleapis.com/css2?family=Michroma&display=swap');
+
