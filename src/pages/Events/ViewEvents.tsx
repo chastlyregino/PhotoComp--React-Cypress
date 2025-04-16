@@ -108,10 +108,16 @@ const Events: React.FC = () => {
                         </NavButton> */}
 
                         {/* PersonLinesFill icon should only appear when an admin user of an org is logged in */}
-                        <NavLink to={`/organizations/${id}/members`} className="text-light top-bar-element">
+                        <NavLink
+                            to={`/organizations/${id}/members`}
+                            className="text-light top-bar-element"
+                        >
                             <icon.PersonLinesFill size={24} />
                         </NavLink>
-                        <NavLink to={`/organizations/${id}/details`} className="text-light top-bar-element">
+                        <NavLink
+                            to={`/organizations/${id}/details`}
+                            className="text-light top-bar-element"
+                        >
                             <icon.ListUl size={24} />
                         </NavLink>
                     </>
@@ -133,22 +139,24 @@ const Events: React.FC = () => {
         </>
     );
 
-    const fetchOrganizations = async (key: string | undefined = undefined): Promise<OrganizationsResponse | null> => {
+    const fetchOrganizations = async (
+        key: string | undefined = undefined
+    ): Promise<OrganizationsResponse | null> => {
         setLoading(true);
         try {
             const orgs = await getPublicOrganizations(key);
             const newOrgs = orgs;
-    
+
             if (key) {
                 setOrganizations(prev => [...prev, ...newOrgs.data.organizations]);
             } else {
                 setOrganizations(newOrgs.data.organizations);
             }
-    
+
             setlastEvaluatedKeyOrg(orgs.lastEvaluatedKey);
             setHasMore(orgs.lastEvaluatedKey !== null);
             setLoading(false);
-            console.log(newOrgs)
+            console.log(newOrgs);
             return newOrgs;
         } catch (err) {
             setError('Failed to fetch organizations');
@@ -156,13 +164,12 @@ const Events: React.FC = () => {
             return null;
         }
     };
-    
 
     const fetchEventsForOrganizations = async (orgs: OrganizationsResponse | null) => {
         const newEvents: Event[] = [];
         const newEventKeys: Record<string, string | null> = {};
 
-        if(orgs){
+        if (orgs) {
             for (const org of orgs.data.organizations) {
                 try {
                     const res = await getPublicOrganizationEvents(org.name);
@@ -175,7 +182,6 @@ const Events: React.FC = () => {
                 }
             }
         }
-        
 
         setEvents(prev => [...prev, ...newEvents]);
         setlastEvaluatedKeyOrgEvent(prev => ({ ...prev, ...newEventKeys }));
@@ -200,57 +206,58 @@ const Events: React.FC = () => {
     const loadMore = async () => {
         if (loading) return;
         setLoading(true);
-    
+
         let allFetched = true;
         const newEvents: Event[] = [];
         const updatedKeys: Record<string, string | null> = { ...lastEvaluatedKeyOrgEvent };
-    
+
         // Fetch more events for current orgs
-        for (const org of organizations) { // Use `organizations` here
-            const nextKey = lastEvaluatedKeyOrgEvent[org.id];
+        for (const org of organizations) {
+            // Use `organizations` here
+            const nextKey = lastEvaluatedKeyOrgEvent[org.name];
             if (nextKey !== null) {
                 try {
-                    const res = await getPublicOrganizationEvents(org.id, nextKey);
+                    console.log(`org.id: ${org.name}`);
+                    const res = await getPublicOrganizationEvents(org.name, nextKey);
                     newEvents.push(...res.data.events);
-                    updatedKeys[org.id] = res.lastEvaluatedKey ?? null;
-    
+                    updatedKeys[org.name] = res.lastEvaluatedKey ?? null;
+
                     if (res.lastEvaluatedKey !== null) {
                         allFetched = false;
                     }
                 } catch {
-                    console.error(`Error fetching more events for org ${org.id}`);
+                    console.error(`Error fetching more events for org ${org.name}`);
                 }
             }
         }
-    
+
         setEvents(prev => [...prev, ...newEvents]);
         setlastEvaluatedKeyOrgEvent(updatedKeys);
-    
+
         // If all events were fetched, try fetching more orgs
         let newOrgKey = lastEvaluatedKeyOrg;
         let moreOrgsFetched = false;
         if (allFetched && lastEvaluatedKeyOrg !== null) {
             const newOrgs = await fetchOrganizations(lastEvaluatedKeyOrg);
-            if(newOrgs){
-                console.log(`newOrgsEvalKey: ${newOrgs}`)
+            if (newOrgs) {
+                console.log(`newOrgsEvalKey: ${newOrgs}`);
                 await fetchEventsForOrganizations(newOrgs);
                 newOrgKey = newOrgs.data.organizations.length > 0 ? newOrgs.lastEvaluatedKey : null; // Use newOrgs to get the key
-                moreOrgsFetched = newOrgs.data.organizations.length > 0 ? true : false;
+                moreOrgsFetched = newOrgs.data.organizations.length > 0;
             }
-            
         }
-    
+
         // Determine if there's more data
+        console.log(`updatedKeys: ${Object.values(updatedKeys).some(k => k)}`)
         const anyOrgHasMoreEvents = Object.values(updatedKeys).some(k => k !== null);
         const canFetchMoreOrgs = newOrgKey !== null;
-    
+
         console.log('Has more events:', anyOrgHasMoreEvents);
-        console.log('Has more orgs:', canFetchMoreOrgs);
-    
-        setHasMore(anyOrgHasMoreEvents || moreOrgsFetched);
+        console.log('Has more orgs:', canFetchMoreOrgs, moreOrgsFetched);
+
+        setHasMore(anyOrgHasMoreEvents || canFetchMoreOrgs);
         setLoading(false);
     };
-    
 
     return (
         <>
@@ -269,8 +276,10 @@ const Events: React.FC = () => {
                     </div>
                     <div className="p-3 bg-dark text-white">
                         <Row className="align-items-center mb-4">
-                            <Col><h1 className="mb-4">Events</h1></Col>
-                            
+                            <Col>
+                                <h1 className="mb-4">Events</h1>
+                            </Col>
+
                             <Col xs="auto" className="ms-auto me-5">
                                 {pageActionComponents}
                             </Col>
