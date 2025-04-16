@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Carousel, Button, Spinner } from 'react-bootstrap';
-import { ChevronLeft, ChevronRight, Download } from 'react-bootstrap-icons';
+import { ChevronLeft, ChevronRight } from 'react-bootstrap-icons';
 import { Photo, getAllPhotos } from '../../context/PhotoService';
 
-interface PhotoCarouselProps {
+interface CustomPhotoCarouselProps {
   orgName: string;
   eventId: string;
   initialIndex?: number;
   preferredSize?: 'small' | 'medium' | 'large';
 }
 
-const PhotoCarousel: React.FC<PhotoCarouselProps> = ({ 
+const CustomPhotoCarousel: React.FC<CustomPhotoCarouselProps> = ({ 
   orgName, 
   eventId, 
   initialIndex = 0,
@@ -49,15 +49,6 @@ const PhotoCarousel: React.FC<PhotoCarouselProps> = ({
   
   const handleSelect = (selectedIndex: number) => {
     setActiveIndex(selectedIndex);
-  };
-  
-  const handleDownload = (url: string, photoId: string) => {
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `photo-${photoId}.jpg`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
   };
   
   // Calculate size based on preference
@@ -122,13 +113,6 @@ const PhotoCarousel: React.FC<PhotoCarouselProps> = ({
                 <h3>{photo.metadata?.title || `Photo ${index + 1}`}</h3>
                 {photo.metadata?.description && <p>{photo.metadata.description}</p>}
               </div>
-              <Button 
-                variant="outline-light" 
-                onClick={() => handleDownload(photo.url, photo.id)}
-                className="ml-auto"
-              >
-                <Download size={20} />
-              </Button>
             </Carousel.Caption>
           </Carousel.Item>
         ))}
@@ -141,4 +125,4 @@ const PhotoCarousel: React.FC<PhotoCarouselProps> = ({
   );
 };
 
-export default PhotoCarousel;
+export default CustomPhotoCarousel;
