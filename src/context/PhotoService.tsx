@@ -1,4 +1,5 @@
-import axiosInstance from '../utils/axios';
+import axiosInstance, { noAuthInstance } from '../utils/axios';
+
 
 export interface Photo {
     PK: string;
@@ -73,3 +74,4 @@ export const uploadEventPhoto = async (orgId: string, eventId: string, formData:
         throw error;
     }
 };
+
