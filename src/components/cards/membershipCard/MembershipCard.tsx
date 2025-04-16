@@ -19,7 +19,7 @@ export interface MembershipRequest {
   organizationName: string;
   type: string;
   message?: string;
-  userDetails: UserDetails;
+  userDetails?: UserDetails;
 }
 
 interface MembershipCardProps {
@@ -43,8 +43,8 @@ const MembershipCard: React.FC<MembershipCardProps> = ({
       day: 'numeric'
     });
   };
-
-  const { firstName, lastName } = request.userDetails;
+  const firstName  = request.userDetails?.firstName;
+  const lastName = request.userDetails?.lastName;
   const displayName = `${firstName} ${lastName}`;
 
   return (

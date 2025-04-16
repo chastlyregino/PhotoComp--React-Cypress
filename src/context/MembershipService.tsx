@@ -8,6 +8,14 @@ interface MembershipResponse {
   };
 }
 
+interface ApplicationResponse {
+  status: string;
+  message: string;
+  data: {
+    request: MembershipRequest;
+  };
+}
+
 export const getOrganizationMembershipRequests = async (organizationId: string) => {
   try {
     const response = await axiosInstance.get<MembershipResponse>(
@@ -40,6 +48,21 @@ export const denyMembershipRequest = async (organizationId: string, requestId: s
     return response.data;
   } catch (error) {
     console.error(`Error denying membership request ${requestId}:`, error);
+    throw error;
+  }
+};
+
+export const sendJoinRequest = async (organizationId: string, message: string) => {
+  try {
+    const response = await axiosInstance.post<ApplicationResponse>(
+      `/organizations/${organizationId}`,
+      {
+        message
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching membership requests for organization ${organizationId}:`, error);
     throw error;
   }
 };

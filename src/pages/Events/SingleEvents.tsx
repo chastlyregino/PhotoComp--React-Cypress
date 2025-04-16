@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Button, Col, Row, Alert, Container } from 'react-bootstrap';
+import { Button, Col, Row, Modal, Alert, Form } from 'react-bootstrap';
 import * as icon from 'react-bootstrap-icons';
 import { NavLink, useParams, useNavigate } from 'react-router-dom';
 
@@ -11,6 +11,7 @@ import GalleryCard from '../../components/cards/galleryCard/GalleryCard';
 import { isMemberOfOrg } from '../../context/AuthService';
 import { Event, getPublicOrganizationEvents, getOrganizationEvents } from '../../context/OrgService';
 import AuthContext from '../../context/AuthContext';
+import { sendJoinRequest } from '../../context/MembershipService';
 
 const SingleEvents: React.FC = () => {
     const navigate = useNavigate();
@@ -26,6 +27,12 @@ const SingleEvents: React.FC = () => {
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [hasMore, setHasMore] = useState<boolean>(true);
+
+    const [showJoinModal, setShowJoinModal] = useState<boolean>(false);
+    const [message, setMessage] = useState<string>("");
+    const [joinLoading, setJoinLoading] = useState<boolean>(false);
+    const [joinSuccess, setJoinSuccess] = useState<boolean>(false);
+    const [joinError, setJoinError] = useState<string| null>(null);
 
     useEffect(() => {
         if (!id) return;
@@ -110,6 +117,35 @@ const SingleEvents: React.FC = () => {
         }
     };
 
+    const handleShowJoinModal = () => {
+      setShowJoinModal(true);
+      setJoinError(null);
+    }
+
+    const handleCloseJoinModal = () => {
+      setShowJoinModal(false);
+      setJoinError(null);
+      setMessage('');
+    }
+
+    const handleJoinSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+
+      if (!id || !user) return;
+
+      try {
+        setJoinLoading(true);
+        await sendJoinRequest(id,message);
+        setJoinSuccess(true);
+        setJoinLoading(false);
+      } catch(error) {
+        console.log(error);
+        setJoinLoading(false);
+        setJoinError("Failed to send the join request")
+        setJoinSuccess(false);
+      }
+    }
+
     const searchComponent = (
         <SearchBar
             value={searchTerm}
@@ -134,6 +170,15 @@ const SingleEvents: React.FC = () => {
                             >
                                 Create Event
                             </NavButton>
+                        )}
+                        { user && !memberRole && (
+                            <Button
+                                variant="outline-light"
+                                className="mx-1 top-bar-element"
+                                onClick={handleShowJoinModal}
+                            >
+                                Join the Org ! 
+                            </Button>
                         )}
 
                         <NavLink to="/account-settings" className="text-light top-bar-element">
@@ -212,8 +257,9 @@ const SingleEvents: React.FC = () => {
                     <div className="p-3 bg-dark text-white">
                         <Row className="align-items-center mb-4">
                             <Col>
-                                <h1 className="mb-4">Events for {id && id.charAt(0).toUpperCase() + id.slice(1)}</h1>
+                                <h1 className="mb-4">Events: {id && id.charAt(0).toUpperCase() + id.slice(1)}</h1>
                             </Col>
+                            <Col><p className="mb-4">Role: {`${memberRole ? memberRole : (user) ? "User" : "Guest"}`}</p></Col>
                             
                             <Col xs="auto" className="ms-auto me-5">
                                 {pageActionComponents}
@@ -222,6 +268,48 @@ const SingleEvents: React.FC = () => {
                         <Row>
                             {error && (
                                 <div className="alert alert-danger">{error}</div>
+                            )}
+
+                            {showJoinModal && (
+                              <Modal show={showJoinModal} onHide={handleCloseJoinModal} centered>
+                                  <Modal.Header closeButton className="bg-dark text-white">
+                                    <Modal.Title>Join Organization</Modal.Title>
+                                  </Modal.Header>
+                                  <Modal.Body className="bg-dark text-white">
+                                    {joinSuccess ? (
+                                      <Alert variant="success">
+                                        Your request to join the organization has been sent successfully!
+                                      </Alert>
+                                    ) : (
+                                      <Form onSubmit={handleJoinSubmit}>
+                                        {joinError && <Alert variant="danger">{joinError}</Alert>}
+                                        <Form.Group className="mb-3">
+                                          <Form.Label>Message (Optional)</Form.Label>
+                                          <Form.Control
+                                            as="textarea"
+                                            rows={3}
+                                            placeholder="Tell the organization why you'd like to join..."
+                                            value={message}
+                                            onChange={(e) => setMessage(e.target.value)}
+                                            className="bg-secondary text-white"
+                                          />
+                                        </Form.Group>
+                                        <div className="d-flex justify-content-end">
+                                          <Button 
+                                            variant="primary" 
+                                            type="submit"
+                                            disabled={joinLoading}
+                                          >
+                                            {joinLoading ? 'Sending...' : 'Submit Request'}
+                                          </Button>
+                                          <Button variant="secondary" onClick={handleCloseJoinModal} className="me-2">
+                                            Cancel
+                                          </Button>
+                                        </div>
+                                      </Form>
+                                    )}
+                                  </Modal.Body>
+                                </Modal>
                             )}
 
                             {loading && events.length === 0 ? (
