@@ -33,4 +33,22 @@ export const changePassword = async (currentPassword: string, newPassword: strin
  */
 export const deleteAccount = async (userId: string) => {
     return axiosInstance.delete(`/api/auth/users/${userId}`);
-};
+  };
+
+interface UserOrgRelationship {
+    GSI1PK: string;
+    joinedAt: string;
+    role: string;
+    updatedAt: string;
+    userId: string;
+    SK: string;
+    GSI1SK: string;
+    PK: string;
+    organizationName: string;
+    type: string;
+}
+
+export const isMemberOfOrg = async (userId: string, orgId:string):Promise<{status:string, data: {data:{membership:UserOrgRelationship}}}> => {
+  return axiosInstance.get(`/users/${userId}/members/${orgId}`);
+}
+

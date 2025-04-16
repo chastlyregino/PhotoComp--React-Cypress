@@ -31,8 +31,7 @@ function App() {
                     }
                 />
                 <Route path="/organizations/:id/events" element={<Events />} />
-                <Route
-                    path="/account-settings"
+                <Route path="/account-settings" element={<AccountSettings/>} />
                  <Route
                     path="/organizations/:orgId/members/requests"
                     element={

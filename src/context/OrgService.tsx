@@ -48,6 +48,7 @@ export interface EventsResponse {
 }
 
 // Get public organizations
+
 export const getPublicOrganizations = async (lastEvaluatedKey?: string, limit: number = 9) => {
     try {
         const response = await noAuthInstance.get<OrganizationsResponse>('/guests', {
@@ -122,6 +123,16 @@ export const deleteOrganization = async (organizationId: string) => {
         return response.data;
     } catch (error) {
         console.error(`Error deleting organization ${organizationId}:`, error);
+        throw error;
+    }
+};
+
+export const getOrganizationEvents = async (orgId: string) => {
+    try {
+        const response = await axiosInstance.get<EventsResponse>(`/organizations/${orgId}/events`);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching public organizations:', error);
         throw error;
     }
 };
