@@ -3,6 +3,8 @@ import { Routes, Route } from 'react-router-dom';
 import Home from './pages/Home/Home';
 import Register from './pages/Register/Register';
 import Login from './pages/Login/Login';
+import Members from './pages/Members/Members'
+import Membership from './pages/Membership/Membership'
 import Organizations from './pages/Organizations/ViewOrganizations';
 import Events from './pages/Events/ViewEvents';
 import Photos from './pages/Photos/viewPhotos';
@@ -31,9 +33,19 @@ function App() {
                 <Route path="/organizations/:id/events" element={<Events />} />
                 <Route
                     path="/account-settings"
+                 <Route
+                    path="/organizations/:orgId/members/requests"
                     element={
                         <ProtectedRoute>
-                            <AccountSettings />
+                            <Membership />
+                        </ProtectedRoute>
+                    }
+                />
+                 <Route
+                    path="/organizations/:orgId/members"
+                    element={
+                        <ProtectedRoute>
+                            <Members />
                         </ProtectedRoute>
                     }
                 />
