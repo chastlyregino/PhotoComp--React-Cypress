@@ -8,13 +8,15 @@ interface CustomPhotoCarouselProps {
   eventId: string;
   initialIndex?: number;
   preferredSize?: 'small' | 'medium' | 'large';
+  onIndexChange?: (index: number) => void;
 }
 
 const CustomPhotoCarousel: React.FC<CustomPhotoCarouselProps> = ({ 
   orgName, 
   eventId, 
   initialIndex = 0,
-  preferredSize = 'medium'
+  preferredSize = 'medium',
+  onIndexChange
 }) => {
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [activeIndex, setActiveIndex] = useState<number>(initialIndex);
@@ -32,6 +34,10 @@ const CustomPhotoCarousel: React.FC<CustomPhotoCarouselProps> = ({
           // Make sure initialIndex is within bounds
           if (initialIndex >= 0 && initialIndex < response.data.photos.length) {
             setActiveIndex(initialIndex);
+            // Notify parent component of initial index
+            if (onIndexChange) {
+              onIndexChange(initialIndex);
+            }
           }
         } else {
           setError("No photos found for this event");
@@ -45,10 +51,15 @@ const CustomPhotoCarousel: React.FC<CustomPhotoCarouselProps> = ({
     };
     
     fetchPhotos();
-  }, [orgName, eventId, initialIndex]);
+  }, [orgName, eventId, initialIndex, onIndexChange]);
   
   const handleSelect = (selectedIndex: number) => {
     setActiveIndex(selectedIndex);
+    
+    // Call the onIndexChange callback when photo changes
+    if (onIndexChange) {
+      onIndexChange(selectedIndex);
+    }
   };
   
   // Calculate size based on preference
