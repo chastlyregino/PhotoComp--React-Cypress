@@ -23,6 +23,12 @@ interface Event {
 interface Photo {
     id: string;
     url: string;
+    urls?: {
+        original?: string;
+        thumbnail?: string;
+        medium?: string;
+        large?: string;
+    };
     title?: string;
     GSI2PK?: string;
 }
@@ -53,6 +59,21 @@ const GalleryCard: React.FC<GalleryCardProps> = ({ item, className, orgName }) =
         } else if (isEventItem(item) && item.imageUrl) {
             return item.imageUrl;
         } else if (isPhotoItem(item)) {
+            // Use medium size if available, otherwise fall back to other sizes
+            if (item.urls) {
+                if (item.urls.medium) {
+                    return item.urls.medium;
+                }
+                if (item.urls.large) {
+                    return item.urls.large;
+                }
+                if (item.urls.original) {
+                    return item.urls.original;
+                }
+                if (item.urls.thumbnail) {
+                    return item.urls.thumbnail;
+                }
+            }
             return item.url;
         }
         return ``;
@@ -130,7 +151,8 @@ const GalleryCard: React.FC<GalleryCardProps> = ({ item, className, orgName }) =
                 cursor: 'pointer',
             }}
         >
-            <div className="card-overlay"></div>
+            {/* Only apply overlay to non-photo cards */}
+            {!isPhoto && <div className="card-overlay"></div>}
 
             {isEvent && <div className="organization-badge">{getOrganizationName()}</div>}
 

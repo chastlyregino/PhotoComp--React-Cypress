@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Col, Row } from 'react-bootstrap';
+import React, { useState, useEffect, useRef, useContext } from 'react';
+import { Col, Row, Button, Alert } from 'react-bootstrap';
 import * as icon from 'react-bootstrap-icons';
 import { NavLink, useParams } from 'react-router-dom';
 
@@ -8,14 +8,40 @@ import TopBar from '../../components/bars/TopBar/TopBar';
 import SearchBar from '../../components/bars/SearchBar/SearchBar';
 import NavButton from '../../components/navButton/NavButton';
 import GalleryCard from '../../components/cards/galleryCard/GalleryCard';
-import { getAllPhotos } from '../../context/PhotoService';
+import { getAllPhotos, Photo } from '../../context/PhotoService';
+import AuthContext from '../../context/AuthContext';
 
 const Photos: React.FC = () => {
+    const { user, token } = useContext(AuthContext);
     const [searchTerm, setSearchTerm] = useState('');
-    const [photos, setPhotos] = useState<any[]>([]);
+    const [photos, setPhotos] = useState<Photo[]>([]);
+    const [filteredPhotos, setFilteredPhotos] = useState<Photo[]>([]);
     const [error, setError] = useState<string | null>(null);
+    const [loading, setLoading] = useState<boolean>(true);
     const fetchedRef = useRef(false);
     const { id, eid } = useParams();
+
+    useEffect(() => {
+        if (fetchedRef.current) return;
+        fetchedRef.current = true;
+        fetchPhotos();
+    }, [id, eid]);
+
+    useEffect(() => {
+        if (searchTerm.trim() === '') {
+            setFilteredPhotos(photos);
+        } else {
+            const filtered = photos.filter(photo => {
+                // Search in photo metadata if available
+                const title = photo.metadata?.title?.toLowerCase() || '';
+                const description = photo.metadata?.description?.toLowerCase() || '';
+                const searchLower = searchTerm.toLowerCase();
+                
+                return title.includes(searchLower) || description.includes(searchLower);
+            });
+            setFilteredPhotos(filtered);
+        }
+    }, [photos, searchTerm]);
 
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearchTerm(e.target.value);
@@ -23,8 +49,25 @@ const Photos: React.FC = () => {
 
     const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        console.log('Search submitted:', searchTerm);
-        // Implement your search logic here photos
+    };
+
+    const fetchPhotos = async () => {
+        if (id && eid) {
+            try {
+                setLoading(true);
+                const response = await getAllPhotos(id, eid);
+                setPhotos(response.data.photos);
+                setFilteredPhotos(response.data.photos);
+                setLoading(false);
+            } catch (err) {
+                console.error('Error fetching photos:', err);
+                setError('Failed to fetch photos. Please try again later.');
+                setLoading(false);
+            }
+        } else {
+            setError('Organization name or Event ID is missing.');
+            setLoading(false);
+        }
     };
 
     /* Components to be injected into the TopBar*/
@@ -42,20 +85,36 @@ const Photos: React.FC = () => {
     const rightComponents = (
         <>
             <div className="d-flex align-items-center gap-3">
-                {/* Create Organization should only appear when an Admin is logged in */}
-                <NavButton
-                    to={`/organizations/${id}/events/${eid}/photos/upload`}
-                    variant="outline-light"
-                    className="mx-1 top-bar-element"
-                >
-                    Upload Photos
-                </NavButton>
-                <NavLink to="/account-settings" className="text-light top-bar-element">
-                    <icon.GearFill size={24} />
-                </NavLink>
-                <NavLink to="/logout" className="text-light top-bar-element">
-                    <icon.BoxArrowRight size={24} />
-                </NavLink>
+                {user && token ? (
+                    <>
+                        <NavButton
+                            to={`/organizations/${id}/events/${eid}/photos/upload`}
+                            variant="outline-light"
+                            className="mx-1 top-bar-element"
+                        >
+                            Upload Photos
+                        </NavButton>
+                        <NavLink to="/account-settings" className="text-light top-bar-element">
+                            <icon.GearFill size={24} />
+                        </NavLink>
+                        <NavLink to="/logout" className="text-light top-bar-element">
+                            <icon.BoxArrowRight size={24} />
+                        </NavLink>
+                    </>
+                ) : (
+                    <>
+                        <NavButton
+                            to="/register"
+                            variant="outline-light"
+                            className="mx-1 top-bar-element"
+                        >
+                            Register
+                        </NavButton>
+                        <NavButton to="/login" variant="outline-light" className="top-bar-element">
+                            Login
+                        </NavButton>
+                    </>
+                )}
             </div>
         </>
     );
@@ -63,53 +122,50 @@ const Photos: React.FC = () => {
     const pageActionComponents = (
         <>
             <div className="d-flex align-items-center gap-3">
-                {/* Attend Event should only appear when an user has to yet to attend the event that is logged in */}
-                <NavButton
-                    to={`/organizations/${id}/events/${eid}/apply`}
-                    variant="outline-light"
-                    className="mx-1 top-bar-element"
-                >
-                    Attend Event
-                </NavButton>
+                {user && token ? (
+                    <>
+                        {/* Attend Event button for users who haven't registered for the event */}
+                        <NavButton
+                            to={`/organizations/${id}/events/${eid}/apply`}
+                            variant="outline-light"
+                            className="mx-1 top-bar-element"
+                        >
+                            Attend Event
+                        </NavButton>
 
-                {/* need to change the NavLink into just an icon when it is a user.
-                    NavLink = Admin (logic of event privacy)
-                    just button = Member */}
-                <NavLink to={`/organizations/${id}/members`} className="text-light top-bar-element">
-                    {/* change logic icon when private or public
-                        unlock = public
-                        lock = private */}
-                    <icon.UnlockFill size={24} />
-                </NavLink>
-                <NavLink
-                    to={`/organizations/${id}/events/${eid}/details`}
-                    className="text-light top-bar-element"
-                >
-                    <icon.ListUl size={24} />
-                </NavLink>
+                        {/* Privacy icon - lock/unlock based on event privacy */}
+                        <NavLink 
+                            to={`/organizations/${id}/members`} 
+                            className="text-light top-bar-element"
+                        >
+                            <icon.UnlockFill size={24} />
+                        </NavLink>
+                        
+                        {/* Event details */}
+                        <NavLink
+                            to={`/organizations/${id}/events/${eid}/details`}
+                            className="text-light top-bar-element"
+                        >
+                            <icon.ListUl size={24} />
+                        </NavLink>
+                    </>
+                ) : (
+                    <>
+                        <NavButton
+                            to="/register"
+                            variant="outline-light"
+                            className="mx-1 top-bar-element"
+                        >
+                            Register
+                        </NavButton>
+                        <NavButton to="/login" variant="outline-light" className="top-bar-element">
+                            Login
+                        </NavButton>
+                    </>
+                )}
             </div>
         </>
     );
-
-    useEffect(() => {
-        if (fetchedRef.current) return;
-        fetchedRef.current = true;
-        fetchPhotos();
-    }, []);
-
-    const fetchPhotos = async () => {
-        if (id && eid) {
-            try {
-                const photos = await getAllPhotos(id, eid);
-                console.log(photos);
-                setPhotos(prev => [...prev, ...photos.data.photos]);
-            } catch (err) {
-                setError('Failed to fetch photos.');
-            }
-        } else {
-            setError('Org name or EventId is empty.');
-        }
-    };
 
     return (
         <>
@@ -136,25 +192,44 @@ const Photos: React.FC = () => {
                                 {pageActionComponents}
                             </Col>
                         </Row>
-                        <Row>
-                            {error && <p className="text-red-500">{error}</p>}
-
-                            {photos.map(photo => (
-                                <Col>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
-                                    <div className="gallery-card photo card-image">
-                                    {/* <div className="gallery-card photo"> */}
+                        
+                        {error && (
+                            <Alert variant="danger" className="mb-4">
+                                {error}
+                            </Alert>
+                        )}
+                        
+                        {loading ? (
+                            <div className="text-center p-5">Loading photos...</div>
+                        ) : filteredPhotos.length === 0 ? (
+                            <div className="text-center p-5">
+                                {searchTerm ? 'No matching photos found.' : 'No photos available for this event.'}
+                                
+                                {user && token && (
+                                    <div className="mt-4">
+                                        <Button 
+                                            variant="primary" 
+                                            as={NavLink} 
+                                            to={`/organizations/${id}/events/${eid}/photos/upload`}
+                                        >
+                                            Upload Your First Photo
+                                        </Button>
+                                    </div>
+                                )}
+                            </div>
+                        ) : (
+                            <Row className="g-4">
+                                {filteredPhotos.map(photo => (
+                                    <Col key={photo.id} xs={12} sm={6} md={4} lg={3} className="d-flex justify-content-center">
                                         <GalleryCard
-                                            key={photo.id}
                                             item={photo}
-                                            className={`photo-card`}
+                                            className="photo-card"
                                             orgName={id}
                                         />
-                                        </div>
-                                    </div>
-                                </Col>
-                            ))}
-                        </Row>
+                                    </Col>
+                                ))}
+                            </Row>
+                        )}
                     </div>
                 </Col>
             </Row>
