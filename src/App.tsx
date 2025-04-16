@@ -10,19 +10,14 @@ import SingleEvents from './pages/Events/SingleEvents';
 import Events from './pages/Events/ViewEvents';
 import Photos from './pages/Photos/viewPhotos';
 import ProtectedRoute from './components/routes/ProtectedRoute/ProtectedRoute';
-<<<<<<< HEAD
 import Footer from './components/bars/Footer/Footer';
 import AccountSettings from './pages/AccountSettings/AccountSettings';
 import CreateOrganization from './pages/Organizations/CreateOrganization/CreateOrganization';
 import Logout from "./pages/Logout"
 import UploadEventPhoto from './pages/Events/UploadEventPhoto';
 import CreateEvent from './pages/Events/CreateEvent';
-
-
-=======
-import Footer from './components/bars/Footer/Footer'
 import PhotoGalleryPage from './pages/PhotoGallery/PhotoGalleryPage';
->>>>>>> 7e26442 (photocarousel)
+
 
 function App() {
     return (
@@ -35,14 +30,8 @@ function App() {
                 <Route path="/organizations" element={<Organizations />} />
                 <Route path="/events" element={<Events />} />
                 <Route
-<<<<<<< HEAD
                     path="/organizations/create"
-=======
-                    path="/"
-                <Route path="/gallery" element={<PhotoGalleryPage />}  />
-                <Route 
-                    path="/" 
->>>>>>> 7e26442 (photocarousel)
+
                     element={
                         <ProtectedRoute>
                             <CreateOrganization />
