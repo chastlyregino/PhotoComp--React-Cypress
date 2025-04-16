@@ -233,6 +233,7 @@ const SingleEvents: React.FC = () => {
                                             <GalleryCard
                                                 item={event}
                                                 className="event"
+                                                orgName={event.GSI2PK}
                                             />
                                         </div>
                                     ))}
