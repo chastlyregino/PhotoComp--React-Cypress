@@ -15,6 +15,7 @@ import AccountSettings from './pages/AccountSettings/AccountSettings';
 import CreateOrganization from './pages/Organizations/CreateOrganization/CreateOrganization';
 import Logout from "./pages/Logout"
 import UploadEventPhoto from './pages/Events/UploadEventPhoto';
+import CreateEvent from './pages/Events/CreateEvent';
 
 
 
@@ -43,6 +44,14 @@ function App() {
                     element={
                         <ProtectedRoute>
                             <Membership />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/organizations/:id/events/create"
+                    element={
+                        <ProtectedRoute>
+                            <CreateEvent />
                         </ProtectedRoute>
                     }
                 />
