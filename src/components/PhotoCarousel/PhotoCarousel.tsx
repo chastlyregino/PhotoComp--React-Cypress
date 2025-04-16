@@ -118,13 +118,14 @@ const CustomPhotoCarousel: React.FC<CustomPhotoCarouselProps> = ({
         activeIndex={activeIndex}
         onSelect={handleSelect}
         interval={null}
-        indicators={photos.length > 1}
+        indicators={false}
         prevIcon={<ChevronLeft color="white" size={40} />}
         nextIcon={<ChevronRight color="white" size={40} />}
         className="bg-dark"
       >
         {photos.map((photo, index) => (
           <Carousel.Item key={photo.id}>
+            {/* Image container */}
             <div className="d-flex justify-content-center align-items-center" style={getCarouselSize()}>
               <img
                 src={getImageUrl(photo)}
@@ -132,19 +133,20 @@ const CustomPhotoCarousel: React.FC<CustomPhotoCarouselProps> = ({
                 style={{ maxHeight: '100%', maxWidth: '100%', objectFit: 'contain' }}
               />
             </div>
-            <Carousel.Caption className="d-flex justify-content-between align-items-center">
-              <div className="text-start">
-                <h3>{photo.metadata?.title || `Photo ${index + 1}`}</h3>
-                {photo.metadata?.description && <p>{photo.metadata.description}</p>}
-              </div>
-            </Carousel.Caption>
+            
+            {/* Caption container - inline display */}
+            <div className="text-center text-white py-3">
+              <span className="fw-bold">{photo.metadata?.title || `Photo ${index + 1}`}</span>
+              {photo.metadata?.description && (
+                <>
+                  <span className="mx-2">-</span>
+                  <span>{photo.metadata.description}</span>
+                </>
+              )}
+            </div>
           </Carousel.Item>
         ))}
       </Carousel>
-      
-      <div className="carousel-counter text-white text-center mt-2">
-        Photo {activeIndex + 1} of {photos.length}
-      </div>
     </div>
   );
 };
