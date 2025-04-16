@@ -13,6 +13,7 @@ import ProtectedRoute from './components/routes/ProtectedRoute/ProtectedRoute';
 import Footer from './components/bars/Footer/Footer';
 import AccountSettings from './pages/AccountSettings/AccountSettings';
 import CreateOrganization from './pages/Organizations/CreateOrganization/CreateOrganization';
+import Logout from "./pages/Logout"
 
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
             <Routes>
                 <Route path="/register" element={<Register />} />
                 <Route path="/login" element={<Login />} />
+                <Route path="/logout" element={<Logout />} />
                 <Route path="/" element={<Home />} />
                 <Route path="/organizations" element={<Organizations />} />
                 <Route path="/events" element={<Events/>} />
