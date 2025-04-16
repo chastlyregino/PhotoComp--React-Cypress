@@ -105,11 +105,14 @@ const GalleryCard: React.FC<GalleryCardProps> = ({ item, className, orgName }) =
                 } else if (isEventItem(item)) {
                     navigate(`/organizations/${orgName.toLowerCase().slice(4)}/events/${item.id}/photos`);
                 } else if (isPhotoItem(item)) {
-                    const eventId = item.GSI2PK ? item.GSI2PK.replace('EVENT#', '').toLowerCase() : '';
-                    navigate(`/organizations/${orgName.toLowerCase()}/events/${eventId}/photos/${item.id}`);
+                    // Extract the event ID from GSI2PK (format is EVENT#eventId)
+                    const eventId = item.GSI2PK ? item.GSI2PK.replace('EVENT#', '') : '';
+                    
+                    // Navigate to the photo carousel view for this specific photo
+                    const orgNameProcessed = orgName.toLowerCase();
+                    navigate(`/organizations/${orgNameProcessed}/events/${eventId}/photos/${item.id}`);
                 }
             }
-            
         } 
     };
 

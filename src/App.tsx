@@ -31,7 +31,6 @@ function App() {
                 <Route path="/events" element={<Events />} />
                 <Route
                     path="/organizations/create"
-
                     element={
                         <ProtectedRoute>
                             <CreateOrganization />
@@ -77,6 +76,15 @@ function App() {
                     element={
                         <ProtectedRoute>
                             <UploadEventPhoto />
+                        </ProtectedRoute>
+                    }
+                />
+                {/* for viewing individual photos in the carousel */}
+                <Route 
+                    path="/organizations/:id/events/:eid/photos/:photoId"
+                    element={
+                        <ProtectedRoute>
+                            <PhotoGalleryPage />
                         </ProtectedRoute>
                     }
                 />

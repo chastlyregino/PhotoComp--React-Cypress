@@ -3,6 +3,7 @@ import { Container, Row, Col, Button, Dropdown } from 'react-bootstrap';
 import { Search, Download, Heart, PersonCircle, Grid3x3Gap } from 'react-bootstrap-icons';
 import PhotoCarousel from '../../components/PhotoCarousel/PhotoCarousel';
 import axios from 'axios';
+import { useParams, useNavigate } from 'react-router-dom';
 
 interface Organization {
   name: string;
@@ -18,14 +19,50 @@ interface Event {
 }
 
 const PhotoGalleryPage: React.FC = () => {
+  const navigate = useNavigate();
+  const { id: orgId, eid: eventId, photoId } = useParams();
+  
   // State for selected organization and event
   const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [events, setEvents] = useState<Event[]>([]);
-  const [selectedOrg, setSelectedOrg] = useState<string>("GalleryTestOrg");
-  const [selectedEvent, setSelectedEvent] = useState<string>("3dcf897f-7bcf-4ac7-b38f-860a41615223");
+  const [selectedOrg, setSelectedOrg] = useState<string>(orgId || "GalleryTestOrg");
+  const [selectedEvent, setSelectedEvent] = useState<string>(eventId || "3dcf897f-7bcf-4ac7-b38f-860a41615223");
+  const [initialPhotoIndex, setInitialPhotoIndex] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   
+  // Find the index of the selected photo in the photo list
+  useEffect(() => {
+    if (photoId && selectedEvent) {
+      const fetchPhotoIndex = async () => {
+        try {
+          const token = localStorage.getItem('token');
+          const axiosInstance = axios.create({
+            baseURL: 'http://localhost:3000',
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+          
+          const response = await axiosInstance.get(`/organizations/${selectedOrg}/events/${selectedEvent}/photos`);
+          
+          if (response.data?.data?.photos) {
+            const photos = response.data.data.photos;
+            const photoIndex = photos.findIndex((photo: any) => photo.id === photoId);
+            
+            if (photoIndex !== -1) {
+              setInitialPhotoIndex(photoIndex);
+            }
+          }
+        } catch (error) {
+          console.error('Error finding photo index:', error);
+        }
+      };
+      
+      fetchPhotoIndex();
+    }
+  }, [photoId, selectedEvent, selectedOrg]);
+
   // Fetch organizations when component mounts
   useEffect(() => {
     const fetchOrganizations = async () => {
@@ -40,18 +77,16 @@ const PhotoGalleryPage: React.FC = () => {
           }
         });
         
-        const response = await axiosInstance.get('/organizations');
-        
-        if (response.data?.org) {
-          setOrganizations(response.data.org.map((org: any) => ({
-            name: org.organizationName,
-            id: org.organizationName,
-            description: `Organization: ${org.organizationName}`
-          })));
+        // Only fetch organizations if we don't have the orgId from URL params
+        if (!orgId) {
+          const response = await axiosInstance.get('/organizations');
           
-          // If we have organizations, select the first one by default
-          if (response.data.org.length > 0 && !selectedOrg) {
-            setSelectedOrg(response.data.org[0].organizationName);
+          if (response.data?.org) {
+            setOrganizations(response.data.org.map((org: any) => ({
+              name: org.organizationName,
+              id: org.organizationName,
+              description: `Organization: ${org.organizationName}`
+            })));
           }
         }
       } catch (err) {
@@ -60,9 +95,9 @@ const PhotoGalleryPage: React.FC = () => {
         
         // For testing - provide fallback data if API fails
         setOrganizations([{
-          name: "GalleryTestOrg",
-          id: "GalleryTestOrg",
-          description: "Test Organization"
+          name: selectedOrg,
+          id: selectedOrg,
+          description: "Organization"
         }]);
       } finally {
         setLoading(false);
@@ -70,7 +105,7 @@ const PhotoGalleryPage: React.FC = () => {
     };
     
     fetchOrganizations();
-  }, []);
+  }, [orgId, selectedOrg]);
   
   // Fetch events when selected organization changes
   useEffect(() => {
@@ -88,19 +123,22 @@ const PhotoGalleryPage: React.FC = () => {
           }
         });
         
-        const response = await axiosInstance.get(`/organizations/${selectedOrg}/events`);
-        
-        if (response.data?.data?.events) {
-          setEvents(response.data.data.events.map((event: any) => ({
-            id: event.id,
-            title: event.title,
-            description: event.description,
-            date: event.date
-          })));
+        // Only fetch events if we don't have the eventId from URL params
+        if (!eventId) {
+          const response = await axiosInstance.get(`/organizations/${selectedOrg}/events`);
           
-          // If we have events, select the first one by default
-          if (response.data.data.events.length > 0 && !selectedEvent) {
-            setSelectedEvent(response.data.data.events[0].id);
+          if (response.data?.data?.events) {
+            setEvents(response.data.data.events.map((event: any) => ({
+              id: event.id,
+              title: event.title,
+              description: event.description,
+              date: event.date
+            })));
+            
+            // If we have events, select the first one by default
+            if (response.data.data.events.length > 0 && !selectedEvent) {
+              setSelectedEvent(response.data.data.events[0].id);
+            }
           }
         }
       } catch (err) {
@@ -109,9 +147,9 @@ const PhotoGalleryPage: React.FC = () => {
         
         // For testing - provide fallback data if API fails
         setEvents([{
-          id: "3dcf897f-7bcf-4ac7-b38f-860a41615223",
-          title: "Gallery Test Event",
-          description: "Test Event for Gallery",
+          id: selectedEvent,
+          title: "Event",
+          description: "Event for Gallery",
           date: new Date().toISOString()
         }]);
       } finally {
@@ -120,16 +158,20 @@ const PhotoGalleryPage: React.FC = () => {
     };
     
     fetchEvents();
-  }, [selectedOrg]);
+  }, [selectedOrg, eventId, selectedEvent]);
   
   const handleOrgChange = (orgName: string) => {
     setSelectedOrg(orgName);
-    // Reset selected event when organization changes
-    setSelectedEvent("");
+    navigate(`/organizations/${orgName}/events`);
   };
   
   const handleEventChange = (eventId: string) => {
     setSelectedEvent(eventId);
+    navigate(`/organizations/${selectedOrg}/events/${eventId}/photos`);
+  };
+
+  const handleBackToGallery = () => {
+    navigate(`/organizations/${selectedOrg}/events/${selectedEvent}/photos`);
   };
   
   return (
@@ -181,6 +223,11 @@ const PhotoGalleryPage: React.FC = () => {
           </Col>
           
           <Col xs={12} md={4} className="d-flex justify-content-end gap-2 mt-3 mt-md-0">
+            {/* Back to gallery button */}
+            <Button variant="outline-light" onClick={handleBackToGallery}>
+              Back to Gallery
+            </Button>
+            
             {/* User actions */}
             <Button variant="link" className="text-white">
               <Heart size={24} />
@@ -197,6 +244,7 @@ const PhotoGalleryPage: React.FC = () => {
         <PhotoCarousel 
           orgName={selectedOrg} 
           eventId={selectedEvent} 
+          initialIndex={initialPhotoIndex}
           preferredSize="large"
         />
       ) : (
