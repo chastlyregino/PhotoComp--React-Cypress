@@ -54,7 +54,7 @@ const CustomPhotoCarousel: React.FC<CustomPhotoCarouselProps> = ({
       case 'small':
         return { width: '100%', maxHeight: '400px', height: 'auto' };
       case 'large':
-        return { width: '100%', maxHeight: '80vh', height: 'auto' };
+        return { width: '100%', maxHeight: '75vh', height: 'auto' };
       case 'medium':
       default:
         return { width: '100%', maxHeight: '600px', height: 'auto' };
@@ -171,6 +171,17 @@ const CustomPhotoCarousel: React.FC<CustomPhotoCarouselProps> = ({
           .carousel-control-prev-icon,
           .carousel-control-next-icon {
             display: none;
+          }
+          
+          /* Add some vertical padding to the carousel container */
+          .photo-carousel-container {
+            padding-top: 20px;
+            padding-bottom: 20px;
+          }
+          
+          /* Center the carousel in the available space */
+          .carousel {
+            margin: 0 auto;
           }
         `}
       </style>
