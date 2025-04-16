@@ -1,5 +1,7 @@
+// Updated src/pages/Events/ViewEvents.tsx with proper event filtering
+
 import React, { useState, useEffect, useRef, useContext } from 'react';
-import { Button, Col, Row } from 'react-bootstrap';
+import { Button, Col, Row, Alert } from 'react-bootstrap';
 import * as icon from 'react-bootstrap-icons';
 import { NavLink, useParams, useNavigate } from 'react-router-dom';
 
@@ -26,7 +28,7 @@ const Events: React.FC = () => {
     const [lastEvaluatedKeyOrgEvent, setlastEvaluatedKeyOrgEvent] = useState<
         Record<string, string | null>
     >({});
-    const [loading, setLoading] = useState<boolean>(false);
+    const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [hasMore, setHasMore] = useState<boolean>(true);
     const fetchedRef = useRef(false);
@@ -98,15 +100,6 @@ const Events: React.FC = () => {
             <div className="d-flex align-items-center gap-3">
                 {user && token ? (
                     <>
-                        {/* Apply to Organization should only appear when an user who is not part of an org is logged in */}
-                        {/* <NavButton
-                            to="/organizations/:id/apply"
-                            variant="outline-light"
-                            className="mx-1 top-bar-element"
-                        >
-                            Apply to Organization
-                        </NavButton> */}
-
                         {/* PersonLinesFill icon should only appear when an admin user of an org is logged in */}
                         <NavLink
                             to={`/organizations/${id}/members`}
@@ -185,72 +178,70 @@ const Events: React.FC = () => {
     };
 
     useEffect(() => {
-        if (fetchedRef.current) return;
-        fetchedRef.current = true;
+        // Reset state when organization ID changes
+        setEvents([]);
+        setLoading(true);
+        setError(null);
+        fetchedRef.current = false;
+        
+        // Now fetch events for this specific organization
+        fetchEventsForOrganization();
+    }, [id]); // Depend on the id parameter
 
-        const initialize = async () => {
-            setLoading(true);
-            const newOrgs = await fetchOrganizations();
-            //console.log(newOrgs)
-            await fetchEventsForOrganizations(newOrgs);
-            // console.log(newEvents)
+    const fetchEventsForOrganization = async () => {
+        if (!id) {
+            setError('Organization ID is missing');
             setLoading(false);
-        };
+            return;
+        }
 
-        initialize();
-    }, []);
+        try {
+            setLoading(true);
+            const response = await getPublicOrganizationEvents(id);
+            
+            if (response.data && response.data.events) {
+                setEvents(response.data.events);
+                setlastEvaluatedKeyOrgEvent({ [id]: response.lastEvaluatedKey });
+                setHasMore(response.lastEvaluatedKey !== null);
+            } else {
+                // No events found, but that's ok - just show empty state
+                setEvents([]);
+                setHasMore(false);
+            }
+        } catch (err) {
+            console.error(`Error fetching events for organization ${id}:`, err);
+            setError('Failed to fetch events.');
+        } finally {
+            setLoading(false);
+            fetchedRef.current = true;
+        }
+    };
 
     const loadMore = async () => {
-        if (loading) return;
+        if (loading || !hasMore || !id) return;
+        
         setLoading(true);
-    
-        let allFetched = true;
-        const newEvents: Event[] = [];
-        const updatedKeys: Record<string, string | null> = { ...lastEvaluatedKeyOrgEvent };
-    
-        // Fetch more events for current orgs
-        for (const org of organizations) { // Use `organizations` here
-            const nextKey = lastEvaluatedKeyOrgEvent[org.id];
-            if (nextKey !== null) {
-                try {
-                    const res = await getPublicOrganizationEvents(org.id, nextKey);
-                    newEvents.push(...res.data.events);
-                    updatedKeys[org.id] = res.lastEvaluatedKey ?? null;
-    
-                    if (res.lastEvaluatedKey !== null) {
-                        allFetched = false;
-                    }
-                } catch {
-                    console.error(`Error fetching more events for org ${org.id}`);
-                }
-            }
-        }
-    
-        setEvents(prev => [...prev, ...newEvents]);
-        setlastEvaluatedKeyOrgEvent(updatedKeys);
-    
-        // If all events were fetched, try fetching more orgs
-        let newOrgKey = lastEvaluatedKeyOrg;
-        let moreOrgsFetched = false;
-        if (allFetched && lastEvaluatedKeyOrg !== null) {
-            const newOrgs = await fetchOrganizations(lastEvaluatedKeyOrg);
-            if(newOrgs) {
-                await fetchEventsForOrganizations(newOrgs);
-                newOrgKey = newOrgs.data.organizations.length > 0 ? newOrgs.lastEvaluatedKey : null; // Use newOrgs to get the key
-                moreOrgsFetched = newOrgs.data.organizations.length > 0 ? true : false;
-            }
+        try {
+            const nextKey = lastEvaluatedKeyOrgEvent[id];
+            const response = await getPublicOrganizationEvents(id, nextKey || undefined);
             
+            if (response.data && response.data.events) {
+                setEvents((prev: Event[]) => [...prev, ...response.data.events]);
+                
+                // Update pagination key for this specific organization
+                setlastEvaluatedKeyOrgEvent((prev: Record<string, string | null>) => ({
+                    ...prev,
+                    [id]: response.lastEvaluatedKey
+                }));
+                
+                setHasMore(response.lastEvaluatedKey !== null);
+            }
+        } catch (err) {
+            console.error(`Error fetching more events for organization ${id}:`, err);
+            setError('Failed to load more events.');
+        } finally {
+            setLoading(false);
         }
-    
-        // Determine if there's more data
-        const anyOrgHasMoreEvents = Object.values(updatedKeys).some(k => k !== null);
-        const canFetchMoreOrgs = newOrgKey !== null;
-    
-        console.log('Has more events:', anyOrgHasMoreEvents);
-        console.log('Has more orgs:', canFetchMoreOrgs);
-    
-        setHasMore(canFetchMoreOrgs);
-        setLoading(false);
     };
 
     return (
@@ -279,9 +270,13 @@ const Events: React.FC = () => {
                             </Col>
                         </Row>
                         <Row>
-                            {error && <p className="text-red-500">{error}</p>}
+                            {error && <Alert variant="danger">{error}</Alert>}
 
-                            {events.length === 0 && !loading ? (
+                            {loading && events.length === 0 ? (
+                                <div className="text-center p-5">
+                                    <p>Loading events...</p>
+                                </div>
+                            ) : events.length === 0 ? (
                                 <div className="text-center p-5">
                                     <p>No events found for this organization.</p>
                                     {user && token && (
@@ -295,7 +290,7 @@ const Events: React.FC = () => {
                                     )}
                                 </div>
                             ) : (
-                                events.map(event => (
+                                events.map((event: Event) => (
                                     <Col key={event.id}>
                                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
                                             <GalleryCard
@@ -308,19 +303,16 @@ const Events: React.FC = () => {
                                 ))
                             )}
                             
-                            <div className="text-center mt-4 mb-4">
-                                {hasMore && (
-                                    <div className="text-center mt-4 mb-4">
-                                        <Button
-                                            onClick={loadMore}
-                                            disabled={loading}
-                                            //className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                                        >
-                                            {loading ? 'Loading...' : 'Load More'}
-                                        </Button>
-                                    </div>
-                                )}
-                            </div>
+                            {hasMore && events.length > 0 && (
+                                <div className="text-center mt-4 mb-4">
+                                    <Button
+                                        onClick={loadMore}
+                                        disabled={loading}
+                                    >
+                                        {loading ? 'Loading...' : 'Load More'}
+                                    </Button>
+                                </div>
+                            )}
                         </Row>
                     </div>
                 </Col>
