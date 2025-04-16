@@ -12,7 +12,7 @@ import { getAllPhotos, Photo } from '../../context/PhotoService';
 import { getPublicOrganizationEvents, Event } from '../../context/OrgService';
 import AuthContext from '../../context/AuthContext';
 import { EventsResponse, changeEventPublicity } from '../../context/OrgService';
-import { UserOrgRelationship, isMemberOfOrg } from '../../context/AuthService';
+import { isMemberOfOrg } from '../../context/AuthService';
 
 const Photos: React.FC = () => {
     const { user, token } = useContext(AuthContext);
@@ -23,6 +23,7 @@ const Photos: React.FC = () => {
     const [loading, setLoading] = useState<boolean>(true);
     const [eventInfo, setEventInfo] = useState<Event | null>(null);
     const [loadingEvent, setLoadingEvent] = useState<boolean>(true);
+    const [isAdminUser, setIsAdminUser] = useState(false);
     const fetchedRef = useRef(false);
     const { id, eid } = useParams();
 
@@ -87,7 +88,9 @@ const Photos: React.FC = () => {
         if (fetchedRef.current) return;
         fetchedRef.current = true;
         fetchPhotos();
+        checkIfAdmin();
     }, []);
+    
 
     const fetchPhotos = async () => {
         if (id && eid) {
@@ -103,29 +106,33 @@ const Photos: React.FC = () => {
         }
     };
 
-    const fetchUserRole = async (): Promise<UserOrgRelationship | undefined> => {
-        if (id && user) {
-            try {
-                const member = await isMemberOfOrg(id, user.id );
+    // const fetchUserRole = async (): Promise<UserOrgRelationship | undefined> => {
+    //     if (id && user) {
+    //         try {
+    //             const member = await isMemberOfOrg(id, user.id );
     
-                return member.data.data.membership;
-            } catch (error) {
-                console.error(`Error fetching the members ${id}:`, error);
-                throw error;
-            }
-        }
+    //             return member.data.data.membership;
+    //         } catch (error) {
+    //             console.error(`Error fetching the member ${id}:`, error);
+    //             throw error;
+    //         }
+    //     }
         
-    }
+    // }
 
-    const isAdmin = async (): Promise<boolean> => {
-        const fetchedMember = await fetchUserRole()
-
-        if (fetchedMember?.role === 'ADMIN') {
-            return true;
-        }
-
-        return false;
-    }
+    // const isAdmin  = async () => {
+    //     try {
+    //         if (!id || !user) return;
+    
+    //         const result = await isMemberOfOrg(user.id, id);
+    //         const role = result?.data?.data?.membership?.role;
+    
+    //         setIsAdminUser(role === 'ADMIN');
+    //     } catch (error) {
+    //         console.error('Error checking admin status:', error);
+    //         // Optionally: setError('Could not verify admin status');
+    //     }
+    // }
 
     const changePublicity = async (): Promise<EventsResponse | undefined> => {
         if(id && eid) {
@@ -205,20 +212,15 @@ const Photos: React.FC = () => {
                 {/* need to change the NavLink into just an icon when it is a user.
                     NavLink = Admin (logic of event privacy)
                     just button = Member */}
-                {await isAdmin() ? (
-                    <>
-                        <Button
-                            onClick={changePublicity}
-                            disabled={await isAdmin()}
-                        >
+                {user && token && (
+                    isAdminUser ? (
+                            <Button onClick={changePublicity}>
+                                <icon.UnlockFill size={24} />
+                            </Button>
+                    ) : (
                             <icon.UnlockFill size={24} />
-                        </Button>
-                    </>
-                ) : (
-                    <>
-                        <icon.UnlockFill size={24} />
-                    </>
-                )}
+                    )
+                )} 
                 <NavLink
                     to={`/organizations/${id}/events/${eid}/details`}
                     className="text-light top-bar-element"
