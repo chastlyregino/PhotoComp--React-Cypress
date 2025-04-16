@@ -207,13 +207,12 @@ const Photos: React.FC = () => {
                                 
                                 {user && token && (
                                     <div className="mt-4">
-                                        <Button 
-                                            variant="primary" 
-                                            as={NavLink} 
+                                        <NavButton
                                             to={`/organizations/${id}/events/${eid}/photos/upload`}
+                                            variant="primary"
                                         >
                                             Upload Your First Photo
-                                        </Button>
+                                        </NavButton>
                                     </div>
                                 )}
                             </div>
