@@ -88,6 +88,19 @@ const CustomPhotoCarousel: React.FC<CustomPhotoCarouselProps> = ({
     return photo.url;
   };
   
+  // Custom carousel controls with white square backgrounds and rounded edges
+  const customPrevIcon = (
+    <div className="carousel-nav-button carousel-nav-prev">
+      <ChevronLeft color="dark" size={36} />
+    </div>
+  );
+  
+  const customNextIcon = (
+    <div className="carousel-nav-button carousel-nav-next">
+      <ChevronRight color="dark" size={36} />
+    </div>
+  );
+  
   if (loading) {
     return (
       <div className="d-flex justify-content-center align-items-center" style={{ height: '400px' }}>
@@ -114,14 +127,61 @@ const CustomPhotoCarousel: React.FC<CustomPhotoCarouselProps> = ({
   
   return (
     <div className="photo-carousel-container">
+      <style>
+        {`
+          .carousel-nav-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 80px;
+            height: 80px;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            opacity: 0.9;
+            transition: opacity 0.2s ease;
+            z-index: 1000;
+          }
+          
+          .carousel-nav-button:hover {
+            opacity: 1;
+            cursor: pointer;
+          }
+          
+          .carousel-nav-prev {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+          }
+          
+          .carousel-nav-next {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+          }
+          
+          .carousel-control-prev,
+          .carousel-control-next {
+            opacity: 1;
+            width: 10%;
+          }
+          
+          .carousel-control-prev-icon,
+          .carousel-control-next-icon {
+            display: none;
+          }
+        `}
+      </style>
       <Carousel
         activeIndex={activeIndex}
         onSelect={handleSelect}
         interval={null}
         indicators={false}
-        prevIcon={<ChevronLeft color="white" size={40} />}
-        nextIcon={<ChevronRight color="white" size={40} />}
-        className="bg-dark"
+        prevIcon={customPrevIcon}
+        nextIcon={customNextIcon}
+        className="bg-dark position-relative"
       >
         {photos.map((photo, index) => (
           <Carousel.Item key={photo.id}>
