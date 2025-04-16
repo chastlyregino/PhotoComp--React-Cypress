@@ -62,7 +62,7 @@ const OrganizationRow: React.FC<OrganizationRowProps> = ({ organization }) => {
             >
                 {/* Organization Card */}
                 <div style={{ minWidth: '350px', flexShrink: 0, display: 'inline-block' }}>
-                    <GalleryCard item={organization} className="organization-card" />
+                    <GalleryCard item={organization} className="organization-card" orgName={organization.name} />
                 </div>
 
                 {/* Event Cards */}
@@ -81,7 +81,7 @@ const OrganizationRow: React.FC<OrganizationRowProps> = ({ organization }) => {
                                     display: 'inline-block',
                                 }}
                             >
-                                <GalleryCard item={event} className="event" />
+                                <GalleryCard item={event} className="event" orgName={organization.name}/>
                             </div>
                         ))}
 

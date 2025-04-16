@@ -294,6 +294,7 @@ const Events: React.FC = () => {
                                             key={event.id}
                                             item={event}
                                             className={`event-card`}
+                                            orgName={event.GSI2PK}
                                         />
                                     </div>
                                 </Col>

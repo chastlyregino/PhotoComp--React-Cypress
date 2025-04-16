@@ -44,7 +44,7 @@ describe('GalleryCard Component', () => {
             PK: 'ORG#TESTORG',
         };
 
-        renderWithRouter(<GalleryCard item={organization} className="organization-card" />);
+        renderWithRouter(<GalleryCard item={organization} className="organization-card" orgName={organization.name}/>);
 
         const card = screen.getByTestId('mock-card');
         expect(card).toHaveClass('organization-card');
@@ -58,14 +58,15 @@ describe('GalleryCard Component', () => {
             id: '123',
             name: 'Test Organization',
             PK: 'ORG#TESTORG',
+            orgName: 'testorg'
         };
 
-        renderWithRouter(<GalleryCard item={organization} className="organization-card" />);
+        renderWithRouter(<GalleryCard item={organization} className="organization-card" orgName={organization.orgName} />);
 
         const card = screen.getByTestId('mock-card');
         fireEvent.click(card);
 
-        expect(mockNavigate).toHaveBeenCalledWith('/organizations/testorg');
+        expect(mockNavigate).toHaveBeenCalledWith('/organizations/testorg/events');
     });
 
     // Event card tests
@@ -77,7 +78,7 @@ describe('GalleryCard Component', () => {
             GSI2PK: 'ORG#TESTORG',
         };
 
-        renderWithRouter(<GalleryCard item={event} className="event" />);
+        renderWithRouter(<GalleryCard item={event} className="event" orgName={event.GSI2PK} />);
 
         const card = screen.getByTestId('mock-card');
         expect(card).toHaveClass('event');
@@ -93,14 +94,15 @@ describe('GalleryCard Component', () => {
             id: '456',
             title: 'Test Event',
             GSI2PK: 'ORG#TESTORG',
+            orgName: 'Testorg',
         };
 
-        renderWithRouter(<GalleryCard item={event} className="event" />);
+        renderWithRouter(<GalleryCard item={event} className="event" orgName={event.orgName} />);
 
         const card = screen.getByTestId('mock-card');
         fireEvent.click(card);
 
-        expect(mockNavigate).toHaveBeenCalledWith('/organizations/testorg/events/456');
+        expect(mockNavigate).toHaveBeenCalledWith('/organizations/testorg/events/456/photos');
     });
 
     // Photo card tests
@@ -108,9 +110,10 @@ describe('GalleryCard Component', () => {
         const photo = {
             id: '789',
             url: 'https://example.com/photo.jpg',
+            orgName: 'Test Organization',
         };
 
-        renderWithRouter(<GalleryCard item={photo} className="photo" />);
+        renderWithRouter(<GalleryCard item={photo} className="photo" orgName={photo.orgName}/>);
 
         const card = screen.getByTestId('mock-card');
         expect(card).toHaveClass('photo');
@@ -132,7 +135,7 @@ describe('GalleryCard Component', () => {
             description: longDescription,
         };
 
-        renderWithRouter(<GalleryCard item={organization} className="organization-card" />);
+        renderWithRouter(<GalleryCard item={organization} className="organization-card" orgName={organization.name} />);
 
         // Expected truncated text with ellipsis
         const truncatedText = longDescription.substring(0, 97) + '...';
@@ -145,7 +148,7 @@ describe('GalleryCard Component', () => {
             name: 'Test Organization',
         };
 
-        renderWithRouter(<GalleryCard item={organization} className="organization-card" />);
+        renderWithRouter(<GalleryCard item={organization} className="organization-card" orgName={organization.name} />);
 
         const card = screen.getByTestId('mock-card');
         expect(card).toHaveStyle(`background-image: url(https://picsum.photos/400/350?random=123)`);

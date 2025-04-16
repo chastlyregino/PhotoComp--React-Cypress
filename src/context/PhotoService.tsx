@@ -27,9 +27,9 @@ export interface PhotosResponse {
     };
 }
 
-export const getAllPhotos = async (eventId: string) => {
+export const getAllPhotos = async (orgName: string, eventId: string) => {
     try {
-        const response = await axiosInstance.get<PhotosResponse>(`/events/${eventId}/photos`, {});
+        const response = await axiosInstance.get<PhotosResponse>(`/organizations/${orgName}/events/${eventId}/photos`, {});
         console.log(`photos returned BE: ${response}`);
         return response.data;
     } catch (error) {
