@@ -38,28 +38,33 @@ interface GalleryCardProps {
 const GalleryCard: React.FC<GalleryCardProps> = ({ item, className, orgName }) => {
     const navigate = useNavigate();
 
-    const isOrganization = 'name' in item;
-    const isEvent = 'title' in item;
-    const isPhoto = 'url' in item;
+    const isOrganization = className.includes('organization');
+    const isEvent = className.includes('event');
+    const isPhoto = className.includes('photo');
+
+    const isOrganizationItem = (item: CardItem): item is Organization =>
+        'name' in item && !('title' in item && !('organizationName' in item));
+    const isEventItem = (item: CardItem): item is Event => 'title' in item;
+    const isPhotoItem = (item: CardItem): item is Photo => 'url' in item;
 
     const getBackgroundImage = () => {
-        if (isOrganization && (item as Organization).logoUrl) {
-            return (item as Organization).logoUrl;
-        } else if (isEvent && (item as Event).imageUrl) {
-            return (item as Event).imageUrl;
-        } else if (isPhoto) {
-            return (item as Photo).url;
+        if (isOrganizationItem(item) && item.logoUrl) {
+            return item.logoUrl;
+        } else if (isEventItem(item) && item.imageUrl) {
+            return item.imageUrl;
+        } else if (isPhotoItem(item)) {
+            return item.url;
         }
         return ``;
     };
 
     const getTitle = () => {
-        if (isOrganization) {
-            return (item as Organization).name;
-        } else if (isEvent) {
-            return (item as Event).title;
-        } else if (isPhoto && (item as Photo).title) {
-            return (item as Photo).title;
+        if (isOrganizationItem(item)) {
+            return item.name;
+        } else if (isEventItem(item)) {
+            return item.title;
+        } else if (isPhotoItem(item) && item.title) {
+            return item.title;
         }
         return '';
     };
@@ -67,10 +72,10 @@ const GalleryCard: React.FC<GalleryCardProps> = ({ item, className, orgName }) =
     const getDescription = () => {
         let description = '';
 
-        if (isOrganization && (item as Organization).description) {
-            description = (item as Organization).description || '';
-        } else if (isEvent && (item as Event).description) {
-            description = (item as Event).description || '';
+        if (isOrganizationItem(item) && item.description) {
+            description = item.description;
+        } else if (isEventItem(item) && item.description) {
+            description = item.description;
         }
 
         if (description.length > 100) {
@@ -81,48 +86,37 @@ const GalleryCard: React.FC<GalleryCardProps> = ({ item, className, orgName }) =
     };
 
     const getOrganizationName = () => {
-        if (isEvent) {
-            const event = item as Event;
-            if (event.organizationName) {
-                return event.organizationName;
-            } else if (event.GSI2PK) {
-                const match = event.GSI2PK.match(/^ORG#(.+)$/);
+        if (isEventItem(item)) {
+            if (item.organizationName) {
+                return item.organizationName;
+            } else if (item.GSI2PK) {
+                const match = item.GSI2PK.match(/^ORG#(.+)$/);
                 return match ? match[1] : '';
             }
         }
         return '';
     };
 
-    const handleCardClick = () => {
-        if (isOrganization) {
-            const org = item as Organization;
-            // Extract organization name from PK or use the name property
-            let organizationName = org.name;
-            if (org.PK) {
-                const match = org.PK.match(/^ORG#(.+)$/);
-                if (match) organizationName = match[1];
+    const handleCardClick = (orgName: string | undefined) => {
+        return () => {
+            if(orgName) {
+                if (isOrganizationItem(item)) {
+                    navigate(`/organizations/${orgName.toLowerCase()}/events`);
+                } else if (isEventItem(item)) {
+                    navigate(`/organizations/${orgName.toLowerCase().slice(4)}/events/${item.id}/photos`);
+                } else if (isPhotoItem(item)) {
+                    const eventId = item.GSI2PK ? item.GSI2PK.replace('EVENT#', '').toLowerCase() : '';
+                    navigate(`/organizations/${orgName.toLowerCase()}/events/${eventId}/photos/${item.id}`);
+                }
             }
-            navigate(`/organizations/${organizationName.toLowerCase()}/events`);
-        } else if (isEvent) {
-            const event = item as Event;
-            if (event.GSI2PK) {
-                const match = event.GSI2PK.match(/^ORG#(.+)$/);
-                const orgName = match ? match[1].toLowerCase() : '';
-                navigate(`/organizations/${orgName}/events/${event.id}/photos`);
-            }
-        } else if (isPhoto) {
-            const photo = item as Photo;
-            if (photo.GSI2PK && orgName) {
-                const eventId = photo.GSI2PK.replace('EVENT#', '');
-                navigate(`/organizations/${orgName.toLowerCase()}/events/${eventId}/photos/${photo.id}`);
-            }
-        }
+            
+        } 
     };
 
     return (
         <Card
             className={`gallery-card ${className}`}
-            onClick={handleCardClick}
+            onClick={handleCardClick(orgName)}
             style={{
                 width: '350px',
                 height: '250px',
@@ -140,6 +134,7 @@ const GalleryCard: React.FC<GalleryCardProps> = ({ item, className, orgName }) =
             {!isPhoto && (
                 <div className="card-content">
                     <h5 className="card-title">{getTitle()}</h5>
+
                     {getDescription() && <p className="card-description">{getDescription()}</p>}
                 </div>
             )}
