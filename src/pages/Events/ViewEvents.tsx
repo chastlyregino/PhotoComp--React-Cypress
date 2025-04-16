@@ -115,16 +115,6 @@ const Events: React.FC = () => {
                     </>
                 ) : (
                     <>
-                        <NavButton
-                            to="/register"
-                            variant="outline-light"
-                            className="mx-1 top-bar-element"
-                        >
-                            Register
-                        </NavButton>
-                        <NavButton to="/login" variant="outline-light" className="top-bar-element">
-                            Login
-                        </NavButton>
                     </>
                 )}
             </div>
