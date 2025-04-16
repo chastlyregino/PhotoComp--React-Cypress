@@ -11,8 +11,15 @@ import GalleryCard from '../../components/cards/galleryCard/GalleryCard';
 import { getAllPhotos, Photo } from '../../context/PhotoService';
 import { getPublicOrganizationEvents, Event } from '../../context/OrgService';
 import AuthContext from '../../context/AuthContext';
-import { EventsResponse, changeEventPublicity } from '../../context/OrgService';
-import { isMemberOfOrg } from '../../context/AuthService';
+import { EventsResponse, changeEventPublicity, getOrganizationEvents } from '../../context/OrgService';
+import {
+    attendEvent,
+    getEventAttendees,
+    EventUserResponse,
+    attendeesResponse,
+    EventUser,
+} from '../../context/EventService';
+import { UserOrgRelationship, isMemberOfOrg } from '../../context/AuthService';
 
 const Photos: React.FC = () => {
     const { user, token } = useContext(AuthContext);
@@ -24,6 +31,8 @@ const Photos: React.FC = () => {
     const [eventInfo, setEventInfo] = useState<Event | null>(null);
     const [loadingEvent, setLoadingEvent] = useState<boolean>(true);
     const [isAdminUser, setIsAdminUser] = useState(false);
+    const [isEventAttendee, setIsEventAttendee] = useState<EventUser | null>(null);
+    const [eventPublicity, setEventPublicity] = useState<boolean | null>(null);
     const fetchedRef = useRef(false);
     const { id, eid } = useParams();
 
@@ -89,8 +98,9 @@ const Photos: React.FC = () => {
         fetchedRef.current = true;
         fetchPhotos();
         checkIfAdmin();
+        fetchEventAttendees();
+        fetchEventPublicity();
     }, []);
-    
 
     const fetchPhotos = async () => {
         if (id && eid) {
@@ -106,45 +116,98 @@ const Photos: React.FC = () => {
         }
     };
 
-    // const fetchUserRole = async (): Promise<UserOrgRelationship | undefined> => {
-    //     if (id && user) {
-    //         try {
-    //             const member = await isMemberOfOrg(id, user.id );
-    
-    //             return member.data.data.membership;
-    //         } catch (error) {
-    //             console.error(`Error fetching the member ${id}:`, error);
-    //             throw error;
-    //         }
-    //     }
-        
-    // }
+    const fetchUserRole = async (): Promise<UserOrgRelationship | undefined> => {
+        if (id && user) {
+            try {
+                const member = await isMemberOfOrg(user.id, id);
 
-    // const isAdmin  = async () => {
-    //     try {
-    //         if (!id || !user) return;
-    
-    //         const result = await isMemberOfOrg(user.id, id);
-    //         const role = result?.data?.data?.membership?.role;
-    
-    //         setIsAdminUser(role === 'ADMIN');
-    //     } catch (error) {
-    //         console.error('Error checking admin status:', error);
-    //         // Optionally: setError('Could not verify admin status');
-    //     }
-    // }
+                return member.data.data.membership;
+            } catch (error) {
+                console.error(`Error fetching the member ${id}:`, error);
+                throw error;
+            }
+        }
+    };
+
+    const checkIfAdmin = async () => {
+        try {
+            if (!id || !user) return;
+
+            const result = await fetchUserRole();
+            if (result) {
+                setIsAdminUser(result.role === 'ADMIN');
+            }
+        } catch (error) {
+            console.error('Error checking admin status:', error);
+            // Optionally: setError('Could not verify admin status');
+        }
+    };
 
     const changePublicity = async (): Promise<EventsResponse | undefined> => {
-        if(id && eid) {
+        if (id && eid) {
             try {
-                return await changeEventPublicity(id, eid)
+                const response = await changeEventPublicity(id, eid);
+                if (response && response.data && typeof response.data.events[0].isPublic === 'boolean') {
+                    // Update event publicity based on response from API
+                    setEventPublicity(response.data.events[0].isPublic);
+                }
+                return response;
             } catch (error) {
                 console.error(`Error changing event publicity ${eid}:`, error);
                 throw error;
             }
         }
-        
-    }
+    };    
+
+    const fetchEventAttendees = async () => {
+        if (id && eid && user) {
+            try {
+                const res = await getEventAttendees(id, eid);
+                const attendees: EventUser[] = res.data.userEvent;
+
+                const isAttending = attendees.find(attendee => attendee.id === user.id);
+
+                if (isAttending) {
+                    setIsEventAttendee(isAttending);
+                }
+            } catch (error) {
+                console.error(`Error fetching attendees for event ${eid}:`, error);
+            }
+        }
+    };
+
+    const handleAttendEvent = async () => {
+        if (!id || !eid || !user) return;
+    
+        try {
+            const response = await attendEvent(id, eid);
+            if (response && response.data && response.data.userEvent) {
+                setIsEventAttendee(response.data.userEvent); // ✅ Mark user as attending
+            }
+        } catch (error) {
+            console.error(`Failed to attend event ${eid}:`, error);
+            setError('Could not attend the event.');
+        }
+    };
+
+    const fetchEventPublicity = async () => {
+        if (!id || !eid) return;
+    
+        try {
+            const response = await getOrganizationEvents(id);
+            const event = response.data.events.find(e => e.id === eid);
+    
+            if (event && typeof event.isPublic === 'boolean') {
+                setEventPublicity(event.isPublic); // Update state with the actual event's publicity value
+            } else {
+                console.warn(`Event ${eid} not found in organization ${id}`);
+            }
+        } catch (error) {
+            console.error(`Error fetching publicity for event ${eid}:`, error);
+            setError('Could not load event publicity.');
+        }
+    };
+    
 
     /* Components to be injected into the TopBar*/
     const searchComponent = (
@@ -209,27 +272,36 @@ const Photos: React.FC = () => {
                             Attend Event
                         </NavButton>
 
-                {/* need to change the NavLink into just an icon when it is a user.
-                    NavLink = Admin (logic of event privacy)
-                    just button = Member */}
+            <div className="custom-create-button">
                 {user && token && (
                     isAdminUser ? (
-                            <Button onClick={changePublicity}>
+                        <Button onClick={changePublicity}>
+                            {eventPublicity ? (
                                 <icon.UnlockFill size={24} />
-                            </Button>
+                            ) : (
+                                <icon.LockFill size={24} />
+                            )}
+                        </Button>
                     ) : (
+
+                        eventPublicity ? (
                             <icon.UnlockFill size={24} />
+                        ) : (
+                            <icon.LockFill size={24} />
+                        )
                     )
-                )} 
-                <NavLink
-                    to={`/organizations/${id}/events/${eid}/details`}
-                    className="text-light top-bar-element"
-                >
-                    <icon.ListUl size={24} />
-                </NavLink>
+                )}
             </div>
-        </>
+
+            <NavLink
+                to={`/organizations/${id}/events/${eid}/details`}
+                className="text-light top-bar-element"
+            >
+                <icon.ListUl size={24} />
+            </NavLink>
+        </div>
     );
+    
 
     return (
         <>

@@ -114,8 +114,7 @@ const Events: React.FC = () => {
                         </NavLink>
                     </>
                 ) : (
-                    <>
-                    </>
+                    <></>
                 )}
             </div>
         </>

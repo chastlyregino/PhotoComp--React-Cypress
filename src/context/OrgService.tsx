@@ -154,7 +154,9 @@ export const getOrganizationEvents = async (orgId: string) => {
 
 export const changeEventPublicity = async (orgId: string, eventId: string) => {
     try {
-        const response = await axiosInstance.patch<EventsResponse>(`/organizations/${orgId}/events/${eventId}`);
+        const response = await axiosInstance.patch<EventsResponse>(
+            `/organizations/${orgId}/events/${eventId}`
+        );
         return response.data;
     } catch (error) {
         console.error('Error fetching organization events:', error);
