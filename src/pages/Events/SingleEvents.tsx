@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Button, Col, Row } from 'react-bootstrap';
+import { Button, Col, Row, Alert, Container } from 'react-bootstrap';
 import * as icon from 'react-bootstrap-icons';
-import { NavLink, useParams } from 'react-router-dom';
+import { NavLink, useParams, useNavigate } from 'react-router-dom';
 
 import Sidebar from '../../components/bars/SideBar/SideBar';
 import TopBar from '../../components/bars/TopBar/TopBar';
@@ -13,6 +13,7 @@ import { Event, getPublicOrganizationEvents, getOrganizationEvents } from '../..
 import AuthContext from '../../context/AuthContext';
 
 const SingleEvents: React.FC = () => {
+    const navigate = useNavigate();
     const { id } = useParams<{ id: string }>();
     const { user, token } = useContext(AuthContext);
     const [searchTerm, setSearchTerm] = useState('');
@@ -50,6 +51,7 @@ const SingleEvents: React.FC = () => {
                 }
                 
                 setEvents(response.data.events);
+                setFilteredEvents(response.data.events);
                 setLastEvaluatedKey(response.lastEvaluatedKey);
                 setHasMore(response.lastEvaluatedKey !== null);
                 setLoading(false);
@@ -124,7 +126,7 @@ const SingleEvents: React.FC = () => {
                 {user && token ? (
                     <>
                         {/* Create Event should only appear when an admin user is logged in */}
-                        {memberRole == 'ADMIN' && (
+                        {memberRole === 'ADMIN' && (
                             <NavButton
                                 to={`/organizations/${id}/events/create`}
                                 variant="outline-light"
@@ -165,7 +167,7 @@ const SingleEvents: React.FC = () => {
                 {user && token ? (
                     <>
                         {/* Only show Members link if user is a member or admin */}
-                        {memberRole =='ADMIN' && (
+                        {memberRole === 'ADMIN' && (
                             <NavLink to={`/organizations/${id}/members`} className="text-light top-bar-element">
                                 <icon.PersonLinesFill size={24} />
                             </NavLink>
@@ -209,7 +211,9 @@ const SingleEvents: React.FC = () => {
                     </div>
                     <div className="p-3 bg-dark text-white">
                         <Row className="align-items-center mb-4">
-                            <Col><h1 className="mb-4">Events</h1></Col>
+                            <Col>
+                                <h1 className="mb-4">Events for {id && id.charAt(0).toUpperCase() + id.slice(1)}</h1>
+                            </Col>
                             
                             <Col xs="auto" className="ms-auto me-5">
                                 {pageActionComponents}
@@ -225,6 +229,17 @@ const SingleEvents: React.FC = () => {
                             ) : filteredEvents.length === 0 ? (
                                 <div className="text-center p-5">
                                     {searchTerm ? 'No matching events found.' : 'No events for this organization.'}
+                                    
+                                    {user && token && memberRole === 'ADMIN' && (
+                                        <div className="mt-4">
+                                            <Button 
+                                                variant="primary" 
+                                                onClick={() => navigate(`/organizations/${id}/events/create`)}
+                                            >
+                                                Create Your First Event
+                                            </Button>
+                                        </div>
+                                    )}
                                 </div>
                             ) : (
                                 <div className="d-flex flex-wrap gap-4">
