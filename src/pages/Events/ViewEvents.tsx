@@ -59,15 +59,6 @@ const Events: React.FC = () => {
             <div className="d-flex align-items-center gap-3">
                 {user && token ? (
                     <>
-                        {/* Create Event should only appear when an admin user is logged in */}
-                        <NavButton
-                            to="/organizations/:id/events/create"
-                            variant="outline-light"
-                            className="mx-1 top-bar-element"
-                        >
-                            Create Event
-                        </NavButton>
-
                         <NavLink to="/account-settings" className="text-light top-bar-element">
                             <icon.GearFill size={24} />
                         </NavLink>
