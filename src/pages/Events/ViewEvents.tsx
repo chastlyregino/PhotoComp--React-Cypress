@@ -206,56 +206,53 @@ const Events: React.FC = () => {
     const loadMore = async () => {
         if (loading) return;
         setLoading(true);
-
+    
         let allFetched = true;
         const newEvents: Event[] = [];
         const updatedKeys: Record<string, string | null> = { ...lastEvaluatedKeyOrgEvent };
-
+    
         // Fetch more events for current orgs
-        for (const org of organizations) {
-            // Use `organizations` here
-            const nextKey = lastEvaluatedKeyOrgEvent[org.name];
+        for (const org of organizations) { // Use `organizations` here
+            const nextKey = lastEvaluatedKeyOrgEvent[org.id];
             if (nextKey !== null) {
                 try {
-                    console.log(`org.id: ${org.name}`);
-                    const res = await getPublicOrganizationEvents(org.name, nextKey);
+                    const res = await getPublicOrganizationEvents(org.id, nextKey);
                     newEvents.push(...res.data.events);
-                    updatedKeys[org.name] = res.lastEvaluatedKey ?? null;
-
+                    updatedKeys[org.id] = res.lastEvaluatedKey ?? null;
+    
                     if (res.lastEvaluatedKey !== null) {
                         allFetched = false;
                     }
                 } catch {
-                    console.error(`Error fetching more events for org ${org.name}`);
+                    console.error(`Error fetching more events for org ${org.id}`);
                 }
             }
         }
-
+    
         setEvents(prev => [...prev, ...newEvents]);
         setlastEvaluatedKeyOrgEvent(updatedKeys);
-
+    
         // If all events were fetched, try fetching more orgs
         let newOrgKey = lastEvaluatedKeyOrg;
         let moreOrgsFetched = false;
         if (allFetched && lastEvaluatedKeyOrg !== null) {
             const newOrgs = await fetchOrganizations(lastEvaluatedKeyOrg);
-            if (newOrgs) {
-                console.log(`newOrgsEvalKey: ${newOrgs}`);
+            if(newOrgs) {
                 await fetchEventsForOrganizations(newOrgs);
                 newOrgKey = newOrgs.data.organizations.length > 0 ? newOrgs.lastEvaluatedKey : null; // Use newOrgs to get the key
-                moreOrgsFetched = newOrgs.data.organizations.length > 0;
+                moreOrgsFetched = newOrgs.data.organizations.length > 0 ? true : false;
             }
+            
         }
-
+    
         // Determine if there's more data
-        console.log(`updatedKeys: ${Object.values(updatedKeys).some(k => k)}`)
         const anyOrgHasMoreEvents = Object.values(updatedKeys).some(k => k !== null);
         const canFetchMoreOrgs = newOrgKey !== null;
-
+    
         console.log('Has more events:', anyOrgHasMoreEvents);
-        console.log('Has more orgs:', canFetchMoreOrgs, moreOrgsFetched);
-
-        setHasMore(anyOrgHasMoreEvents || canFetchMoreOrgs);
+        console.log('Has more orgs:', canFetchMoreOrgs);
+    
+        setHasMore(canFetchMoreOrgs);
         setLoading(false);
     };
 
@@ -299,18 +296,19 @@ const Events: React.FC = () => {
                                     </div>
                                 </Col>
                             ))}
-
-                            {hasMore && events.length > 0 && (
-                                <div className="text-center mt-4 mb-4">
-                                    <Button
-                                        onClick={loadMore}
-                                        disabled={loading}
-                                        //className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                                    >
-                                        {loading ? 'Loading...' : 'Load More'}
-                                    </Button>
-                                </div>
-                            )}
+                            <div className="text-center mt-4 mb-4">
+                                {hasMore && (
+                                    <div className="text-center mt-4 mb-4">
+                                        <Button
+                                            onClick={loadMore}
+                                            disabled={loading}
+                                            //className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                                        >
+                                            {loading ? 'Loading...' : 'Load More'}
+                                        </Button>
+                                    </div>
+                                )}
+                            </div>
                         </Row>
                     </div>
                 </Col>
