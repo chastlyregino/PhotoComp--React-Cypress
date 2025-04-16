@@ -174,7 +174,7 @@ const SingleEvents: React.FC = () => {
                         { user && !memberRole && (
                             <Button
                                 variant="outline-light"
-                                className="mx-1 top-bar-element"
+                                className="mx-1 top-bar-element custom-create-button"
                                 onClick={handleShowJoinModal}
                             >
                                 Join the Org ! 
