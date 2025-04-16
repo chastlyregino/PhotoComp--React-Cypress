@@ -25,15 +25,15 @@ export interface PhotosResponse {
     data: {
         photos: Photo[];
     };
-    lastEvaluatedKey: string | null;
 }
 
 export const getAllPhotos = async (eventId: string) => {
     try {
         const response = await axiosInstance.get<PhotosResponse>(`/events/${eventId}/photos`, {});
+        console.log(`photos returned BE: ${response}`);
         return response.data;
     } catch (error) {
-        console.error('Error fetching public organizations:', error);
+        console.error('Error fetching photos of an event:', error);
         throw error;
     }
 };

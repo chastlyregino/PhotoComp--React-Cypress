@@ -15,6 +15,7 @@ const Photos: React.FC = () => {
     const [photos, setPhotos] = useState<any[]>([]);
     const [error, setError] = useState<string | null>(null);
     const fetchedRef = useRef(false);
+    const { id, eid } = useParams();
 
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearchTerm(e.target.value);
@@ -33,6 +34,7 @@ const Photos: React.FC = () => {
             onChange={handleSearchChange}
             onSubmit={handleSearchSubmit}
             placeholder="Search Photos..."
+            className="ms-3"
         />
     );
 
@@ -43,7 +45,8 @@ const Photos: React.FC = () => {
                 {/* Create Organization should only appear when an Admin is logged in */}
                 <NavButton
                     to="/:eid/events/:id/upload"
-                    className="mx-2 top-bar-element custom-create-button"
+                    variant="outline-light"
+                    className="mx-1 top-bar-element"
                 >
                     Upload Photos
                 </NavButton>
@@ -57,6 +60,37 @@ const Photos: React.FC = () => {
         </>
     );
 
+    const pageActionComponents = (
+        <>
+            <div className="d-flex align-items-center gap-3">
+                {/* Attend Event should only appear when an user has to yet to attend the event that is logged in */}
+                <NavButton
+                    to={`/organizations/${id}/events/${eid}/apply`}
+                    variant="outline-light"
+                    className="mx-1 top-bar-element"
+                >
+                    Attend Event
+                </NavButton>
+
+                {/* need to change the NavLink into just an icon when it is a user.
+                    NavLink = Admin (logic of event privacy)
+                    just button = Member */}
+                <NavLink to={`/organizations/${id}/members`} className="text-light top-bar-element">
+                    {/* change logic icon when private or public
+                        unlock = public
+                        lock = private */}
+                    <icon.UnlockFill size={24} />
+                </NavLink>
+                <NavLink
+                    to={`/organizations/${id}/events/${eid}/details`}
+                    className="text-light top-bar-element"
+                >
+                    <icon.ListUl size={24} />
+                </NavLink>
+            </div>
+        </>
+    );
+
     useEffect(() => {
         if (fetchedRef.current) return;
         fetchedRef.current = true;
@@ -64,7 +98,6 @@ const Photos: React.FC = () => {
     }, []);
 
     const fetchPhotos = async () => {
-        const { eid } = useParams();
         if (eid) {
             try {
                 const photos = await getAllPhotos(eid);
@@ -81,19 +114,27 @@ const Photos: React.FC = () => {
     return (
         <>
             <Row className="g-0">
-                <Col md="auto">
+                <Col md="auto" className="sidebar-container">
                     <Sidebar />
                 </Col>
-                <Col style={{ flex: 1, marginLeft: '200px' }}>
-                    <Row>
-                        <TopBar
-                            searchComponent={searchComponent}
-                            rightComponents={rightComponents}
-                        />
-                    </Row>
-                    <div className="p-3 bg-dark text-white">
+                <Col className="main-content p-0">
+                    <div className="sticky-top bg-dark z-3">
                         <Row>
-                            <h1 className="mb-4">Photos</h1>
+                            <TopBar
+                                searchComponent={searchComponent}
+                                rightComponents={rightComponents}
+                            />
+                        </Row>
+                    </div>
+                    <div className="p-3 bg-dark text-white">
+                        <Row className="align-items-center mb-4">
+                            <Col>
+                                <h1 className="mb-4">Photos</h1>
+                            </Col>
+
+                            <Col xs="auto" className="ms-auto me-5">
+                                {pageActionComponents}
+                            </Col>
                         </Row>
                         <Row>
                             {error && <p className="text-red-500">{error}</p>}

@@ -98,11 +98,11 @@ const GalleryCard: React.FC<GalleryCardProps> = ({ item, className }) => {
     const handleCardClick = () => {
         if (isOrganizationItem(item)) {
             const orgId = item.PK ? item.PK.replace('ORG#', '') : item.id;
-            navigate(`/organizations/${orgId.toLowerCase()}`);
+            navigate(`/organizations/${orgId.toLowerCase()}/events`);
         } else if (isEventItem(item)) {
             const orgId = item.GSI2PK ? item.GSI2PK.replace('ORG#', '').toLowerCase() : '';
 
-            navigate(`/organizations/${orgId}/events/${item.id}`);
+            navigate(`/organizations/${orgId}/events/${item.id}/photos`);
         } else if (isPhotoItem(item)) {
             navigate(`/photos/${item.id}`);
         }
