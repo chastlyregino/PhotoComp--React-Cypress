@@ -38,12 +38,7 @@ function App() {
                         </ProtectedRoute>
                     }
                 />
-                <Route 
-                    path="/organizations/:id/events/:eid"
-                    element={
-                        <Photos />
-                    }
-                />
+                <Route path="/organizations/:id/events/:eid/photos" element={<Photos />} />
             </Routes>
             <Footer />
         </>
