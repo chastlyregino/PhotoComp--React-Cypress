@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Container, Row, Col, Button, Dropdown } from 'react-bootstrap';
-import { Grid3x3Gap } from 'react-bootstrap-icons';
-import CustomPhotoCarousel from '../../components/CustomPhotoCarousel/CustomPhotoCarousel';
+import { Search, Download, Heart, PersonCircle, Grid3x3Gap } from 'react-bootstrap-icons';
+import PhotoCarousel from '../../components/PhotoCarousel/PhotoCarousel';
 import axios from 'axios';
 import { useParams, useNavigate, NavLink } from 'react-router-dom';
 import * as icon from 'react-bootstrap-icons';
@@ -274,7 +274,7 @@ const PhotoGalleryPage: React.FC = () => {
 
             {/* Main carousel section */}
             {selectedOrg && selectedEvent ? (
-              <CustomPhotoCarousel 
+              <PhotoCarousel 
                 orgName={selectedOrg} 
                 eventId={selectedEvent} 
                 initialIndex={initialPhotoIndex}
