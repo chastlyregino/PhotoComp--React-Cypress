@@ -10,7 +10,6 @@ import NavButton from '../../components/navButton/NavButton';
 import GalleryCard from '../../components/cards/galleryCard/GalleryCard';
 import {
     Organization,
-    OrganizationsResponse,
     Event,
     getPublicOrganizations,
     getPublicOrganizationEvents,
