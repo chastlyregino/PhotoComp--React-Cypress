@@ -4,14 +4,12 @@ import { useNavigate, useParams } from 'react-router-dom';
 import AuthContext from '../../context/AuthContext';
 import * as icon from 'react-bootstrap-icons';
 
-// Import components
 import Sidebar from '../../components/bars/SideBar/SideBar';
 import TopBar from '../../components/bars/TopBar/TopBar';
 import SearchBar from '../../components/bars/SearchBar/SearchBar';
 import NavButton from '../../components/navButton/NavButton';
 import { NavLink } from 'react-router-dom';
 
-// Import photo service
 import { uploadEventPhoto } from '../../context/PhotoService';
 
 interface PhotoData {
@@ -22,7 +20,7 @@ interface PhotoData {
 
 const UploadEventPhoto: React.FC = () => {
   const navigate = useNavigate();
-  const { eventId, orgId } = useParams(); // Get event ID and org ID from URL params
+  const { id, eid } = useParams();
   const { user, token } = useContext(AuthContext);
   const [photoData, setPhotoData] = useState<PhotoData>({
     title: '',
@@ -132,7 +130,7 @@ const UploadEventPhoto: React.FC = () => {
     e.preventDefault();
     
     // Form validation
-    if (!eventId) {
+    if (!eid) {
       setError('Event ID is missing');
       return;
     }
@@ -162,11 +160,11 @@ const UploadEventPhoto: React.FC = () => {
     
     try {
       // Make API call to upload photo
-      await uploadEventPhoto(eventId, formData);
+      await uploadEventPhoto(eid, formData);
       console.log('Photo uploaded successfully');
       
-      // Redirect back to event page
-      navigate(`/organizations/${orgId}/events/${eventId}`);
+      // Redirect back to event photos page
+      navigate(`/organizations/${id}/events/${eid}/photos`);
     } catch (error: any) {
       console.error('Error uploading photo:', error);
       
@@ -201,7 +199,7 @@ const UploadEventPhoto: React.FC = () => {
             <Container fluid className="px-4 pt-4">
               <Row className="justify-content-center">
                 <Col xs={12} md={8} lg={6}>
-                  <h1 className="text-center mb-5" style={{ fontFamily: 'Michroma, sans-serif' }}>Photos : Adult Promotional Test</h1>
+                  <h1 className="text-center mb-5" style={{ fontFamily: 'Michroma, sans-serif' }}>Photos</h1>
                   
                   <div className="text-center mb-5">
                     <h2 className="fs-1" style={{ fontFamily: 'Michroma, sans-serif' }}>
@@ -275,7 +273,7 @@ const UploadEventPhoto: React.FC = () => {
                       <div className="position-absolute" style={{ left: "-200px", top: "200px" }}>
                         <Button
                           variant="secondary"
-                          onClick={() => navigate(`/organizations/${orgId}/events/${eventId}`)}
+                          onClick={() => navigate(`/organizations/${id}/events/${eid}/photos`)}
                           disabled={isSubmitting}
                           className="py-2 px-4"
                         >

@@ -44,7 +44,7 @@ const Photos: React.FC = () => {
             <div className="d-flex align-items-center gap-3">
                 {/* Create Organization should only appear when an Admin is logged in */}
                 <NavButton
-                    to="/:eid/events/:id/upload"
+                    to={`/organizations/${id}/events/${eid}/photos/upload`}
                     variant="outline-light"
                     className="mx-1 top-bar-element"
                 >
