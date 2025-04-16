@@ -11,6 +11,8 @@ import GalleryCard from '../../components/cards/galleryCard/GalleryCard';
 import { getAllPhotos, Photo } from '../../context/PhotoService';
 import { getPublicOrganizationEvents, Event } from '../../context/OrgService';
 import AuthContext from '../../context/AuthContext';
+import { EventsResponse, changeEventPublicity } from '../../context/OrgService';
+import { UserOrgRelationship, isMemberOfOrg } from '../../context/AuthService';
 
 const Photos: React.FC = () => {
     const { user, token } = useContext(AuthContext);
@@ -77,26 +79,65 @@ const Photos: React.FC = () => {
 
     const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        console.log('Search submitted:', searchTerm);
+        // Implement your search logic here photos
     };
+
+    useEffect(() => {
+        if (fetchedRef.current) return;
+        fetchedRef.current = true;
+        fetchPhotos();
+    }, []);
 
     const fetchPhotos = async () => {
         if (id && eid) {
             try {
-                setLoading(true);
-                const response = await getAllPhotos(id, eid);
-                setPhotos(response.data.photos);
-                setFilteredPhotos(response.data.photos);
-                setLoading(false);
+                const photos = await getAllPhotos(id, eid);
+                console.log(photos);
+                setPhotos(prev => [...prev, ...photos.data.photos]);
             } catch (err) {
-                console.error('Error fetching photos:', err);
-                setError('Failed to fetch photos. Please try again later.');
-                setLoading(false);
+                setError('Failed to fetch photos.');
             }
         } else {
-            setError('Organization name or Event ID is missing.');
-            setLoading(false);
+            setError('Org name or EventId is empty.');
         }
     };
+
+    const fetchUserRole = async (): Promise<UserOrgRelationship | undefined> => {
+        if (id && user) {
+            try {
+                const member = await isMemberOfOrg(id, user.id );
+    
+                return member.data.data.membership;
+            } catch (error) {
+                console.error(`Error fetching the members ${id}:`, error);
+                throw error;
+            }
+        }
+        
+    }
+
+    const isAdmin = async (): Promise<boolean> => {
+        const fetchedMember = await fetchUserRole()
+
+        if (fetchedMember?.role === 'ADMIN') {
+            return true;
+        }
+
+        return false;
+    }
+
+    const changePublicity = async (): Promise<EventsResponse | undefined> => {
+        if(id && eid) {
+            try {
+                return await changeEventPublicity(id, eid)
+            } catch (error) {
+                console.error(`Error changing event publicity ${eid}:`, error);
+                throw error;
+            }
+        }
+        
+    }
 
     /* Components to be injected into the TopBar*/
     const searchComponent = (
@@ -161,36 +202,29 @@ const Photos: React.FC = () => {
                             Attend Event
                         </NavButton>
 
-                        {/* Privacy icon - lock/unlock based on event privacy */}
-                        <NavLink 
-                            to={`/organizations/${id}/members`} 
-                            className="text-light top-bar-element"
+                {/* need to change the NavLink into just an icon when it is a user.
+                    NavLink = Admin (logic of event privacy)
+                    just button = Member */}
+                {await isAdmin() ? (
+                    <>
+                        <Button
+                            onClick={changePublicity}
+                            disabled={await isAdmin()}
                         >
                             <icon.UnlockFill size={24} />
-                        </NavLink>
-                        
-                        {/* Event details */}
-                        <NavLink
-                            to={`/organizations/${id}/events/${eid}/details`}
-                            className="text-light top-bar-element"
-                        >
-                            <icon.ListUl size={24} />
-                        </NavLink>
+                        </Button>
                     </>
                 ) : (
                     <>
-                        <NavButton
-                            to="/register"
-                            variant="outline-light"
-                            className="mx-1 top-bar-element"
-                        >
-                            Register
-                        </NavButton>
-                        <NavButton to="/login" variant="outline-light" className="top-bar-element">
-                            Login
-                        </NavButton>
+                        <icon.UnlockFill size={24} />
                     </>
                 )}
+                <NavLink
+                    to={`/organizations/${id}/events/${eid}/details`}
+                    className="text-light top-bar-element"
+                >
+                    <icon.ListUl size={24} />
+                </NavLink>
             </div>
         </>
     );

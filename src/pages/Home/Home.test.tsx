@@ -12,12 +12,16 @@ jest.mock('../../context/OrgService', () => ({
 jest.mock('../../components/navButton/NavButton', () => ({
     __esModule: true,
     default: ({ children, to, className, variant }: any) => (
-        <button data-testid="mock-nav-button" data-to={to} className={className} data-variant={variant}>
+        <button
+            data-testid="mock-nav-button"
+            data-to={to}
+            className={className}
+            data-variant={variant}
+        >
             {children}
         </button>
     ),
 }));
-
 
 jest.mock('../../components/bars/TopBar/TopBar', () => ({
     __esModule: true,
@@ -28,7 +32,6 @@ jest.mock('../../components/bars/TopBar/TopBar', () => ({
         </div>
     ),
 }));
-
 
 jest.mock('../../components/bars/SideBar/SideBar', () => ({
     __esModule: true,
@@ -46,9 +49,8 @@ jest.mock('../../components/organizationRow/OrganizationRow', () => ({
 
 describe('Home Component', () => {
     beforeEach(() => {
-        
         jest.clearAllMocks();
-        
+
         (getPublicOrganizations as jest.Mock).mockResolvedValue({
             data: {
                 organizations: [
@@ -83,11 +85,11 @@ describe('Home Component', () => {
         await act(async () => {
             renderWithRouter(<Home />);
         });
-        
+
         expect(screen.getByTestId('mock-sidebar')).toBeInTheDocument();
         expect(screen.getByTestId('mock-top-bar')).toBeInTheDocument();
         expect(screen.getByText('Organizations & Event')).toBeInTheDocument();
-        
+
         await waitFor(() => {
             expect(screen.queryByText('Loading organizations...')).not.toBeInTheDocument();
             expect(screen.getAllByTestId('mock-organization-row')).toHaveLength(3);
@@ -98,10 +100,9 @@ describe('Home Component', () => {
         await act(async () => {
             renderWithRouter(<Home />);
         });
-        
+
         expect(getPublicOrganizations).toHaveBeenCalledTimes(1);
-        
-        
+
         await waitFor(() => {
             expect(screen.getAllByTestId('mock-organization-row')).toHaveLength(3);
         });
@@ -111,31 +112,37 @@ describe('Home Component', () => {
         await act(async () => {
             renderWithRouter(<Home />);
         });
-        
+
         const rightComponentsContainer = screen.getByTestId('right-components-container');
         const registerButton = screen.getByText('Register');
         const loginButton = screen.getByText('Login');
-        
+
         expect(rightComponentsContainer).toContainElement(registerButton);
         expect(rightComponentsContainer).toContainElement(loginButton);
-        
+
         expect(registerButton.closest('[data-to]')).toHaveAttribute('data-to', '/register');
         expect(loginButton.closest('[data-to]')).toHaveAttribute('data-to', '/login');
     });
 
     test('does not display login and register buttons when authenticated', async () => {
         const authContext = {
-            user: { id: '1', email: 'test@example.com', firstName: 'Test', lastName: 'User', role: 'user' },
+            user: {
+                id: '1',
+                email: 'test@example.com',
+                firstName: 'Test',
+                lastName: 'User',
+                role: 'user',
+            },
             token: 'valid-token',
             setUser: jest.fn(),
             setToken: jest.fn(),
             logout: jest.fn(),
         };
-        
+
         await act(async () => {
             renderWithRouter(<Home />, { authContext });
         });
-        
+
         expect(screen.queryByText('Register')).not.toBeInTheDocument();
         expect(screen.queryByText('Login')).not.toBeInTheDocument();
     });
@@ -144,13 +151,13 @@ describe('Home Component', () => {
         await act(async () => {
             renderWithRouter(<Home />);
         });
-        
+
         const searchInput = screen.getByPlaceholderText('Search organizations...');
         expect(searchInput).toBeInTheDocument();
         await act(async () => {
             fireEvent.change(searchInput, { target: { value: 'Test Search' } });
         });
-        
+
         expect(searchInput).toHaveValue('Test Search');
     });
 
@@ -158,22 +165,21 @@ describe('Home Component', () => {
         await act(async () => {
             renderWithRouter(<Home />);
         });
-        
+
         const originalConsoleLog = console.log;
         const mockConsoleLog = jest.fn();
         console.log = mockConsoleLog;
-        
+
         const searchInput = screen.getByPlaceholderText('Search organizations...');
         await act(async () => {
             fireEvent.change(searchInput, { target: { value: 'Test Search' } });
         });
-        
-        
+
         const form = searchInput.closest('form');
         await act(async () => {
             fireEvent.submit(form!);
         });
-        
+
         expect(mockConsoleLog).toHaveBeenCalledWith('Search submitted:', 'Test Search');
         console.log = originalConsoleLog;
     });
@@ -200,8 +206,7 @@ describe('Home Component', () => {
             },
             lastEvaluatedKey: null,
         };
-        
-        
+
         (getPublicOrganizations as jest.Mock).mockClear();
         (getPublicOrganizations as jest.Mock).mockResolvedValueOnce({
             data: {
@@ -231,8 +236,7 @@ describe('Home Component', () => {
             },
             lastEvaluatedKey: 'last-key',
         });
-        
-        
+
         (getPublicOrganizations as jest.Mock).mockResolvedValueOnce(additionalOrgs);
         await act(async () => {
             renderWithRouter(<Home />);
@@ -241,44 +245,41 @@ describe('Home Component', () => {
         await waitFor(() => {
             expect(screen.getAllByTestId('mock-organization-row')).toHaveLength(3);
         });
-        
-        
+
         const loadMoreButton = screen.getByText('Load More');
         expect(loadMoreButton).toBeInTheDocument();
         await act(async () => {
             fireEvent.click(loadMoreButton);
         });
-        
+
         expect(getPublicOrganizations).toHaveBeenCalledTimes(2);
         expect(getPublicOrganizations).toHaveBeenLastCalledWith('last-key');
-        
+
         await waitFor(() => {
             expect(screen.getAllByTestId('mock-organization-row')).toHaveLength(5);
         });
     });
 
     test('handles error when fetching organizations fails', async () => {
-        
         (getPublicOrganizations as jest.Mock).mockClear();
         (getPublicOrganizations as jest.Mock).mockRejectedValueOnce(new Error('Failed to fetch'));
         const originalConsoleError = console.error;
         console.error = jest.fn();
-        
+
         await act(async () => {
             renderWithRouter(<Home />);
         });
-        
-        
+
         await waitFor(() => {
-            expect(screen.getByText('Failed to load organizations. Please try again later.')).toBeInTheDocument();
+            expect(
+                screen.getByText('Failed to load organizations. Please try again later.')
+            ).toBeInTheDocument();
         });
-        
-        
+
         console.error = originalConsoleError;
     });
 
     test('renders empty state when no organizations are returned', async () => {
-        
         (getPublicOrganizations as jest.Mock).mockClear();
         (getPublicOrganizations as jest.Mock).mockResolvedValueOnce({
             data: {
@@ -286,11 +287,11 @@ describe('Home Component', () => {
             },
             lastEvaluatedKey: null,
         });
-        
+
         await act(async () => {
             renderWithRouter(<Home />);
         });
-        
+
         await waitFor(() => {
             expect(screen.getByText('No organizations found.')).toBeInTheDocument();
         });

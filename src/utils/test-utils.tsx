@@ -5,15 +5,15 @@ import { MemoryRouter } from 'react-router-dom';
 // Mock AuthContext
 import AuthContext, { AuthContextType } from '../context/AuthContext';
 
-interface MockAuthContext{
-  user: any;
-  token: any;
-  setUser: any;
-  setToken: any;
-  logout: any;
+interface MockAuthContext {
+    user: any;
+    token: any;
+    setUser: any;
+    setToken: any;
+    logout: any;
 }
 
-const mockAuthContext:MockAuthContext = {
+const mockAuthContext: MockAuthContext = {
     user: null,
     token: null,
     setUser: jest.fn(),

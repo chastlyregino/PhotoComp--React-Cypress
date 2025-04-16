@@ -47,7 +47,6 @@ export interface EventsResponse {
     lastEvaluatedKey: string | null;
 }
 
-
 export const getPublicOrganizations = async (lastEvaluatedKey?: string, limit: number = 9) => {
     try {
         const response = await noAuthInstance.get<OrganizationsResponse>('/guests', {
@@ -91,8 +90,8 @@ export const createOrganization = async (formData: FormData) => {
     try {
         const response = await axiosInstance.post('/organizations', formData, {
             headers: {
-                'Content-Type': 'multipart/form-data'
-            }
+                'Content-Type': 'multipart/form-data',
+            },
         });
         return response.data;
     } catch (error) {
@@ -121,8 +120,8 @@ export const updateOrganization = async (organizationId: string, formData: FormD
     try {
         const response = await axiosInstance.put(`/organizations/${organizationId}`, formData, {
             headers: {
-                'Content-Type': 'multipart/form-data'
-            }
+                'Content-Type': 'multipart/form-data',
+            },
         });
         return response.data;
     } catch (error) {
@@ -146,6 +145,16 @@ export const deleteOrganization = async (organizationId: string) => {
 export const getOrganizationEvents = async (orgId: string) => {
     try {
         const response = await axiosInstance.get<EventsResponse>(`/organizations/${orgId}/events`);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching organization events:', error);
+        throw error;
+    }
+};
+
+export const changeEventPublicity = async (orgId: string, eventId: string) => {
+    try {
+        const response = await axiosInstance.patch<EventsResponse>(`/organizations/${orgId}/events/${eventId}`);
         return response.data;
     } catch (error) {
         console.error('Error fetching organization events:', error);
