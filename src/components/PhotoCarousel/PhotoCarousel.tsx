@@ -177,11 +177,19 @@ const CustomPhotoCarousel: React.FC<CustomPhotoCarouselProps> = ({
           .photo-carousel-container {
             padding-top: 20px;
             padding-bottom: 20px;
+            position: relative;
           }
           
           /* Center the carousel in the available space */
           .carousel {
             margin: 0 auto;
+          }
+
+          /* Style for the caption container */
+          .photo-caption-container {
+            margin-top: 100px; /* Move caption 100px down */
+            text-align: center;
+            padding: 15px;
           }
         `}
       </style>
@@ -205,19 +213,25 @@ const CustomPhotoCarousel: React.FC<CustomPhotoCarouselProps> = ({
               />
             </div>
             
-            {/* Caption container - inline display */}
-            <div className="text-center text-white py-3">
-              <span className="fw-bold">{photo.metadata?.title || `Photo ${index + 1}`}</span>
-              {photo.metadata?.description && (
-                <>
-                  <span className="mx-2">-</span>
-                  <span>{photo.metadata.description}</span>
-                </>
-              )}
-            </div>
+            {/* Caption container - moved outside the direct flow */}
           </Carousel.Item>
         ))}
       </Carousel>
+
+      {/* Separate caption container that's not affected by carousel navigation */}
+      {photos.length > 0 && activeIndex < photos.length && (
+        <div className="photo-caption-container text-white">
+          <span className="fw-bold">
+            {photos[activeIndex].metadata?.title || `Photo ${activeIndex + 1}`}
+          </span>
+          {photos[activeIndex].metadata?.description && (
+            <>
+              <span className="mx-2">-</span>
+              <span>{photos[activeIndex].metadata.description}</span>
+            </>
+          )}
+        </div>
+      )}
     </div>
   );
 };
