@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
-import { Button, Col, Row } from 'react-bootstrap';
+import { Button, Col, Row, Container, Alert } from 'react-bootstrap';
 import * as icon from 'react-bootstrap-icons';
-import { NavLink, useParams } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 
 import Sidebar from '../../components/bars/SideBar/SideBar';
 import TopBar from '../../components/bars/TopBar/TopBar';
@@ -15,6 +15,7 @@ const Organizations: React.FC = () => {
     const { user, token } = useContext(AuthContext);
     const [searchTerm, setSearchTerm] = useState('');
     const [organizations, setOrganizations] = useState<Organization[]>([]);
+    const [filteredOrganizations, setFilteredOrganizations] = useState<Organization[]>([]);
     const [lastEvaluatedKey, setLastEvaluatedKey] = useState<string | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
@@ -27,8 +28,6 @@ const Organizations: React.FC = () => {
 
     const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        console.log('Search submitted:', searchTerm);
-        // Implement your search logic here organizations
     };
 
     /* Components to be injected into the TopBar*/
@@ -96,6 +95,7 @@ const Organizations: React.FC = () => {
             setLoading(false);
         } catch (err) {
             setError('Failed to fetch organizations');
+            setLoading(false);
         }
     };
 
@@ -104,6 +104,19 @@ const Organizations: React.FC = () => {
         fetchedRef.current = true;
         fetchOrganizations();
     }, []);
+
+    useEffect(() => {
+        if (searchTerm.trim() === '') {
+            setFilteredOrganizations(organizations);
+        } else {
+            const filtered = organizations.filter(org => {
+                const nameMatch = org.name.toLowerCase().includes(searchTerm.toLowerCase());
+                const descMatch = org.description?.toLowerCase().includes(searchTerm.toLowerCase()) || false;
+                return nameMatch || descMatch;
+            });
+            setFilteredOrganizations(filtered);
+        }
+    }, [organizations, searchTerm]);
 
     const handleLoadMore = () => {
         if (!loading && hasMore) {
@@ -127,36 +140,68 @@ const Organizations: React.FC = () => {
                         </Row>
                     </div>
                     <div className="p-3 bg-dark text-white">
-                        <Row>
-                            <h1 className="mb-4">Organizations</h1>
-                        </Row>
-                        <Row>
-                            {error && <p className="text-red-500">{error}</p>}
-
-                            {organizations.map(org => (
+                        <Container fluid>
+                            <Row>
                                 <Col>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
-                                        <GalleryCard
-                                            key={org.id}
-                                            item={org}
-                                            className={`organization-card`}
-                                            orgName={org.name}
-                                        />
-                                    </div>
+                                    <h1 className="mb-4">Organizations</h1>
                                 </Col>
-                            ))}
-                            <div className="text-center mt-4 mb-4">
-                                {hasMore && (
-                                    <Button
-                                        onClick={handleLoadMore}
-                                        disabled={loading}
-                                        //className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                                    >
-                                        {loading ? 'Loading...' : 'Load More'}
-                                    </Button>
+                            </Row>
+                            
+                            {error && (
+                                <Alert variant="danger">{error}</Alert>
+                            )}
+                            
+                            <Row>
+                                {loading && organizations.length === 0 ? (
+                                    <div className="text-center p-5">Loading organizations...</div>
+                                ) : filteredOrganizations.length === 0 ? (
+                                    <div className="text-center p-5">
+                                        {searchTerm 
+                                            ? 'No matching organizations found.' 
+                                            : 'No organizations available.'
+                                        }
+                                        
+                                        {user && token && (
+                                            <div className="mt-4">
+                                                <Button 
+                                                    variant="primary" 
+                                                    as={NavLink} 
+                                                    to="/organizations/create"
+                                                >
+                                                    Create Your First Organization
+                                                </Button>
+                                            </div>
+                                        )}
+                                    </div>
+                                ) : (
+                                    <div className="d-flex flex-wrap gap-4">
+                                        {filteredOrganizations.map(org => (
+                                            <div key={org.id}>
+                                                <GalleryCard
+                                                    item={org}
+                                                    className="organization-card"
+                                                    orgName={org.name}
+                                                />
+                                            </div>
+                                        ))}
+                                    </div>
                                 )}
-                            </div>
-                        </Row>
+                            </Row>
+                            
+                            {hasMore && organizations.length > 0 && (
+                                <Row className="mt-4">
+                                    <Col className="text-center">
+                                        <Button
+                                            onClick={handleLoadMore}
+                                            disabled={loading}
+                                            variant="primary"
+                                        >
+                                            {loading ? 'Loading...' : 'Load More'}
+                                        </Button>
+                                    </Col>
+                                </Row>
+                            )}
+                        </Container>
                     </div>
                 </Col>
             </Row>

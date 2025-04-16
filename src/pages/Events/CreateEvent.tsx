@@ -1,9 +1,9 @@
 import React, { useState, useContext } from 'react';
-import { Container, Form, Button, Row, Col } from 'react-bootstrap';
+import { Container, Form, Button, Row, Col, Alert } from 'react-bootstrap';
 import { useNavigate, useParams } from 'react-router-dom';
 import AuthContext from '../../context/AuthContext';
 import * as icon from 'react-bootstrap-icons';
-import axios from 'axios';
+import { createEvent } from '../../context/OrgService';
 
 // Import components
 import Sidebar from '../../components/bars/SideBar/SideBar';
@@ -28,6 +28,7 @@ const CreateEvent: React.FC = () => {
     date: ''
   });
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -58,8 +59,6 @@ const CreateEvent: React.FC = () => {
 
   const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log('Search submitted:', searchTerm);
-    // Implement search logic
   };
 
   /* Components to be injected into the TopBar*/
@@ -119,26 +118,25 @@ const CreateEvent: React.FC = () => {
       return;
     }
     
+    if (!id) {
+      setError('Organization ID is missing');
+      return;
+    }
+    
     setIsSubmitting(true);
     setError(null);
     
     try {
-      // Make API call to create event using axios instance
-      const response = await axios.post(
-        `http://localhost:3000/organizations/${id}/events`, 
-        eventData,
-        {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        }
-      );
+      // Make API call to create event
+      const response = await createEvent(id, eventData);
       
-      console.log('Event created successfully:', response.data);
+      console.log('Event created successfully:', response);
+      setSuccess('Event created successfully!');
       
-      // Redirect back to events page
-      navigate(`/organizations/${id}/events`);
+      // Redirect back to events page after a short delay
+      setTimeout(() => {
+        navigate(`/organizations/${id}/events`);
+      }, 1500);
     } catch (error: any) {
       console.error('Error creating event:', error);
       
@@ -148,7 +146,7 @@ const CreateEvent: React.FC = () => {
       } else {
         setError('Failed to create event. Please try again.');
       }
-      
+    } finally {
       setIsSubmitting(false);
     }
   };
@@ -182,9 +180,15 @@ const CreateEvent: React.FC = () => {
                   </div>
 
                   {error && (
-                    <div className="alert alert-danger my-3" role="alert">
+                    <Alert variant="danger" className="my-3">
                       {error}
-                    </div>
+                    </Alert>
+                  )}
+
+                  {success && (
+                    <Alert variant="success" className="my-3">
+                      {success}
+                    </Alert>
                   )}
 
                   <Form onSubmit={handleSubmit}>

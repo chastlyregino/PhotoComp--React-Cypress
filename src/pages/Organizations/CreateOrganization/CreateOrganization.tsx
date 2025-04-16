@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { Container, Form, Button, Row, Col } from 'react-bootstrap';
+import { Container, Form, Button, Row, Col, Alert } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { createOrganization } from '../../../context/OrgService';
 import AuthContext from '../../../context/AuthContext';
@@ -14,6 +14,7 @@ import { NavLink } from 'react-router-dom';
 
 interface OrganizationData {
   name: string;
+  description?: string;
   logo: File | null;
 }
 
@@ -22,10 +23,12 @@ const CreateOrganization: React.FC = () => {
   const { user, token } = useContext(AuthContext);
   const [organizationData, setOrganizationData] = useState<OrganizationData>({
     name: '',
+    description: '',
     logo: null
   });
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -33,6 +36,13 @@ const CreateOrganization: React.FC = () => {
     setOrganizationData({
       ...organizationData,
       name: e.target.value
+    });
+  };
+
+  const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setOrganizationData({
+      ...organizationData,
+      description: e.target.value
     });
   };
 
@@ -74,8 +84,6 @@ const CreateOrganization: React.FC = () => {
 
   const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log('Search submitted:', searchTerm);
-    // Implement search logic
   };
 
   /* Components to be injected into the TopBar*/
@@ -137,6 +145,10 @@ const CreateOrganization: React.FC = () => {
     const formData = new FormData();
     formData.append('name', organizationData.name);
     
+    if (organizationData.description) {
+      formData.append('description', organizationData.description);
+    }
+    
     if (organizationData.logo) {
       formData.append('logo', organizationData.logo);
     }
@@ -146,8 +158,12 @@ const CreateOrganization: React.FC = () => {
       const response = await createOrganization(formData);
       console.log('Organization created successfully:', response);
       
-      // Redirect to organizations page
-      navigate('/organizations');
+      setSuccess('Organization created successfully!');
+      
+      // Redirect to organizations page after a short delay
+      setTimeout(() => {
+        navigate('/organizations');
+      }, 1500);
     } catch (error: any) {
       console.error('Error creating organization:', error);
       
@@ -191,9 +207,15 @@ const CreateOrganization: React.FC = () => {
                   </div>
 
                   {error && (
-                    <div className="alert alert-danger my-3" role="alert">
+                    <Alert variant="danger" className="my-3">
                       {error}
-                    </div>
+                    </Alert>
+                  )}
+
+                  {success && (
+                    <Alert variant="success" className="my-3">
+                      {success}
+                    </Alert>
                   )}
 
                   <Form onSubmit={handleSubmit}>
@@ -206,6 +228,21 @@ const CreateOrganization: React.FC = () => {
                         placeholder="Enter organization name"
                         value={organizationData.name}
                         onChange={handleNameChange}
+                        className="bg-white border-secondary py-3"
+                        required
+                      />
+                    </Form.Group>
+
+                    <Form.Group className="mb-4" controlId="organizationDescription">
+                      <Form.Label style={{ fontFamily: 'Michroma, sans-serif' }} className="fs-4">
+                        Organization Description
+                      </Form.Label>
+                      <Form.Control
+                        as="textarea"
+                        rows={4}
+                        placeholder="Enter organization description"
+                        value={organizationData.description}
+                        onChange={handleDescriptionChange}
                         className="bg-white border-secondary py-3"
                       />
                     </Form.Group>
@@ -234,6 +271,7 @@ const CreateOrganization: React.FC = () => {
                             onChange={handleFileChange}
                             accept="image/*"
                             className="bg-white text-dark border-secondary rounded-3"
+                            required
                           />
                         </div>
                       </div>

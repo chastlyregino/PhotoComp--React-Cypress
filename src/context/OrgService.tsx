@@ -85,6 +85,7 @@ export const getPublicOrganizationEvents = async (
         throw error;
     }
 };
+
 // Create a new organization
 export const createOrganization = async (formData: FormData) => {
     try {
@@ -96,6 +97,21 @@ export const createOrganization = async (formData: FormData) => {
         return response.data;
     } catch (error) {
         console.error('Error creating organization:', error);
+        throw error;
+    }
+};
+
+// Create a new event for an organization
+export const createEvent = async (orgId: string, eventData: { title: string; description: string; date: string }) => {
+    try {
+        const response = await axiosInstance.post(`/organizations/${orgId}/events`, eventData, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        return response.data;
+    } catch (error) {
+        console.error(`Error creating event for organization ${orgId}:`, error);
         throw error;
     }
 };
@@ -126,12 +142,24 @@ export const deleteOrganization = async (organizationId: string) => {
     }
 };
 
+// Get events for an organization (for authenticated users)
 export const getOrganizationEvents = async (orgId: string) => {
     try {
         const response = await axiosInstance.get<EventsResponse>(`/organizations/${orgId}/events`);
         return response.data;
     } catch (error) {
-        console.error('Error fetching public organizations:', error);
+        console.error('Error fetching organization events:', error);
+        throw error;
+    }
+};
+
+// Get user's own organizations
+export const getUserOrganizations = async () => {
+    try {
+        const response = await axiosInstance.get('/organizations');
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching user organizations:', error);
         throw error;
     }
 };
