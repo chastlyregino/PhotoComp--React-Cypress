@@ -6,15 +6,15 @@ import { Photo, getAllPhotos } from '../../context/PhotoService';
 interface CustomPhotoCarouselProps {
   orgName: string;
   eventId: string;
-  activeIndex: number; // Changed from initialIndex to activeIndex for controlled component
+  activeIndex: number;
   preferredSize?: 'small' | 'medium' | 'large';
-  onIndexChange: (index: number) => void; // Made required
+  onIndexChange: (index: number) => void;
 }
 
 const CustomPhotoCarousel: React.FC<CustomPhotoCarouselProps> = ({ 
   orgName, 
   eventId, 
-  activeIndex, // Use activeIndex directly
+  activeIndex, 
   preferredSize = 'medium',
   onIndexChange
 }) => {
@@ -45,7 +45,6 @@ const CustomPhotoCarousel: React.FC<CustomPhotoCarouselProps> = ({
   }, [orgName, eventId]);
   
   const handleSelect = (selectedIndex: number) => {
-    // Call the onIndexChange callback when photo changes
     onIndexChange(selectedIndex);
   };
   
@@ -60,6 +59,33 @@ const CustomPhotoCarousel: React.FC<CustomPhotoCarouselProps> = ({
       default:
         return { width: '100%', maxHeight: '600px', height: 'auto' };
     }
+  };
+
+  // Get the appropriate image URL based on available sizes
+  const getImageUrl = (photo: Photo) => {
+    // Check if photo has urls object with different sizes
+    if (photo.urls) {
+      // First try to use the medium size if available
+      if (photo.urls.medium) {
+        return photo.urls.medium;
+      }
+      
+      // If no medium, fall back to other sizes in order of preference
+      if (photo.urls.large) {
+        return photo.urls.large;
+      }
+      
+      if (photo.urls.original) {
+        return photo.urls.original;
+      }
+      
+      if (photo.urls.thumbnail) {
+        return photo.urls.thumbnail;
+      }
+    }
+    
+    // If no urls object or no sizes in it, use the main url
+    return photo.url;
   };
   
   if (loading) {
@@ -101,7 +127,7 @@ const CustomPhotoCarousel: React.FC<CustomPhotoCarouselProps> = ({
           <Carousel.Item key={photo.id}>
             <div className="d-flex justify-content-center align-items-center" style={getCarouselSize()}>
               <img
-                src={photo.url}
+                src={getImageUrl(photo)}
                 alt={photo.metadata?.title || `Photo ${index + 1}`}
                 style={{ maxHeight: '100%', maxWidth: '100%', objectFit: 'contain' }}
               />

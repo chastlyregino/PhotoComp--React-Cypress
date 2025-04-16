@@ -5,7 +5,7 @@ import PhotoCarousel from '../../components/PhotoCarousel/PhotoCarousel';
 import axios from 'axios';
 import { useParams, useNavigate, NavLink } from 'react-router-dom';
 import * as icon from 'react-bootstrap-icons';
-import { getAllPhotos, Photo } from '../../context/PhotoService';
+import { getAllPhotos, Photo, getPhotoDownloadUrl } from '../../context/PhotoService';
 
 // Import navigation components
 import Sidebar from '../../components/bars/SideBar/SideBar';
@@ -75,11 +75,9 @@ const PhotoGalleryPage: React.FC = () => {
   const handleCarouselChange = (index: number) => {
     setCurrentPhotoIndex(index);
     
-    // Optionally update URL to reflect the current photo
-    // This would make bookmarking and sharing specific photos work better
+    // Update URL to reflect the current photo without reload
     if (photos.length > index) {
       const currentPhotoId = photos[index].id;
-      // Update URL without reload
       window.history.replaceState(
         null, 
         '', 
@@ -213,27 +211,18 @@ const PhotoGalleryPage: React.FC = () => {
     }
     
     try {
-      // Use the correct download endpoint to get a pre-signed download URL
-      const token = localStorage.getItem('token');
-      const axiosInstance = axios.create({
-        baseURL: 'http://localhost:3000',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      
-      // Call the specific download endpoint
-      const response = await axiosInstance.get(
-        `/organizations/${selectedOrg}/events/${selectedEvent}/photos/${currentPhoto.id}/download`
+      // Use the updated download function that gets a pre-signed URL
+      const response = await getPhotoDownloadUrl(
+        selectedOrg, 
+        selectedEvent, 
+        currentPhoto.id, 
+        'original' // Always download the original size
       );
       
-      if (response.data?.data?.downloadUrl) {
+      if (response.data.downloadUrl) {
         // Create a temporary anchor element to trigger the download
         const link = document.createElement('a');
-        link.href = response.data.data.downloadUrl;
-        
-        // The downloadUrl already has proper Content-Disposition headers
-        // so we don't need to set the download attribute
+        link.href = response.data.downloadUrl;
         
         // Append to body, click, and remove
         document.body.appendChild(link);
