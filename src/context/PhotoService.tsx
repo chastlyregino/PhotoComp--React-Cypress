@@ -1,4 +1,4 @@
-import axiosInstance, { noAuthInstance } from '../utils/axios';
+import axiosInstance from '../utils/axios';
 
 
 export interface Photo {
@@ -61,6 +61,7 @@ export const uploadEventPhoto = async (orgId: string, eventId: string, formData:
     try {
         const response = await axiosInstance.post<PhotoUploadResponse>(
             `/organizations/${orgId}/events/${eventId}/photos`,
+
             formData,
             {
                 headers: {
@@ -74,4 +75,5 @@ export const uploadEventPhoto = async (orgId: string, eventId: string, formData:
         throw error;
     }
 };
+
 

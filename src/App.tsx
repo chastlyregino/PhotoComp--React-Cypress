@@ -62,14 +62,14 @@ function App() {
                         </ProtectedRoute>
                     }
                 />
-                <Route path="/organizations/:orgId/events/:eventId/photos/upload"
+                <Route 
+                    path="/organizations/:id/events/:eid/photos/upload"
                     element={
                         <ProtectedRoute>
                             <UploadEventPhoto />
                         </ProtectedRoute>
                     }
                 />
-
             </Routes>
             <Footer />
         </>
