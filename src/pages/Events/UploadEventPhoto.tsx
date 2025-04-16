@@ -160,7 +160,7 @@ const UploadEventPhoto: React.FC = () => {
     
     try {
       // Make API call to upload photo
-      await uploadEventPhoto(eid, formData);
+      await uploadEventPhoto(id as string, eid as string, formData);
       console.log('Photo uploaded successfully');
       
       // Redirect back to event photos page

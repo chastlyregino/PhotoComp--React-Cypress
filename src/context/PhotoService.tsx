@@ -61,7 +61,6 @@ export const uploadEventPhoto = async (orgId: string, eventId: string, formData:
     try {
         const response = await axiosInstance.post<PhotoUploadResponse>(
             `/organizations/${orgId}/events/${eventId}/photos`,
-
             formData,
             {
                 headers: {
