@@ -1,272 +1,144 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { Container, Row, Col, Button, Dropdown } from 'react-bootstrap';
-import { useParams, useNavigate, NavLink } from 'react-router-dom';
-import * as icon from 'react-bootstrap-icons';
-import axios from 'axios';
-import PhotoCarousel from '../../components/PhotoCarousel/PhotoCarousel';
-import Sidebar from '../../components/bars/SideBar/SideBar';
-import TopBar from '../../components/bars/TopBar/TopBar';
-import SearchBar from '../../components/bars/SearchBar/SearchBar';
-import NavButton from '../../components/navButton/NavButton';
-import AuthContext from '../../context/AuthContext';
+import React, { useState, useEffect } from 'react';
+import { Carousel, Button, Spinner } from 'react-bootstrap';
+import { ChevronLeft, ChevronRight, Download } from 'react-bootstrap-icons';
+import { Photo, getAllPhotos } from '../../context/PhotoService';
 
-interface Organization {
-  name: string;
-  id: string;
-  description?: string;
+interface PhotoCarouselProps {
+  orgName: string;
+  eventId: string;
+  initialIndex?: number;
+  preferredSize?: 'small' | 'medium' | 'large';
 }
 
-interface Event {
-  id: string;
-  title: string;
-  description?: string;
-  date: string;
-}
-
-const PhotoGalleryPage: React.FC = () => {
-  const navigate = useNavigate();
-  const { id: orgId, eid: eventId, photoId } = useParams();
-  const { user, token } = useContext(AuthContext);
-  const [searchTerm, setSearchTerm] = useState('');
-  
-  // State for selected organization and event
-  const [organizations, setOrganizations] = useState<Organization[]>([]);
-  const [events, setEvents] = useState<Event[]>([]);
-  const [selectedOrg, setSelectedOrg] = useState<string>(orgId || "GalleryTestOrg");
-  const [selectedEvent, setSelectedEvent] = useState<string>(eventId || "3dcf897f-7bcf-4ac7-b38f-860a41615223");
-  const [initialPhotoIndex, setInitialPhotoIndex] = useState<number>(0);
+const PhotoCarousel: React.FC<PhotoCarouselProps> = ({ 
+  orgName, 
+  eventId, 
+  initialIndex = 0,
+  preferredSize = 'medium'
+}) => {
+  const [photos, setPhotos] = useState<Photo[]>([]);
+  const [activeIndex, setActiveIndex] = useState<number>(initialIndex);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   
-  // Find the index of the selected photo in the photo list
   useEffect(() => {
-    if (photoId && selectedEvent) {
-      const fetchPhotoIndex = async () => {
-        try {
-          const token = localStorage.getItem('token');
-          const axiosInstance = axios.create({
-            baseURL: 'http://localhost:3000',
-            headers: {
-              'Authorization': `Bearer ${token}`
-            }
-          });
-          
-          const response = await axiosInstance.get(`/organizations/${selectedOrg}/events/${selectedEvent}/photos`);
-          
-          if (response.data?.data?.photos) {
-            const photos = response.data.data.photos;
-            const photoIndex = photos.findIndex((photo: any) => photo.id === photoId);
-            
-            if (photoIndex !== -1) {
-              setInitialPhotoIndex(photoIndex);
-            }
+    const fetchPhotos = async () => {
+      try {
+        setLoading(true);
+        const response = await getAllPhotos(orgName, eventId);
+        
+        if (response.data.photos && response.data.photos.length > 0) {
+          setPhotos(response.data.photos);
+          // Make sure initialIndex is within bounds
+          if (initialIndex >= 0 && initialIndex < response.data.photos.length) {
+            setActiveIndex(initialIndex);
           }
-        } catch (error) {
-          console.error('Error finding photo index:', error);
+        } else {
+          setError("No photos found for this event");
         }
-      };
-      
-      fetchPhotoIndex();
+      } catch (err) {
+        console.error('Error fetching photos:', err);
+        setError("Failed to load photos");
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchPhotos();
+  }, [orgName, eventId, initialIndex]);
+  
+  const handleSelect = (selectedIndex: number) => {
+    setActiveIndex(selectedIndex);
+  };
+  
+  const handleDownload = (url: string, photoId: string) => {
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `photo-${photoId}.jpg`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+  
+  // Calculate size based on preference
+  const getCarouselSize = () => {
+    switch (preferredSize) {
+      case 'small':
+        return { width: '100%', maxHeight: '400px', height: 'auto' };
+      case 'large':
+        return { width: '100%', maxHeight: '80vh', height: 'auto' };
+      case 'medium':
+      default:
+        return { width: '100%', maxHeight: '600px', height: 'auto' };
     }
-  }, [photoId, selectedEvent, selectedOrg]);
-
-  // Fetch organizations when component mounts
-  useEffect(() => {
-    const fetchOrganizations = async () => {
-      setLoading(true);
-      
-      try {
-        const token = localStorage.getItem('token');
-        const axiosInstance = axios.create({
-          baseURL: 'http://localhost:3000',
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-        
-        // Only fetch organizations if we don't have the orgId from URL params
-        if (!orgId) {
-          const response = await axiosInstance.get('/organizations');
-          
-          if (response.data?.org) {
-            setOrganizations(response.data.org.map((org: any) => ({
-              name: org.organizationName,
-              id: org.organizationName,
-              description: `Organization: ${org.organizationName}`
-            })));
-          }
-        }
-      } catch (err) {
-        console.error('Error fetching organizations:', err);
-        setError("Could not fetch organizations");
-        
-        // For testing - provide fallback data if API fails
-        setOrganizations([{
-          name: selectedOrg,
-          id: selectedOrg,
-          description: "Organization"
-        }]);
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    fetchOrganizations();
-  }, [orgId, selectedOrg]);
-  
-  // Fetch events when selected organization changes
-  useEffect(() => {
-    const fetchEvents = async () => {
-      if (!selectedOrg) return;
-      
-      setLoading(true);
-      
-      try {
-        const token = localStorage.getItem('token');
-        const axiosInstance = axios.create({
-          baseURL: 'http://localhost:3000',
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-        
-        // Only fetch events if we don't have the eventId from URL params
-        if (!eventId) {
-          const response = await axiosInstance.get(`/organizations/${selectedOrg}/events`);
-          
-          if (response.data?.data?.events) {
-            setEvents(response.data.data.events.map((event: any) => ({
-              id: event.id,
-              title: event.title,
-              description: event.description,
-              date: event.date
-            })));
-            
-            // If we have events, select the first one by default
-            if (response.data.data.events.length > 0 && !selectedEvent) {
-              setSelectedEvent(response.data.data.events[0].id);
-            }
-          }
-        }
-      } catch (err) {
-        console.error('Error fetching events:', err);
-        setError("Could not fetch events");
-        
-        // For testing - provide fallback data if API fails
-        setEvents([{
-          id: selectedEvent,
-          title: "Event",
-          description: "Event for Gallery",
-          date: new Date().toISOString()
-        }]);
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    fetchEvents();
-  }, [selectedOrg, eventId, selectedEvent]);
-
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value);
-  };
-
-  const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
   };
   
-  const handleBackToGallery = () => {
-    navigate(`/organizations/${selectedOrg}/events/${selectedEvent}/photos`);
-  };
-
-  /* Components to be injected into the TopBar */
-  const searchComponent = (
-    <SearchBar
-      value={searchTerm}
-      onChange={handleSearchChange}
-      onSubmit={handleSearchSubmit}
-      placeholder="Search photos..."
-      className="ms-3"
-    />
-  );
-
-  /* Components to be injected into the TopBar */
-  const rightComponents = (
-    <>
-      <div className="d-flex align-items-center gap-3">
-        {user && token ? (
-          <>
-            <Button 
-              variant="outline-light" 
-              onClick={handleBackToGallery}
-              className="me-2 top-bar-element"
-            >
-              Back to Gallery
-            </Button>
-            <NavLink to="/account-settings" className="text-light top-bar-element">
-              <icon.GearFill size={24} />
-            </NavLink>
-            <NavLink to="/logout" className="text-light top-bar-element">
-              <icon.BoxArrowRight size={24} />
-            </NavLink>
-          </>
-        ) : (
-          <>
-            <NavButton to='/register' variant="outline-light" className="mx-1 top-bar-element">
-              Register
-            </NavButton>
-            <NavButton to='/login' variant="outline-light" className="top-bar-element">
-              Login
-            </NavButton>
-          </>
-        )}
+  if (loading) {
+    return (
+      <div className="d-flex justify-content-center align-items-center" style={{ height: '400px' }}>
+        <Spinner animation="border" variant="light" />
       </div>
-    </>
-  );
+    );
+  }
+  
+  if (error) {
+    return (
+      <div className="text-center text-white p-5">
+        <p>{error}</p>
+      </div>
+    );
+  }
+  
+  if (photos.length === 0) {
+    return (
+      <div className="text-center text-white p-5">
+        <p>No photos available for this event</p>
+      </div>
+    );
+  }
   
   return (
-    <>
-      <Row className="g-0">
-        <Col md="auto" className="sidebar-container">
-          <Sidebar />
-        </Col>
-        <Col className="main-content p-0">
-          <div className="sticky-top bg-dark z-3">
-            <Row>
-              <TopBar
-                searchComponent={searchComponent}
-                rightComponents={rightComponents}
+    <div className="photo-carousel-container">
+      <Carousel
+        activeIndex={activeIndex}
+        onSelect={handleSelect}
+        interval={null}
+        indicators={photos.length > 1}
+        prevIcon={<ChevronLeft color="white" size={40} />}
+        nextIcon={<ChevronRight color="white" size={40} />}
+        className="bg-dark"
+      >
+        {photos.map((photo, index) => (
+          <Carousel.Item key={photo.id}>
+            <div className="d-flex justify-content-center align-items-center" style={getCarouselSize()}>
+              <img
+                src={photo.url}
+                alt={photo.metadata?.title || `Photo ${index + 1}`}
+                style={{ maxHeight: '100%', maxWidth: '100%', objectFit: 'contain' }}
               />
-            </Row>
-          </div>
-          
-          <div className="p-3 bg-dark text-white min-vh-100">
-            <Container fluid>
-              <Row className="align-items-center mb-4">
-                <Col>
-                  <h1 className="mb-4">Photo Viewer</h1>
-                </Col>
-              </Row>
-
-              {/* Main carousel section */}
-              {selectedOrg && selectedEvent ? (
-                <PhotoCarousel 
-                  orgName={selectedOrg} 
-                  eventId={selectedEvent} 
-                  initialIndex={initialPhotoIndex}
-                  preferredSize="large"
-                />
-              ) : (
-                <Container className="text-center text-white my-5">
-                  <p>Loading photo...</p>
-                </Container>
-              )}
-            </Container>
-          </div>
-        </Col>
-      </Row>
-    </>
+            </div>
+            <Carousel.Caption className="d-flex justify-content-between align-items-center">
+              <div className="text-start">
+                <h3>{photo.metadata?.title || `Photo ${index + 1}`}</h3>
+                {photo.metadata?.description && <p>{photo.metadata.description}</p>}
+              </div>
+              <Button 
+                variant="outline-light" 
+                onClick={() => handleDownload(photo.url, photo.id)}
+                className="ml-auto"
+              >
+                <Download size={20} />
+              </Button>
+            </Carousel.Caption>
+          </Carousel.Item>
+        ))}
+      </Carousel>
+      
+      <div className="carousel-counter text-white text-center mt-2">
+        Photo {activeIndex + 1} of {photos.length}
+      </div>
+    </div>
   );
 };
 
-export default PhotoGalleryPage;
+export default PhotoCarousel;
