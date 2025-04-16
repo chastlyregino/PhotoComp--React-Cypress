@@ -12,7 +12,6 @@ import AccountSettings from './pages/AccountSettings/AccountSettings';
 import CreateOrganization from './pages/Organizations/CreateOrganization/CreateOrganization';
 
 
-
 function App() {
     return (
         <>
@@ -38,7 +37,14 @@ function App() {
                         </ProtectedRoute>
                     }
                 />
-                <Route path="/organizations/:id/events/:eid/photos" element={<Photos />} />
+                <Route
+                    path="/organizations/:id/events/:eid/photos"
+                    element={
+                        <ProtectedRoute>
+                            <Photos />
+                        </ProtectedRoute>
+                    }
+                />
             </Routes>
             <Footer />
         </>

@@ -35,6 +35,7 @@ const Sidebar: React.FC = () => {
 
                     <NavLink
                         to="/organizations"
+                        end
                         className={({ isActive }) =>
                             `nav-link d-flex align-items-center gap-2 sidebar-link ${
                                 isActive ? 'active' : ''
@@ -46,6 +47,7 @@ const Sidebar: React.FC = () => {
 
                     <NavLink
                         to={`/organizations/${id || `:id`}/events`}
+                        end
                         className={({ isActive }) =>
                             `nav-link d-flex align-items-center gap-2 sidebar-link ${
                                 isActive ? 'active' : ''
@@ -57,6 +59,7 @@ const Sidebar: React.FC = () => {
 
                     <NavLink
                         to={`/organizations/${id || `:id`}/events/${eid || `:eid`}/photos`}
+                        end
                         className={({ isActive }) =>
                             `nav-link d-flex align-items-center gap-2 sidebar-link ${
                                 isActive ? 'active' : ''

@@ -10,11 +10,7 @@ interface GalleryProps {
     type?: 'organization' | 'event' | 'photo';
     useNewCard?: boolean;
 }
-const Gallery: React.FC<GalleryProps> = ({ 
-    items, 
-    type = 'organization',
-    useNewCard = true 
-}) => {
+const Gallery: React.FC<GalleryProps> = ({ items, type = 'organization', useNewCard = true }) => {
     return (
         <Container fluid className="py-4">
             <Row className="g-4">
