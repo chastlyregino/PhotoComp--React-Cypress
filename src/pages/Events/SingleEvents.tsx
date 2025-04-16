@@ -12,7 +12,7 @@ import { isMemberOfOrg } from '../../context/AuthService';
 import { Event, getPublicOrganizationEvents, getOrganizationEvents } from '../../context/OrgService';
 import AuthContext from '../../context/AuthContext';
 
-const Events: React.FC = () => {
+const SingleEvents: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const { user, token } = useContext(AuthContext);
     const [searchTerm, setSearchTerm] = useState('');
@@ -258,4 +258,4 @@ const Events: React.FC = () => {
     );
 };
 
-export default Events;
+export default SingleEvents;
