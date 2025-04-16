@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import { Button, Col, Row } from 'react-bootstrap';
 import * as icon from 'react-bootstrap-icons';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useParams } from 'react-router-dom';
 
 import Sidebar from '../../components/bars/SideBar/SideBar';
 import TopBar from '../../components/bars/TopBar/TopBar';
@@ -140,6 +140,7 @@ const Organizations: React.FC = () => {
                                             key={org.id}
                                             item={org}
                                             className={`organization-card`}
+                                            orgName={org.name}
                                         />
                                     </div>
                                 </Col>

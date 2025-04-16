@@ -98,16 +98,16 @@ const Photos: React.FC = () => {
     }, []);
 
     const fetchPhotos = async () => {
-        if (eid) {
+        if (id && eid) {
             try {
-                const photos = await getAllPhotos(eid);
+                const photos = await getAllPhotos(id, eid);
                 console.log(photos);
                 setPhotos(prev => [...prev, ...photos.data.photos]);
             } catch (err) {
                 setError('Failed to fetch photos.');
             }
         } else {
-            setError('EventId is empty.');
+            setError('Org name or EventId is empty.');
         }
     };
 
@@ -142,11 +142,15 @@ const Photos: React.FC = () => {
                             {photos.map(photo => (
                                 <Col>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+                                    <div className="gallery-card photo card-image">
+                                    {/* <div className="gallery-card photo"> */}
                                         <GalleryCard
                                             key={photo.id}
                                             item={photo}
                                             className={`photo-card`}
+                                            orgName={id}
                                         />
+                                        </div>
                                     </div>
                                 </Col>
                             ))}

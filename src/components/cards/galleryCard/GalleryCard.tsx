@@ -24,6 +24,7 @@ interface Photo {
     id: string;
     url: string;
     title?: string;
+    GSI2PK?: string;
 }
 
 type CardItem = Organization | Event | Photo;
@@ -31,9 +32,10 @@ type CardItem = Organization | Event | Photo;
 interface GalleryCardProps {
     item: CardItem;
     className: string;
+    orgName: string | undefined;
 }
 
-const GalleryCard: React.FC<GalleryCardProps> = ({ item, className }) => {
+const GalleryCard: React.FC<GalleryCardProps> = ({ item, className, orgName }) => {
     const navigate = useNavigate();
 
     const isOrganization = className.includes('organization');
@@ -95,23 +97,26 @@ const GalleryCard: React.FC<GalleryCardProps> = ({ item, className }) => {
         return '';
     };
 
-    const handleCardClick = () => {
-        if (isOrganizationItem(item)) {
-            const orgId = item.PK ? item.PK.replace('ORG#', '') : item.id;
-            navigate(`/organizations/${orgId.toLowerCase()}/events`);
-        } else if (isEventItem(item)) {
-            const orgId = item.GSI2PK ? item.GSI2PK.replace('ORG#', '').toLowerCase() : '';
-
-            navigate(`/organizations/${orgId}/events/${item.id}/photos`);
-        } else if (isPhotoItem(item)) {
-            navigate(`/photos/${item.id}`);
-        }
+    const handleCardClick = (orgName: string | undefined) => {
+        return () => {
+            if(orgName) {
+                if (isOrganizationItem(item)) {
+                    navigate(`/organizations/${orgName.toLowerCase()}/events`);
+                } else if (isEventItem(item)) {
+                    navigate(`/organizations/${orgName.toLowerCase()}/events/${item.id}/photos`);
+                } else if (isPhotoItem(item)) {
+                    const eventId = item.GSI2PK ? item.GSI2PK.replace('EVENT#', '').toLowerCase() : '';
+                    navigate(`/organizations/${orgName.toLowerCase()}/events/${eventId}/photos/${item.id}`);
+                }
+            }
+            
+        } 
     };
 
     return (
         <Card
             className={`gallery-card ${className}`}
-            onClick={handleCardClick}
+            onClick={handleCardClick(orgName)}
             style={{
                 width: '350px',
                 height: '250px',
