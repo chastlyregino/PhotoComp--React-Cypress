@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import { Container, Row, Col, Button, Dropdown } from 'react-bootstrap';
 import { Search, Download, Heart, PersonCircle, Grid3x3Gap } from 'react-bootstrap-icons';
 import PhotoCarousel from '../../components/PhotoCarousel/PhotoCarousel';
 import axios from 'axios';
 import { useParams, useNavigate, NavLink } from 'react-router-dom';
 import * as icon from 'react-bootstrap-icons';
+import { getAllPhotos, Photo } from '../../context/PhotoService';
 
 // Import navigation components
 import Sidebar from '../../components/bars/SideBar/SideBar';
@@ -40,6 +41,35 @@ const PhotoGalleryPage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [photos, setPhotos] = useState<Photo[]>([]);
+  const [currentPhotoIndex, setCurrentPhotoIndex] = useState<number>(0);
+  
+  // Reference to the updated photo index from the carousel
+  const currentPhotoIndexRef = useRef<number>(initialPhotoIndex);
+
+  // Update the current photo index when the carousel changes
+  const handleCarouselChange = (index: number) => {
+    currentPhotoIndexRef.current = index;
+    setCurrentPhotoIndex(index);
+  };
+  
+  // Fetch photos for the current organization and event
+  useEffect(() => {
+    if (selectedOrg && selectedEvent) {
+      const fetchPhotos = async () => {
+        try {
+          const response = await getAllPhotos(selectedOrg, selectedEvent);
+          if (response.data.photos) {
+            setPhotos(response.data.photos);
+          }
+        } catch (error) {
+          console.error('Error fetching photos:', error);
+        }
+      };
+      
+      fetchPhotos();
+    }
+  }, [selectedOrg, selectedEvent]);
   
   // Find the index of the selected photo in the photo list
   useEffect(() => {
@@ -62,6 +92,8 @@ const PhotoGalleryPage: React.FC = () => {
             
             if (photoIndex !== -1) {
               setInitialPhotoIndex(photoIndex);
+              currentPhotoIndexRef.current = photoIndex;
+              setCurrentPhotoIndex(photoIndex);
             }
           }
         } catch (error) {
@@ -183,6 +215,55 @@ const PhotoGalleryPage: React.FC = () => {
   const handleBackToGallery = () => {
     navigate(`/organizations/${selectedOrg}/events/${selectedEvent}/photos`);
   };
+
+  // Handle download of the current image
+  const handleDownload = async () => {
+    if (photos.length === 0 || currentPhotoIndex >= photos.length) {
+      console.error('No photo available for download');
+      return;
+    }
+
+    const currentPhoto = photos[currentPhotoIndex];
+    if (!currentPhoto.id) {
+      console.error('Photo ID is missing');
+      return;
+    }
+    
+    try {
+      // Use the correct download endpoint to get a pre-signed download URL
+      const token = localStorage.getItem('token');
+      const axiosInstance = axios.create({
+        baseURL: 'http://localhost:3000',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      // Call the specific download endpoint
+      const response = await axiosInstance.get(
+        `/organizations/${selectedOrg}/events/${selectedEvent}/photos/${currentPhoto.id}/download`
+      );
+      
+      if (response.data?.data?.downloadUrl) {
+        // Create a temporary anchor element to trigger the download
+        const link = document.createElement('a');
+        link.href = response.data.data.downloadUrl;
+        
+        // The downloadUrl already has proper Content-Disposition headers
+        // so we don't need to set the download attribute
+        
+        // Append to body, click, and remove
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } else {
+        throw new Error('Download URL not found in response');
+      }
+    } catch (error) {
+      console.error('Error downloading photo:', error);
+      alert('Failed to download photo. Please try again.');
+    }
+  };
   
   // Search functionality
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -212,8 +293,9 @@ const PhotoGalleryPage: React.FC = () => {
           <>
             {/* Download button */}
             <Button 
-              variant="secondary" 
+              variant="secondary"
               className="top-bar-element d-flex align-items-center gap-1"
+              onClick={handleDownload}
             >
               <icon.Download size={20} />
               <span className="d-none d-md-inline">Download</span>
@@ -279,6 +361,7 @@ const PhotoGalleryPage: React.FC = () => {
                 eventId={selectedEvent} 
                 initialIndex={initialPhotoIndex}
                 preferredSize="large"
+                onIndexChange={handleCarouselChange}
               />
             ) : (
               <Container className="text-center text-white my-5">
