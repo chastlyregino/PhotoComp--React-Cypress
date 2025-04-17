@@ -38,6 +38,14 @@ function App() {
                         </ProtectedRoute>
                     }
                 />
+                <Route
+                    path="/organizations/:id/details"
+                    element={
+                        <ProtectedRoute>
+                            <CreateOrganization />
+                        </ProtectedRoute>
+                    }
+                />
                 <Route path="/organizations/:id/events" element={<SingleEvents />} />
                 <Route path="/account-settings" element={<AccountSettings />} />
                 <Route

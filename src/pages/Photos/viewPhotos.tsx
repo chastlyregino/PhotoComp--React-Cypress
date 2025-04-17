@@ -334,7 +334,10 @@ const Photos: React.FC = () => {
                 <div className="p-3 bg-dark text-white">
                     <Row className="align-items-center mb-4">
                         <Col>
-                            <h1 className="mb-4">Photos</h1>
+                            <h1 className="mb-4">
+                                Photos
+                                {eventInfo?.title && <span className="text-muted ms-2">{eventInfo.title}</span>}
+                                </h1>
                         </Col>
 
                         <Col xs="auto" className="ms-auto me-5">

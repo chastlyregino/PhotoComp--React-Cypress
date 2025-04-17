@@ -307,12 +307,12 @@ const CreateOrganization: React.FC = () => {
                                         </Form.Group>
 
                                         <div
-                                            className="position-relative mt-5 pt-5"
-                                            style={{ height: '250px' }}
+                                            className="position-relative p-3 mt-5 pt-5"
+                                            style={{ height: '250px', zIndex: 1100 }}
                                         >
                                             <div
                                                 className="position-absolute"
-                                                style={{ left: '-200px', top: '200px' }}
+                                                style={{ left: '-200px', top: '200px', zIndex: 1100  }}
                                             >
                                                 <Button
                                                     variant="secondary"
@@ -326,7 +326,7 @@ const CreateOrganization: React.FC = () => {
 
                                             <div
                                                 className="position-absolute"
-                                                style={{ right: '-200px', top: '200px' }}
+                                                style={{ right: '-200px', top: '200px', zIndex: 1100  }}
                                             >
                                                 <Button
                                                     variant="secondary"
