@@ -1,7 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { Carousel, Button, Spinner } from 'react-bootstrap';
-import { ChevronLeft, ChevronRight } from 'react-bootstrap-icons';
+import React, { useState, useEffect, useContext } from 'react';
+import { Carousel, Button, Spinner, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { ChevronLeft, ChevronRight, TagFill } from 'react-bootstrap-icons';
+import { useNavigate } from 'react-router-dom';
 import { Photo, getAllPhotos } from '../../context/PhotoService';
+import AuthContext from '../../context/AuthContext';
+import { getPhotoTags, TaggedUserWithDetails } from '../../context/PhotoTagService';
 
 interface CustomPhotoCarouselProps {
   orgName: string;
@@ -18,9 +21,13 @@ const CustomPhotoCarousel: React.FC<CustomPhotoCarouselProps> = ({
   preferredSize = 'medium',
   onIndexChange
 }) => {
+  const navigate = useNavigate();
+  const { user } = useContext(AuthContext);
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [taggedUsers, setTaggedUsers] = useState<Map<string, TaggedUserWithDetails[]>>(new Map());
+  const [loadingTags, setLoadingTags] = useState<boolean>(false);
   
   useEffect(() => {
     const fetchPhotos = async () => {
@@ -44,8 +51,43 @@ const CustomPhotoCarousel: React.FC<CustomPhotoCarouselProps> = ({
     fetchPhotos();
   }, [orgName, eventId]);
   
+  // Fetch tags for the current photo when activeIndex changes
+  useEffect(() => {
+    const fetchPhotoTags = async () => {
+      if (photos.length > 0 && activeIndex >= 0 && activeIndex < photos.length) {
+        const currentPhoto = photos[activeIndex];
+        
+        // Check if we already fetched tags for this photo
+        if (!taggedUsers.has(currentPhoto.id)) {
+          try {
+            setLoadingTags(true);
+            const response = await getPhotoTags(orgName, eventId, currentPhoto.id);
+            
+            if (response && response.data && response.data.tags) {
+              setTaggedUsers(prev => new Map(prev).set(currentPhoto.id, response.data.tags));
+            }
+          } catch (err) {
+            console.error('Error fetching photo tags:', err);
+          } finally {
+            setLoadingTags(false);
+          }
+        }
+      }
+    };
+    
+    fetchPhotoTags();
+  }, [photos, activeIndex, orgName, eventId, taggedUsers]);
+  
   const handleSelect = (selectedIndex: number) => {
     onIndexChange(selectedIndex);
+  };
+  
+  // Navigate to the tag people page
+  const handleTagPeople = () => {
+    if (photos.length > 0 && activeIndex >= 0 && activeIndex < photos.length) {
+      const currentPhoto = photos[activeIndex];
+      navigate(`/organizations/${orgName}/events/${eventId}/photos/${currentPhoto.id}/tag`);
+    }
   };
   
   // Calculate size based on preference
@@ -125,6 +167,10 @@ const CustomPhotoCarousel: React.FC<CustomPhotoCarouselProps> = ({
     );
   }
   
+  // Get current photo and its tags
+  const currentPhoto = photos[activeIndex];
+  const currentPhotoTags = taggedUsers.get(currentPhoto.id) || [];
+  
   return (
     <div className="photo-carousel-container">
       <style>
@@ -187,12 +233,52 @@ const CustomPhotoCarousel: React.FC<CustomPhotoCarouselProps> = ({
 
           /* Style for the caption container */
           .photo-caption-container {
-            margin-top: 100px; /* Move caption 100px down */
+            margin-top: 20px;
             text-align: center;
             padding: 15px;
           }
+          
+          /* Style for the tag button */
+          .tag-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+          }
+          
+          /* Style for tagged users */
+          .tagged-users-container {
+            margin-top: 10px;
+            text-align: center;
+          }
+          
+          .tagged-user-pill {
+            display: inline-block;
+            padding: 4px 10px;
+            background-color: rgba(0, 0, 0, 0.5);
+            border-radius: 20px;
+            margin: 4px;
+            font-size: 14px;
+          }
         `}
       </style>
+      
+      {/* Tag People Button (only visible to admin users) */}
+      {user && user.role === 'ADMIN' && (
+        <OverlayTrigger
+          placement="left"
+          overlay={<Tooltip id="tag-tooltip">Tag people in this photo</Tooltip>}
+        >
+          <Button
+            variant="secondary"
+            className="tag-button"
+            onClick={handleTagPeople}
+          >
+            <TagFill className="me-2" /> Tag People
+          </Button>
+        </OverlayTrigger>
+      )}
+      
       <Carousel
         activeIndex={activeIndex}
         onSelect={handleSelect}
@@ -212,24 +298,38 @@ const CustomPhotoCarousel: React.FC<CustomPhotoCarouselProps> = ({
                 style={{ maxHeight: '100%', maxWidth: '100%', objectFit: 'contain' }}
               />
             </div>
-            
-            {/* Caption container - moved outside the direct flow */}
           </Carousel.Item>
         ))}
       </Carousel>
 
-      {/* Separate caption container that's not affected by carousel navigation */}
+      {/* Caption container outside the carousel */}
       {photos.length > 0 && activeIndex < photos.length && (
         <div className="photo-caption-container text-white">
           <span className="fw-bold">
-            {photos[activeIndex].metadata?.title || `Photo ${activeIndex + 1}`}
+            {currentPhoto.metadata?.title || `Photo ${activeIndex + 1}`}
           </span>
-          {photos[activeIndex].metadata?.description && (
+          {currentPhoto.metadata?.description && (
             <>
               <span className="mx-2">-</span>
-              <span>{photos[activeIndex].metadata.description}</span>
+              <span>{currentPhoto.metadata.description}</span>
             </>
           )}
+          
+          {/* Show tagged users */}
+          {loadingTags ? (
+            <div className="d-flex justify-content-center mt-2">
+              <Spinner animation="border" variant="light" size="sm" />
+            </div>
+          ) : currentPhotoTags.length > 0 ? (
+            <div className="tagged-users-container mt-2">
+              <small className="d-block mb-1">People in this photo:</small>
+              {currentPhotoTags.map(taggedUser => (
+                <span key={taggedUser.tag.id} className="tagged-user-pill">
+                  {taggedUser.user.firstName} {taggedUser.user.lastName}
+                </span>
+              ))}
+            </div>
+          ) : null}
         </div>
       )}
     </div>

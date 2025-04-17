@@ -12,6 +12,7 @@ import './styles/accountSettings.css';
 import './styles/createOrganization.css';
 import './styles/membership.css';
 import './styles/member.css';
+import './styles/photoTagging.css';
 
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
