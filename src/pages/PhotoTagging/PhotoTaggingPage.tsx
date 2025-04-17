@@ -51,8 +51,9 @@ const PhotoTaggingPage: React.FC = () => {
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [eventName, setEventName] = useState<string>('');
   
-  // Pagination state
-  const [displayCount, setDisplayCount] = useState<number>(12); // Show initial count of attendees
+  // Pagination state - modified for better scrolling experience
+  const [initialDisplayCount, setInitialDisplayCount] = useState<number>(12); // Initial number to display
+  const [displayCount, setDisplayCount] = useState<number>(12); // Current display count
   const [hasMore, setHasMore] = useState<boolean>(true);
   const [loadingMore, setLoadingMore] = useState<boolean>(false);
   const [lastEvaluatedKey, setLastEvaluatedKey] = useState<string | null>(null);
@@ -143,10 +144,14 @@ const PhotoTaggingPage: React.FC = () => {
             console.log('Formatted attendees:', formattedAttendees); // Debug log
             setAttendees(formattedAttendees);
             setFilteredAttendees(formattedAttendees);
+            
+            // Update hasMore based on number of attendees vs. initial display count
+            setHasMore(formattedAttendees.length > initialDisplayCount);
           } else {
             console.log('No attendees found or invalid response format');
             setAttendees([]);
             setFilteredAttendees([]);
+            setHasMore(false);
           }
         } catch (attendeesError) {
           console.error('Error fetching attendees:', attendeesError);
@@ -162,18 +167,31 @@ const PhotoTaggingPage: React.FC = () => {
     };
     
     fetchAttendees();
-  }, [orgId, eventId, photoId]);
+  }, [orgId, eventId, photoId, initialDisplayCount]);
   
   // Handle load more function
-  const handleLoadMore = async () => {
-    // Implement if pagination is needed
-    setHasMore(false); // For now, just disable the "load more" button
+  const handleLoadMore = () => {
+    setLoadingMore(true);
+    
+    // Simulate loading delay for better UX (remove in production)
+    setTimeout(() => {
+      // Increase display count by the initial batch size
+      const newDisplayCount = displayCount + initialDisplayCount;
+      setDisplayCount(newDisplayCount);
+      
+      // Check if we've reached the end of our data
+      setHasMore(newDisplayCount < filteredAttendees.length);
+      setLoadingMore(false);
+    }, 500);
   };
   
   // Filter attendees based on search term
   useEffect(() => {
     if (searchTerm.trim() === '') {
       setFilteredAttendees(attendees);
+      // Reset display count when clearing search
+      setDisplayCount(initialDisplayCount);
+      setHasMore(attendees.length > initialDisplayCount);
     } else {
       const filtered = attendees.filter((attendee: EventAttendee) => {
         const { firstName, lastName, email } = attendee.userDetails;
@@ -182,9 +200,16 @@ const PhotoTaggingPage: React.FC = () => {
         
         return fullName.includes(searchLower) || email.toLowerCase().includes(searchLower);
       });
+      
       setFilteredAttendees(filtered);
+      // Show all search results immediately
+      setDisplayCount(filtered.length);
+      setHasMore(false);
     }
-  }, [attendees, searchTerm]);
+  }, [attendees, searchTerm, initialDisplayCount]);
+  
+  // Get the currently visible members based on display count
+  const visibleAttendees = filteredAttendees.slice(0, displayCount);
   
   // Handle search change
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -354,7 +379,7 @@ const PhotoTaggingPage: React.FC = () => {
                 <>
                   {/* Display members in a card grid layout */}
                   <Row className="g-4 member-cards-container mb-4">
-                    {filteredAttendees.map((attendee: EventAttendee) => (
+                    {visibleAttendees.map((attendee: EventAttendee) => (
                       <Col xs={12} sm={6} md={4} lg={3} key={attendee.userId} className="d-flex justify-content-center">
                         <MemberCard
                           member={attendee}
