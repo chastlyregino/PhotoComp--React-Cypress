@@ -130,26 +130,23 @@ const CustomPhotoCarousel: React.FC<CustomPhotoCarouselProps> = ({
     }
   };
 
-  // Get the appropriate image URL based on available sizes
+  // Get the appropriate image URL based on available sizes - MODIFIED to cap at medium size
   const getImageUrl = (photo: Photo) => {
     // Check if photo has urls object with different sizes
     if (photo.urls) {
-      // First try to use the medium size if available
+      // Always prioritize medium size if available
       if (photo.urls.medium) {
         return photo.urls.medium;
       }
       
-      // If no medium, fall back to other sizes in order of preference
-      if (photo.urls.large) {
-        return photo.urls.large;
-      }
-      
-      if (photo.urls.original) {
-        return photo.urls.original;
-      }
-      
+      // If no medium size is available, use thumbnail as next option
       if (photo.urls.thumbnail) {
         return photo.urls.thumbnail;
+      }
+      
+      // Only if neither medium nor thumbnail is available, fall back to original
+      if (photo.urls.original) {
+        return photo.urls.original;
       }
     }
     
