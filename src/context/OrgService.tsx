@@ -26,6 +26,27 @@ export interface OrganizationsResponse {
     lastEvaluatedKey: string | null;
 }
 
+interface Weather {
+  temperature: number;
+  weatherCode: number;
+  weatherDescription: string;
+  windSpeed: number;
+  precipitation: number;
+}
+interface GeoCode {
+  providedAddress: string;
+  resolvedCoordinates: {
+    latitude: number;
+    longitude: number;
+    formattedAddress: string;
+  }
+}
+interface ILocation {
+  latitude: number;
+  longitude: number;
+  name: string;
+}
+
 export interface Event {
     id: string;
     title: string;
@@ -39,6 +60,16 @@ export interface Event {
     createdAt: string;
     updatedAt: string;
     imageUrl?: string;
+    location?: ILocation | string;
+    weather?: Weather;
+}
+export interface EventResponse {
+    status: string;
+    data: {
+        event: Event;
+        geocoding?: GeoCode;
+    };
+    lastEvaluatedKey: string | null;
 }
 
 export interface EventsResponse {
@@ -93,7 +124,7 @@ export const getPublicOrganizationEvents = async (
             `/guests/organizations/${organizationId}/events`,
             {
                 params: {
-                    lastEvaluatedKey,
+                    lastEvaluatedKey: lastEvaluatedKey ? JSON.stringify(lastEvaluatedKey) : undefined,
                     limit,
                 },
             }
@@ -121,10 +152,7 @@ export const createOrganization = async (formData: FormData) => {
 };
 
 // Create a new event for an organization
-export const createEvent = async (
-    orgId: string,
-    eventData: { title: string; description: string; date: string }
-) => {
+export const createEvent = async (orgId: string, eventData: { title: string; description: string; date: string; location: string; }) => {
     try {
         const response = await axiosInstance.post(`/organizations/${orgId}/events`, eventData, {
             headers: {
@@ -168,6 +196,7 @@ export const deleteOrganization = async (organizationId: string) => {
 export const getOrganizationEvents = async (orgId: string) => {
     try {
         const response = await axiosInstance.get<EventsResponse>(`/organizations/${orgId}/events`);
+        console.log(response);
         return response.data;
     } catch (error) {
         console.error('Error fetching organization events:', error);
@@ -199,3 +228,27 @@ export const getUserOrganizations = async () => {
     }
 };
 
+// Get weather data for the event
+export const getWeather = async (location:string, id: string, eid: string) => {
+  try {
+    const response = await axiosInstance.patch<EventResponse>(`/organizations/${id}/events/${eid}/location/address`, {
+      address: location
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching weather information", error);
+    throw error;
+  }
+}
+
+// Get weather data for the event
+export const getUpdateWeather = async (id: string, eid: string) => {
+  try {
+    const response = await axiosInstance.post<EventResponse>(`/organizations/${id}/events/${eid}/weather/refresh`);
+    console.log(response);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching weather information", error);
+    throw error;
+  }
+}
