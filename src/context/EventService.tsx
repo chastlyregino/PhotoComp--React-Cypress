@@ -21,7 +21,7 @@ export interface EventUserResponse {
 export interface attendeesResponse {
     status: string;
     data: {
-        userEvent: EventUser[];
+        attendees: EventUser[];
     };
 }
 
@@ -42,7 +42,7 @@ export const getEventAttendees = async (orgId: string, eventId: string) => {
         const response = await axiosInstance.get<attendeesResponse>(
             `/organizations/${orgId}/events/${eventId}`
         );
-        return response.data;
+        return response.data.data.attendees;
     } catch (error) {
         console.error('Error fetching event attendees:', error);
         throw error;
