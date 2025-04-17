@@ -15,7 +15,7 @@ import { uploadEventPhoto } from '../../context/PhotoService';
 interface PhotoData {
     title: string;
     description: string;
-    photo: File | null;
+    photos: File[];
 }
 
 const UploadEventPhoto: React.FC = () => {
@@ -25,12 +25,13 @@ const UploadEventPhoto: React.FC = () => {
     const [photoData, setPhotoData] = useState<PhotoData>({
         title: '',
         description: '',
-        photo: null,
+        photos: [],
     });
-    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+    const [previewUrls, setPreviewUrls] = useState<string[]>([]);
     const [error, setError] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
+    const [uploadProgress, setUploadProgress] = useState(0);
 
     const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setPhotoData({
@@ -47,32 +48,49 @@ const UploadEventPhoto: React.FC = () => {
     };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
-            const file = e.target.files[0];
+        if (e.target.files && e.target.files.length > 0) {
+            const files = Array.from(e.target.files);
+            const validFiles: File[] = [];
+            const newPreviewUrls: string[] = [];
+            let errorMessage = null;
 
-            // Check file type
-            if (!file.type.match('image.*')) {
-                setError('Please select an image file');
-                return;
-            }
+            // Validate each file
+            files.forEach(file => {
+                // Check file type
+                if (!file.type.match('image.*')) {
+                    errorMessage = `File "${file.name}" is not an image file`;
+                    return;
+                }
 
-            // Check file size (e.g., limit to 5MB)
-            if (file.size > 5 * 1024 * 1024) {
-                setError('File size should not exceed 5MB');
+                // Check file size (e.g., limit to 5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    errorMessage = `File "${file.name}" exceeds 5MB size limit`;
+                    return;
+                }
+
+                validFiles.push(file);
+
+                // Create preview URL
+                const reader = new FileReader();
+                reader.onload = () => {
+                    newPreviewUrls.push(reader.result as string);
+                    // Update preview URLs if all files have been processed
+                    if (newPreviewUrls.length === validFiles.length) {
+                        setPreviewUrls(newPreviewUrls);
+                    }
+                };
+                reader.readAsDataURL(file);
+            });
+
+            if (errorMessage) {
+                setError(errorMessage);
                 return;
             }
 
             setPhotoData({
                 ...photoData,
-                photo: file,
+                photos: validFiles,
             });
-
-            // Create preview URL
-            const reader = new FileReader();
-            reader.onload = () => {
-                setPreviewUrl(reader.result as string);
-            };
-            reader.readAsDataURL(file);
 
             setError(null);
         }
@@ -139,8 +157,8 @@ const UploadEventPhoto: React.FC = () => {
             return;
         }
 
-        if (!photoData.photo) {
-            setError('Please select a photo to upload');
+        if (photoData.photos.length === 0) {
+            setError('Please select at least one photo to upload');
             return;
         }
 
@@ -158,25 +176,31 @@ const UploadEventPhoto: React.FC = () => {
             formData.append('description', photoData.description);
         }
 
-        if (photoData.photo) {
-            formData.append('photo', photoData.photo);
-        }
+        // Append all photos to the FormData
+        photoData.photos.forEach(photo => {
+            formData.append('photo', photo);
+        });
+
+        // Add a query parameter to indicate multiple file upload
+        const uploadUrl = `/organizations/${id}/events/${eid}/photos?multiple=true`;
 
         try {
-            // Make API call to upload photo
-            await uploadEventPhoto(id as string, eid as string, formData);
-            console.log('Photo uploaded successfully');
+            // Make API call to upload photos
+            await uploadEventPhoto(id as string, eid as string, formData, true, (progress) => {
+                setUploadProgress(progress);
+            });
+            console.log('Photos uploaded successfully');
 
             // Redirect back to event photos page
             navigate(`/organizations/${id}/events/${eid}/photos`);
         } catch (error: any) {
-            console.error('Error uploading photo:', error);
+            console.error('Error uploading photos:', error);
 
             // Handle specific error messages from the API
             if (error.response && error.response.data && error.response.data.message) {
                 setError(error.response.data.message);
             } else {
-                setError('Failed to upload photo. Please try again.');
+                setError('Failed to upload photos. Please try again.');
             }
         } finally {
             setIsSubmitting(false);
@@ -266,17 +290,27 @@ const UploadEventPhoto: React.FC = () => {
                                                 Upload your Photos
                                             </Form.Label>
 
-                                            {previewUrl && (
-                                                <div className="mb-3 text-center">
-                                                    <img
-                                                        src={previewUrl}
-                                                        alt="Photo preview"
-                                                        style={{
-                                                            maxHeight: '200px',
-                                                            maxWidth: '100%',
-                                                        }}
-                                                        className="border rounded"
-                                                    />
+                                            {previewUrls.length > 0 && (
+                                                <div className="mb-3">
+                                                    <h5 className="mb-3">
+                                                        {photoData.photos.length} photos selected
+                                                    </h5>
+                                                    <div className="d-flex flex-wrap gap-2 justify-content-center">
+                                                        {previewUrls.map((url, index) => (
+                                                            <div key={index} className="position-relative">
+                                                                <img
+                                                                    src={url}
+                                                                    alt={`Photo preview ${index + 1}`}
+                                                                    style={{
+                                                                        height: '100px',
+                                                                        width: '100px',
+                                                                        objectFit: 'cover',
+                                                                    }}
+                                                                    className="border rounded"
+                                                                />
+                                                            </div>
+                                                        ))}
+                                                    </div>
                                                 </div>
                                             )}
 
@@ -289,11 +323,33 @@ const UploadEventPhoto: React.FC = () => {
                                                         type="file"
                                                         onChange={handleFileChange}
                                                         accept="image/*"
+                                                        multiple
                                                         className="bg-white text-dark border-secondary rounded-3"
                                                     />
                                                 </div>
+                                                <small className="text-muted d-block mt-2">
+                                                    You can select multiple photos at once.
+                                                    Maximum 10 photos, 5MB each.
+                                                </small>
                                             </div>
                                         </Form.Group>
+
+                                        {isSubmitting && uploadProgress > 0 && (
+                                            <div className="my-3">
+                                                <div className="progress">
+                                                    <div
+                                                        className="progress-bar progress-bar-striped progress-bar-animated"
+                                                        role="progressbar"
+                                                        style={{ width: `${uploadProgress}%` }}
+                                                        aria-valuenow={uploadProgress}
+                                                        aria-valuemin={0}
+                                                        aria-valuemax={100}
+                                                    >
+                                                        {uploadProgress}%
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
 
                                         <div
                                             className="position-relative mt-5 pt-5"
@@ -328,8 +384,8 @@ const UploadEventPhoto: React.FC = () => {
                                                     className="py-2 px-4"
                                                 >
                                                     {isSubmitting
-                                                        ? 'Uploading...'
-                                                        : 'Upload Photos'}
+                                                        ? `Uploading ${photoData.photos.length} photo${photoData.photos.length !== 1 ? 's' : ''}...`
+                                                        : `Upload ${photoData.photos.length || 'No'} Photo${photoData.photos.length !== 1 ? 's' : ''}`}
                                                 </Button>
                                             </div>
                                         </div>
