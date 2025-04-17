@@ -14,6 +14,8 @@ export interface Organization {
     SK: string;
     createdBy: string;
     type: string;
+    contactEmail?: string;
+    website?: string;
 }
 
 export interface OrganizationsResponse {
@@ -55,6 +57,16 @@ export interface EventResponse {
     lastEvaluatedKey: string | null;
 }
 
+export interface EventResponse {
+    status: string;
+    data: {
+        updatedEvent: Event[];
+    };
+    lastEvaluatedKey: string | null;
+}
+
+
+// get all orgs
 export const getPublicOrganizations = async (lastEvaluatedKey?: string, limit: number = 9) => {
     try {
         const response = await noAuthInstance.get<OrganizationsResponse>('/guests', {
@@ -129,7 +141,7 @@ export const createEvent = async (
 // Update an existing organization
 export const updateOrganization = async (organizationId: string, formData: FormData) => {
     try {
-        const response = await axiosInstance.put(`/organizations/${organizationId}`, formData, {
+        const response = await axiosInstance.patch(`/organizations/${organizationId}`, formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
             },
@@ -163,6 +175,7 @@ export const getOrganizationEvents = async (orgId: string) => {
     }
 };
 
+// change event publicity
 export const changeEventPublicity = async (orgId: string, eventId: string) => {
     try {
         const response = await axiosInstance.patch<EventResponse>(
