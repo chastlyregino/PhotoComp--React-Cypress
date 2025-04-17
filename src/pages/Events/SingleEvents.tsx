@@ -62,13 +62,14 @@ const SingleEvents: React.FC = () => {
                         const reply = await getOrganizationMembershipRequests(id);
                         const orgRequests = reply.data.requests;
                         setRequested(orgRequests.some(req => req.userId == user.id));
+                        response = await getPublicOrganizationEvents(id);
                       }
                     } catch (_:any) {
                       console.log(_);
                     }
-                    response = await getPublicOrganizationEvents(id);
                 }
-
+                if (!response) throw Error("No response");
+                
                 setEvents(response.data.events);
                 setFilteredEvents(response.data.events);
                 setLastEvaluatedKey(response.lastEvaluatedKey);

@@ -11,8 +11,45 @@ import SearchBar from '../../components/bars/SearchBar/SearchBar';
 import NavButton from '../../components/navButton/NavButton';
 
 import AuthContext from '../../context/AuthContext';
-import { Event, getPublicOrganizationEvents } from '../../context/OrgService';
+import { Event, getOrganizationEvents, getWeather, getUpdateWeather} from '../../context/OrgService';
 import { isMemberOfOrg } from '../../context/AuthService';
+
+const renderWeatherIcon = (code: number) => {
+    if (code === 0 || code === 1) {
+        return <icon.SunFill size={24} className="text-warning" />;
+    }
+    else if (code === 2) {
+        return <icon.CloudSunFill size={24} className="text-light" />;
+    }
+    else if (code === 3) {
+        return <icon.CloudFill size={24} className="text-light" />;
+    }
+    else if (code === 45 || code === 48) {
+        return <icon.CloudFog2Fill size={24} className="text-light" />;
+    }
+    else if (code >= 51 && code <= 57 || code === 61) {
+        return <icon.CloudDrizzleFill size={24} className="text-info" />;
+    }
+    else if (code === 63 || code === 65) {
+        return <icon.CloudRainFill size={24} className="text-info" />;
+    }
+    else if (code === 66 || code === 67) {
+        return <icon.CloudSleetFill size={24} className="text-info" />;
+    }
+    else if (code >= 71 && code <= 77 || code === 85 || code === 86) {
+        return <icon.CloudSnowFill size={24} className="text-light" />;
+    }
+    else if (code >= 80 && code <= 82) {
+        return <icon.CloudRainHeavyFill size={24} className="text-info" />;
+    }
+    else if (code >= 95 && code <= 99) {
+        return <icon.CloudLightningRainFill size={24} className="text-warning" />;
+    }
+    else {
+        return <icon.CloudFill size={24} className="text-light" />;
+    }
+};
+
 
 const EventDetails: React.FC = () => {
     const navigate = useNavigate();
@@ -35,7 +72,6 @@ const EventDetails: React.FC = () => {
                 setLoading(true);
                 setError(null);
                 
-                // Check if user is a member of the organization
                 if (user && token) {
                     try {
                         const reply = await isMemberOfOrg(user.id, id);
@@ -43,14 +79,12 @@ const EventDetails: React.FC = () => {
                         setMemberRole(userRelationRecord.membership.role);
                     } catch (membershipError) {
                         console.error(`Error checking membership status: ${membershipError}`);
-                        // User is not a member, continue fetching public event
                     }
                 }
                 
                 // Fetch event details
-                const response = await getPublicOrganizationEvents(id);
+                const response = await getOrganizationEvents(id);
                 const foundEvent = response.data.events.find(event => event.id === eid);
-                
                 if (foundEvent) {
                     setEvent(foundEvent);
                 } else {
@@ -76,11 +110,54 @@ const EventDetails: React.FC = () => {
         e.preventDefault();
     };
 
+    const handleAddWeather = async () => {
+        if (!id || !eid || !event) return;
+        
+        try {
+            setLoading(true);
+            const response = await getWeather(event.location as string, id, eid);
+            if (response.data?.event) {
+                setEvent(prevEvent => ({
+                    ...prevEvent,
+                    ...response.data.event,
+                }));
+            }
+            
+            setLoading(false);
+        } catch (error) {
+            console.error('Error updating weather data:', error);
+            setError('Failed to update weather data. Please try again.');
+            setLoading(false);
+        }
+    }
+
+    const handleRefreshWeather = async () => {
+        if (!id || !eid || !event) return;
+        
+        try {
+            setLoading(true);
+            const response = await getUpdateWeather(id, eid);
+            if (response.data?.event) {
+                setEvent(prevEvent => ({
+                    ...prevEvent,
+                    ...response.data.event,
+                }));
+            }
+            
+            setLoading(false);
+        } catch (error) {
+            console.error('Error updating weather data:', error);
+            setError('Failed to update weather data. Please try again.');
+            setLoading(false);
+        }
+    }
+
     const formatDate = (dateString: string) => {
         try {
             const date = new Date(dateString);
             return format(date, 'MMMM d, yyyy');
         } catch (error) {
+            console.log(error);
             return dateString;
         }
     };
@@ -213,6 +290,25 @@ const EventDetails: React.FC = () => {
                                             <Card.Header className="border-secondary">
                                                 <h2>{event.title}</h2>
                                                 <p className="text-light mb-0">Organized by {id && id.charAt(0).toUpperCase() + id.slice(1)}</p>
+                                                {event.weather && (
+                                                    <div className="event-weather mt-2 p-2 rounded">
+                                                        <h5 className="text-light mb-1">Weather Forecast</h5>
+                                                        <div className="d-flex align-items-center">
+                                                            <div className="weather-icon me-2">
+                                                                {renderWeatherIcon(event.weather.weatherCode)}
+                                                            </div>
+                                                            <div>
+                                                                <p className="mb-1">{event.weather.weatherDescription} | {Math.round((event.weather.temperature * 9/5) + 32)}°F</p>
+                                                                <p className="mb-0 small">
+                                                                    <icon.Wind className="me-1" />
+                                                                    Wind: {Math.round(event.weather.windSpeed * 0.621371)} mph | 
+                                                                    <icon.Droplet className="mx-1" />
+                                                                    Precipitation: {Math.round(event.weather.precipitation / 25.5)} in 
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                )}
                                             </Card.Header>
                                             <Card.Body>
                                                 <Row className="mb-3">
@@ -240,6 +336,12 @@ const EventDetails: React.FC = () => {
                                                     <h4 className="text-light mb-3">Description</h4>
                                                     <p className="lead">{event.description}</p>
                                                 </div>
+                                                {event.location && (
+                                                  <div className="mb-4">
+                                                      <h4 className="text-light mb-2">Location</h4>
+                                                      <p className="lead">{typeof event.location == 'string' ? event.location : event.location.name}</p>
+                                                  </div>
+                                                )}
                                                 
                                                 <Row className="mt-4">
                                                     <Col>
@@ -296,6 +398,15 @@ const EventDetails: React.FC = () => {
                                                 
                                                 {user && token && memberRole === 'ADMIN' && (
                                                     <div className="d-grid gap-2 mt-4">
+                                                      {event.location && (
+                                                        <Button 
+                                                            variant="outline-light"
+                                                            onClick={() => event.weather ? handleRefreshWeather() :handleAddWeather()}
+                                                        >
+                                                            <icon.Cloud className="me-2" />
+                                                            {loading ? 'Updating...' : (event.weather ? 'Refresh Weather' : 'Add Weather')}
+                                                        </Button>
+                                                      )}
                                                         <Button 
                                                             variant="outline-light"
                                                             onClick={() => navigate(`/organizations/${id}/events/${eid}/edit`)}
