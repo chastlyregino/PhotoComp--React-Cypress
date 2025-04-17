@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Carousel, Button, Spinner, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { Carousel, Button, Spinner, OverlayTrigger, Tooltip, Container, Row, Col } from 'react-bootstrap';
 import { ChevronLeft, ChevronRight, TagFill } from 'react-bootstrap-icons';
 import { useNavigate } from 'react-router-dom';
 import { Photo, getAllPhotos } from '../../context/PhotoService';
@@ -28,6 +28,13 @@ const CustomPhotoCarousel: React.FC<CustomPhotoCarouselProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [taggedUsers, setTaggedUsers] = useState<Map<string, TaggedUserWithDetails[]>>(new Map());
   const [loadingTags, setLoadingTags] = useState<boolean>(false);
+  
+  // Debug user role
+  useEffect(() => {
+    if (user) {
+      console.log('Current user role:', user.role);
+    }
+  }, [user]);
   
   useEffect(() => {
     const fetchPhotos = async () => {
@@ -171,6 +178,9 @@ const CustomPhotoCarousel: React.FC<CustomPhotoCarouselProps> = ({
   const currentPhoto = photos[activeIndex];
   const currentPhotoTags = taggedUsers.get(currentPhoto.id) || [];
   
+  // Only show the tag button to admin users - ROLE CHECK RESTORED
+  const showTagButton = user && (user.role === 'ADMIN' || user.role === 'admin');
+  
   return (
     <div className="photo-carousel-container">
       <style>
@@ -238,14 +248,6 @@ const CustomPhotoCarousel: React.FC<CustomPhotoCarouselProps> = ({
             padding: 15px;
           }
           
-          /* Style for the tag button */
-          .tag-button {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            z-index: 1000;
-          }
-          
           /* Style for tagged users */
           .tagged-users-container {
             margin-top: 10px;
@@ -260,23 +262,49 @@ const CustomPhotoCarousel: React.FC<CustomPhotoCarouselProps> = ({
             margin: 4px;
             font-size: 14px;
           }
+          
+          /* Super visible tag button */
+          .super-visible-tag-button {
+            font-size: 1.2rem;
+            margin: 20px auto;
+            padding: 10px 20px;
+            display: block;
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+          }
+          
+          .super-visible-tag-button:hover {
+            background-color: #c82333;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+            transform: translateY(-2px);
+          }
+          
+          .super-visible-tag-button:focus {
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.5);
+          }
         `}
       </style>
       
-      {/* Tag People Button (only visible to admin users) */}
-      {user && user.role === 'ADMIN' && (
-        <OverlayTrigger
-          placement="left"
-          overlay={<Tooltip id="tag-tooltip">Tag people in this photo</Tooltip>}
-        >
-          <Button
-            variant="secondary"
-            className="tag-button"
-            onClick={handleTagPeople}
-          >
-            <TagFill className="me-2" /> Tag People
-          </Button>
-        </OverlayTrigger>
+      {/* IMPORTANT: Added a completely separate tag button container before the carousel */}
+      {showTagButton && (
+        <Container fluid className="mb-3">
+          <Row className="justify-content-center">
+            <Col xs={12} className="text-center">
+              <Button
+                variant="danger"
+                size="lg"
+                className="super-visible-tag-button"
+                onClick={handleTagPeople}
+              >
+                <TagFill className="me-2" /> TAG PEOPLE IN THIS PHOTO
+              </Button>
+            </Col>
+          </Row>
+        </Container>
       )}
       
       <Carousel
@@ -331,6 +359,24 @@ const CustomPhotoCarousel: React.FC<CustomPhotoCarouselProps> = ({
             </div>
           ) : null}
         </div>
+      )}
+      
+      {/* IMPORTANT: Added duplicated tag button at the bottom for maximum visibility */}
+      {showTagButton && (
+        <Container fluid className="mt-3">
+          <Row className="justify-content-center">
+            <Col xs={12} className="text-center">
+              <Button
+                variant="danger"
+                size="lg"
+                className="super-visible-tag-button"
+                onClick={handleTagPeople}
+              >
+                <TagFill className="me-2" /> TAG PEOPLE IN THIS PHOTO
+              </Button>
+            </Col>
+          </Row>
+        </Container>
       )}
     </div>
   );
