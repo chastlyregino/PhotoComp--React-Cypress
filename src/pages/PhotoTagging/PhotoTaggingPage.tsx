@@ -9,6 +9,7 @@ import Sidebar from '../../components/bars/SideBar/SideBar';
 import TopBar from '../../components/bars/TopBar/TopBar';
 import SearchBar from '../../components/bars/SearchBar/SearchBar';
 import NavButton from '../../components/navButton/NavButton';
+import MemberCard from '../../components/cards/memberCard/MemberCard';
 import axiosInstance from '../../utils/axios';
 
 // Define types for our data models
@@ -20,9 +21,12 @@ interface User {
 }
 
 interface Member {
+  PK: string;
+  SK: string;
   userId: string;
   role: string;
   joinDate: string;
+  organizationName: string;
   userDetails: User;
 }
 
@@ -143,7 +147,7 @@ const PhotoTaggingPage: React.FC = () => {
           if (searchTerm.trim() === '') {
             setFilteredAttendees(prev => [...prev, ...newAttendees]);
           } else {
-            const filtered = newAttendees.filter(attendee => {
+            const filtered = newAttendees.filter((attendee: EventAttendee) => {
               const { firstName, lastName, email } = attendee.userDetails;
               const fullName = `${firstName} ${lastName}`.toLowerCase();
               const searchLower = searchTerm.toLowerCase();
@@ -179,7 +183,7 @@ const PhotoTaggingPage: React.FC = () => {
     if (searchTerm.trim() === '') {
       setFilteredAttendees(attendees);
     } else {
-      const filtered = attendees.filter(attendee => {
+      const filtered = attendees.filter((attendee: EventAttendee) => {
         const { firstName, lastName, email } = attendee.userDetails;
         const fullName = `${firstName} ${lastName}`.toLowerCase();
         const searchLower = searchTerm.toLowerCase();
@@ -200,7 +204,7 @@ const PhotoTaggingPage: React.FC = () => {
   };
   
   // Toggle member selection
-  const toggleMemberSelection = (memberId: string) => {
+  const handleMemberSelect = (memberId: string) => {
     setSelectedMembers(prev => {
       if (prev.includes(memberId)) {
         return prev.filter(id => id !== memberId);
@@ -355,61 +359,27 @@ const PhotoTaggingPage: React.FC = () => {
                 </div>
               ) : (
                 <>
-                  <div className="member-grid mb-4">
-                    <Row className="g-4">
-                      {filteredAttendees.map(attendee => (
-                        <Col xs={12} sm={6} md={4} key={attendee.userId}>
-                          <div 
-                            className={`member-card h-100 p-0 position-relative ${selectedMembers.includes(attendee.userId) ? 'selected' : ''}`}
-                            onClick={() => toggleMemberSelection(attendee.userId)}
-                          >
-                            <div 
-                              className="card-content text-white p-4 d-flex flex-column justify-content-between h-100"
-                              style={{ 
-                                width: '100%', 
-                                height: '200px',
-                                position: 'relative',
-                                cursor: 'pointer',
-                                backgroundColor: selectedMembers.includes(attendee.userId) ? '#4d5154' : '#343a40',
-                                borderColor: selectedMembers.includes(attendee.userId) ? '#fff' : 'transparent',
-                                borderWidth: selectedMembers.includes(attendee.userId) ? '2px' : '1px',
-                                borderStyle: 'solid',
-                                borderRadius: '12px',
-                                transition: 'all 0.2s ease-in-out'
-                              }}
-                            >
-                              <div>
-                                <h5 className="card-title">
-                                  {attendee.userDetails.firstName} {attendee.userDetails.lastName}
-                                </h5>
-                                <p className="card-text text-white-50 small">
-                                  {attendee.userDetails.email}
-                                </p>
-                              </div>
-                              
-                              {selectedMembers.includes(attendee.userId) && (
-                                <div className="position-absolute" style={{ top: '10px', right: '10px' }}>
-                                  <icon.CheckCircleFill size={24} className="text-success" />
-                                </div>
-                              )}
-                              
-                              <div className="card-footer bg-transparent border-0 text-white-50">
-                                <small>Role: {attendee.role}</small>
-                              </div>
-                            </div>
-                          </div>
-                        </Col>
-                      ))}
-                    </Row>
-                  </div>
+                  {/* Display members in a card grid layout */}
+                  <Row className="g-4 member-cards-container mb-4">
+                    {filteredAttendees.map((attendee: EventAttendee) => (
+                      <Col xs={12} sm={6} md={4} lg={3} key={attendee.userId} className="d-flex justify-content-center">
+                        <MemberCard
+                          member={attendee}
+                          isSelected={selectedMembers.includes(attendee.userId)}
+                          onSelect={handleMemberSelect}
+                        />
+                      </Col>
+                    ))}
+                  </Row>
                   
                   {/* Load More Button */}
                   {!searchTerm && hasMore && (
-                    <div className="text-center mt-4 mb-4">
+                    <div className="text-center mt-4 mb-5">
                       <Button
                         variant="primary"
                         onClick={handleLoadMore}
                         disabled={loadingMore}
+                        className="load-more-button"
                       >
                         {loadingMore ? (
                           <>
@@ -432,7 +402,7 @@ const PhotoTaggingPage: React.FC = () => {
                 </>
               )}
               
-              {/* Action Buttons - Fixed at bottom */}
+              {/* Action Buttons */}
               <div className="action-buttons-container d-flex justify-content-between my-4">
                 <Button
                   variant="secondary"
@@ -460,7 +430,7 @@ const PhotoTaggingPage: React.FC = () => {
                       Tagging...
                     </>
                   ) : (
-                    'Tag selected members'
+                    `Tag selected members (${selectedMembers.length})`
                   )}
                 </Button>
               </div>
