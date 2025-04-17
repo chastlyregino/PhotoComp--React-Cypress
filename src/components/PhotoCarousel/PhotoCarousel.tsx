@@ -266,6 +266,7 @@ const CustomPhotoCarousel: React.FC<CustomPhotoCarouselProps> = ({
             margin-top: 20px;
             text-align: center;
             padding: 15px;
+            position: relative;
           }
           
           /* Style for tagged users */
@@ -283,49 +284,40 @@ const CustomPhotoCarousel: React.FC<CustomPhotoCarouselProps> = ({
             font-size: 14px;
           }
           
-          /* Super visible tag button */
-          .super-visible-tag-button {
-            font-size: 1.2rem;
-            margin: 20px auto;
-            padding: 10px 20px;
-            display: block;
-            background-color: #dc3545;
-            color: white;
+          /* Tag button styling for inline with caption */
+          .tag-button-inline {
+            margin-left: 12px;
+            padding: 3px 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(220, 53, 69, 0.7);
             border: none;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            transition: all 0.3s ease;
+            border-radius: 4px;
+            color: white;
+            transition: all 0.2s ease;
           }
           
-          .super-visible-tag-button:hover {
-            background-color: #c82333;
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-            transform: translateY(-2px);
+          .tag-button-inline:hover {
+            background-color: rgba(220, 53, 69, 0.9);
           }
           
-          .super-visible-tag-button:focus {
-            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.5);
+          .tag-button-icon {
+            margin-right: 4px;
+          }
+          
+          .image-container {
+            position: relative;
+          }
+          
+          .caption-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
           }
         `}
       </style>
-      
-      {/* IMPORTANT: Added a completely separate tag button container before the carousel */}
-      {showTagButton && (
-        <Container fluid className="mb-3">
-          <Row className="justify-content-center">
-            <Col xs={12} className="text-center">
-              <Button
-                variant="danger"
-                size="lg"
-                className="super-visible-tag-button"
-                onClick={handleTagPeople}
-              >
-                <TagFill className="me-2" /> TAG PEOPLE IN THIS PHOTO
-              </Button>
-            </Col>
-          </Row>
-        </Container>
-      )}
       
       <Carousel
         activeIndex={activeIndex}
@@ -338,7 +330,7 @@ const CustomPhotoCarousel: React.FC<CustomPhotoCarouselProps> = ({
       >
         {photos.map((photo, index) => (
           <Carousel.Item key={photo.id}>
-            {/* Image container */}
+            {/* Image container with relative positioning */}
             <div className="d-flex justify-content-center align-items-center" style={getCarouselSize()}>
               <img
                 src={getImageUrl(photo)}
@@ -353,15 +345,36 @@ const CustomPhotoCarousel: React.FC<CustomPhotoCarouselProps> = ({
       {/* Caption container outside the carousel */}
       {photos.length > 0 && activeIndex < photos.length && (
         <div className="photo-caption-container text-white">
-          <span className="fw-bold">
-            {currentPhoto.metadata?.title || `Photo ${activeIndex + 1}`}
-          </span>
-          {currentPhoto.metadata?.description && (
-            <>
-              <span className="mx-2">-</span>
-              <span>{currentPhoto.metadata.description}</span>
-            </>
-          )}
+          <div className="caption-row">
+            <span className="fw-bold">
+              {currentPhoto.metadata?.title || `Photo ${activeIndex + 1}`}
+            </span>
+            
+            {currentPhoto.metadata?.description && (
+              <>
+                <span className="mx-2">-</span>
+                <span>{currentPhoto.metadata.description}</span>
+              </>
+            )}
+            
+            {/* Tag button inline with caption */}
+            {showTagButton && (
+              <OverlayTrigger
+                placement="top"
+                overlay={<Tooltip id="tag-tooltip">Tag people in this photo</Tooltip>}
+              >
+                <Button
+                  className="tag-button-inline ms-3"
+                  onClick={handleTagPeople}
+                  aria-label="Tag people in this photo"
+                  size="sm"
+                >
+                  <TagFill size={16} className="tag-button-icon" />
+                  Tag People
+                </Button>
+              </OverlayTrigger>
+            )}
+          </div>
           
           {/* Show tagged users */}
           {loadingTags ? (
@@ -379,24 +392,6 @@ const CustomPhotoCarousel: React.FC<CustomPhotoCarouselProps> = ({
             </div>
           ) : null}
         </div>
-      )}
-      
-      {/* IMPORTANT: Added duplicated tag button at the bottom for maximum visibility */}
-      {showTagButton && (
-        <Container fluid className="mt-3">
-          <Row className="justify-content-center">
-            <Col xs={12} className="text-center">
-              <Button
-                variant="danger"
-                size="lg"
-                className="super-visible-tag-button"
-                onClick={handleTagPeople}
-              >
-                <TagFill className="me-2" /> TAG PEOPLE IN THIS PHOTO
-              </Button>
-            </Col>
-          </Row>
-        </Container>
       )}
     </div>
   );
