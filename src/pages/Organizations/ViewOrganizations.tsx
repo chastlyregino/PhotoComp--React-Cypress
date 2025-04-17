@@ -151,7 +151,7 @@ const Organizations: React.FC = () => {
                             {error && <Alert variant="danger">{error}</Alert>}
 
                             <Row>
-                                {loading && organizations.length === 0 ? (
+                                {/* {loading && organizations.length === 0 ? (
                                     <div className="text-center p-5">Loading organizations...</div>
                                 ) : filteredOrganizations.length === 0 ? (
                                     <div className="text-center p-5">
@@ -171,7 +171,7 @@ const Organizations: React.FC = () => {
                                             </div>
                                         )}
                                     </div>
-                                ) : (
+                                ) : ( */}
                                     <div className="d-flex flex-wrap gap-4">
                                         {filteredOrganizations.map(org => (
                                             <div key={org.id}>
@@ -183,7 +183,7 @@ const Organizations: React.FC = () => {
                                             </div>
                                         ))}
                                     </div>
-                                )}
+                                {/* )} */}
                             </Row>
 
                             {hasMore && organizations.length > 0 && (
