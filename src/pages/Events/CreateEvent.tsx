@@ -257,11 +257,11 @@ const CreateEvent: React.FC = () => {
 
                                         <div
                                             className="position-relative mt-5 pt-5"
-                                            style={{ height: '250px' }}
+                                            style={{ height: '250px', zIndex: 1100 }}
                                         >
                                             <div
                                                 className="position-absolute"
-                                                style={{ left: '-200px', top: '200px' }}
+                                                style={{ left: '-200px', top: '200px', zIndex: 1100 }}
                                             >
                                                 <Button
                                                     variant="secondary"
@@ -277,7 +277,7 @@ const CreateEvent: React.FC = () => {
 
                                             <div
                                                 className="position-absolute"
-                                                style={{ right: '-200px', top: '200px' }}
+                                                style={{ right: '-200px', top: '200px', zIndex: 1100 }}
                                             >
                                                 <Button
                                                     variant="secondary"

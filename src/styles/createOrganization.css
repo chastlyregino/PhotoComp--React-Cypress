@@ -41,3 +41,13 @@
     border: none;
     background: transparent;
 }
+
+.main-content,
+.create-organization-page {
+    overflow: visible;
+}
+
+.main-content,
+.create-event-page {
+    overflow: visible;
+}
