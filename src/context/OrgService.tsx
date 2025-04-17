@@ -97,6 +97,11 @@ export interface EventResponse {
 }
 
 // get all orgs
+export interface DeleteEventResponse {
+  status: string;
+  message: string;
+}
+
 
 export const getPublicOrganizations = async (lastEvaluatedKey?: string, limit: number = 9) => {
     try {
@@ -246,6 +251,16 @@ export const getUpdateWeather = async (id: string, eid: string) => {
   try {
     const response = await axiosInstance.post<EventResponse>(`/organizations/${id}/events/${eid}/weather/refresh`);
     console.log(response);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching weather information", error);
+    throw error;
+  }
+}
+
+export const deleteEvent = async (id: string, eid: string) => {
+  try {
+    const response = await axiosInstance.delete<DeleteEventResponse>(`/organizations/${id}/events/${eid}/admin`);
     return response.data;
   } catch (error) {
     console.error("Error fetching weather information", error);

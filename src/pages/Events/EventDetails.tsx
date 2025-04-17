@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Container, Row, Col, Button, Alert, Card } from 'react-bootstrap';
+import { Container, Row, Col, Button, Alert, Card, Modal } from 'react-bootstrap';
 import { useParams, useNavigate } from 'react-router-dom';
 import * as icon from 'react-bootstrap-icons';
 import { NavLink } from 'react-router-dom';
@@ -11,7 +11,7 @@ import SearchBar from '../../components/bars/SearchBar/SearchBar';
 import NavButton from '../../components/navButton/NavButton';
 
 import AuthContext from '../../context/AuthContext';
-import { Event, getOrganizationEvents, getWeather, getUpdateWeather} from '../../context/OrgService';
+import { Event, getOrganizationEvents, getWeather, getUpdateWeather, deleteEvent} from '../../context/OrgService';
 import { isMemberOfOrg } from '../../context/AuthService';
 
 const renderWeatherIcon = (code: number) => {
@@ -63,6 +63,8 @@ const EventDetails: React.FC = () => {
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     
+    const [deleteEventModal, setDeleteEventModal] = useState<boolean>(false);
+    const [deletingEvent, setDeletingEvent] = useState<boolean>(false);
 
     useEffect(() => {
         if (!id || !eid) return;
@@ -101,6 +103,29 @@ const EventDetails: React.FC = () => {
 
         fetchEventDetails();
     }, [id, eid, user, token]);
+
+    const handleDeleteEvent = async () => {
+        if (!id || !eid) return;
+        
+        try {
+            setDeletingEvent(true);
+            const response = await deleteEvent(id, eid);
+            
+            if (response.status === 'success') {
+                navigate(`/organizations/${id}/events`);
+            } else {
+                setError('Failed to delete event. Please try again.');
+                setDeleteEventModal(false);
+            }
+            
+            setDeletingEvent(false);
+        } catch (error) {
+            console.error('Error deleting event:', error);
+            setError('Failed to delete event. Please try again.');
+            setDeletingEvent(false);
+            setDeleteEventModal(false);
+        }
+    };
 
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearchTerm(e.target.value);
@@ -416,6 +441,7 @@ const EventDetails: React.FC = () => {
                                                         </Button>
                                                         <Button 
                                                             variant="outline-danger"
+                                                            onClick={()=> setDeleteEventModal(true)}
                                                         >
                                                             <icon.TrashFill className="me-2" />
                                                             Delete Event
@@ -443,6 +469,37 @@ const EventDetails: React.FC = () => {
                     </div>
                 </Col>
             </Row>
+            <Modal 
+                show={deleteEventModal} 
+                onHide={() => setDeleteEventModal(false)}
+                centered
+                backdrop="static"
+                className="text-dark "
+            >
+                <Modal.Header closeButton>
+                    <Modal.Title>Delete Event</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <p>Are you sure you want to delete this event? This action cannot be undone.</p>
+                    <p><strong>Event:</strong> {event?.title}</p>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button 
+                        variant="secondary" 
+                        onClick={() => setDeleteEventModal(false)}
+                        disabled={deletingEvent}
+                    >
+                        Cancel
+                    </Button>
+                    <Button 
+                        variant="danger" 
+                        onClick={handleDeleteEvent}
+                        disabled={deletingEvent}
+                    >
+                        {deletingEvent ? 'Deleting...' : 'Delete Event'}
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </>
     );
 };
