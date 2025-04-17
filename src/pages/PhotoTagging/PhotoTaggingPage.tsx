@@ -11,6 +11,7 @@ import SearchBar from '../../components/bars/SearchBar/SearchBar';
 import NavButton from '../../components/navButton/NavButton';
 import MemberCard from '../../components/cards/memberCard/MemberCard';
 import axiosInstance from '../../utils/axios';
+import { getEventAttendees } from '../../context/EventService';
 
 // Define types for our data models
 interface User {
@@ -70,112 +71,103 @@ const PhotoTaggingPage: React.FC = () => {
         setError(null);
         
         // First get event details to display the event name
-        const eventResponse = await axiosInstance.get(`/organizations/${orgId}/events/${eventId}`);
-        if (eventResponse.data && eventResponse.data.data && eventResponse.data.data.event) {
-          setEventName(eventResponse.data.data.event.title);
+        try {
+          const eventResponse = await axiosInstance.get(`/organizations/${orgId}/events/${eventId}`);
+          if (eventResponse.data && eventResponse.data.data && eventResponse.data.data.event) {
+            setEventName(eventResponse.data.data.event.title);
+          }
+        } catch (eventError) {
+          console.error('Error fetching event details:', eventError);
+          // Continue with attendee fetching even if event details fail
         }
         
-        // Then get event attendees
-        const response = await axiosInstance.get(
-          `/organizations/${orgId}/events/${eventId}/attendants`,
-          {
-            params: {
-              limit: displayCount,
-              lastEvaluatedKey
-            }
-          }
-        );
-        
-        if (response.data && response.data.data && response.data.data.attendants) {
-          setAttendees(response.data.data.attendants);
-          setFilteredAttendees(response.data.data.attendants);
+        // Fetch event attendees using the correct endpoint and handling
+        try {
+          // Using the getEventAttendees helper from EventService for consistency
+          const attendees = await getEventAttendees(orgId, eventId);
           
-          // Check if there are more attendees to load
-          if (response.data.lastEvaluatedKey) {
-            setLastEvaluatedKey(response.data.lastEvaluatedKey);
-            setHasMore(true);
+          console.log('Raw attendees response:', attendees); // Debug log
+          
+          if (attendees && attendees.length > 0) {
+            // Transform attendees to expected format if needed
+            const formattedAttendees = await Promise.all(
+              attendees.map(async (attendee) => {
+                // Extract userId from format like USER#userId
+                const userId = attendee.includes('#') ? 
+                  attendee.split('#')[1] : 
+                  attendee;
+                
+                // Fetch user details for this attendee
+                try {
+                  const userResponse = await axiosInstance.get(`/users/${userId}`);
+                  const userData = userResponse.data.data?.user || {};
+                  
+                  // Create a properly formatted attendee object
+                  return {
+                    PK: `USER#${userId}`,
+                    SK: `EVENT#${eventId}`,
+                    userId: userId,
+                    role: 'MEMBER', // Default role
+                    joinDate: new Date().toISOString(),
+                    organizationName: orgId,
+                    eventId: eventId,
+                    userDetails: {
+                      id: userId,
+                      email: userData.email || 'email@example.com',
+                      firstName: userData.firstName || 'User',
+                      lastName: userData.lastName || userId,
+                    }
+                  };
+                } catch (userError) {
+                  console.error(`Error fetching details for user ${userId}:`, userError);
+                  // Return a placeholder object with available info
+                  return {
+                    PK: `USER#${userId}`,
+                    SK: `EVENT#${eventId}`,
+                    userId: userId,
+                    role: 'MEMBER',
+                    joinDate: new Date().toISOString(),
+                    organizationName: orgId,
+                    eventId: eventId,
+                    userDetails: {
+                      id: userId,
+                      email: 'email@example.com',
+                      firstName: 'User',
+                      lastName: userId,
+                    }
+                  };
+                }
+              })
+            );
+            
+            console.log('Formatted attendees:', formattedAttendees); // Debug log
+            setAttendees(formattedAttendees);
+            setFilteredAttendees(formattedAttendees);
           } else {
-            setHasMore(false);
+            console.log('No attendees found or invalid response format');
+            setAttendees([]);
+            setFilteredAttendees([]);
           }
-        } else {
-          setAttendees([]);
-          setFilteredAttendees([]);
-          setHasMore(false);
+        } catch (attendeesError) {
+          console.error('Error fetching attendees:', attendeesError);
+          throw attendeesError;
         }
         
         setLoading(false);
       } catch (err) {
-        console.error('Error fetching event attendees:', err);
+        console.error('Error in main fetchAttendees function:', err);
         setError('Failed to load event attendees. Please try again later.');
         setLoading(false);
       }
     };
     
     fetchAttendees();
-  }, [orgId, eventId, photoId, displayCount]);
+  }, [orgId, eventId, photoId]);
   
   // Handle load more function
   const handleLoadMore = async () => {
-    if (loadingMore || !hasMore) return;
-    
-    try {
-      setLoadingMore(true);
-      
-      const response = await axiosInstance.get(
-        `/organizations/${orgId}/events/${eventId}/attendants`,
-        {
-          params: {
-            limit: 12, // Load 12 more attendees
-            lastEvaluatedKey
-          }
-        }
-      );
-      
-      if (response.data && response.data.data && response.data.data.attendants) {
-        // Ensure we don't add duplicates 
-        const newAttendees = response.data.data.attendants.filter(
-          (newAttendee: EventAttendee) => 
-            !attendees.some((existingAttendee: EventAttendee) => 
-              existingAttendee.userId === newAttendee.userId
-            )
-        );
-        
-        if (newAttendees.length > 0) {
-          setAttendees(prev => [...prev, ...newAttendees]);
-          
-          // Apply current search filter to updated attendees list
-          if (searchTerm.trim() === '') {
-            setFilteredAttendees(prev => [...prev, ...newAttendees]);
-          } else {
-            const filtered = newAttendees.filter((attendee: EventAttendee) => {
-              const { firstName, lastName, email } = attendee.userDetails;
-              const fullName = `${firstName} ${lastName}`.toLowerCase();
-              const searchLower = searchTerm.toLowerCase();
-              
-              return fullName.includes(searchLower) || email.toLowerCase().includes(searchLower);
-            });
-            
-            setFilteredAttendees(prev => [...prev, ...filtered]);
-          }
-        }
-        
-        // Check if there are more attendees to load
-        if (response.data.lastEvaluatedKey) {
-          setLastEvaluatedKey(response.data.lastEvaluatedKey);
-          setHasMore(true);
-        } else {
-          setHasMore(false);
-        }
-      } else {
-        setHasMore(false);
-      }
-      
-      setLoadingMore(false);
-    } catch (err) {
-      console.error('Error loading more attendees:', err);
-      setError('Failed to load more attendees. Please try again.');
-      setLoadingMore(false);
-    }
+    // Implement if pagination is needed
+    setHasMore(false); // For now, just disable the "load more" button
   };
   
   // Filter attendees based on search term
@@ -235,6 +227,7 @@ const PhotoTaggingPage: React.FC = () => {
         { userIds: selectedMembers }
       );
       
+      console.log('Tag response:', response.data);
       setSuccess('Members tagged successfully!');
       setSubmitting(false);
       
