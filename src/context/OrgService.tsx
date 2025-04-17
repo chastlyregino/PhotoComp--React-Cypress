@@ -47,6 +47,14 @@ export interface EventsResponse {
     lastEvaluatedKey: string | null;
 }
 
+export interface EventResponse {
+    status: string;
+    data: {
+        updatedEvent: Event[];
+    };
+    lastEvaluatedKey: string | null;
+}
+
 export const getPublicOrganizations = async (lastEvaluatedKey?: string, limit: number = 9) => {
     try {
         const response = await noAuthInstance.get<OrganizationsResponse>('/guests', {
@@ -157,7 +165,7 @@ export const getOrganizationEvents = async (orgId: string) => {
 
 export const changeEventPublicity = async (orgId: string, eventId: string) => {
     try {
-        const response = await axiosInstance.patch<EventsResponse>(
+        const response = await axiosInstance.patch<EventResponse>(
             `/organizations/${orgId}/events/${eventId}`
         );
         return response.data;
