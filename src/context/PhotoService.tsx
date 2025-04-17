@@ -130,8 +130,7 @@ export const getPhotoDownloadUrl = async (
         throw error;
     }
 };
-<<<<<<< HEAD
-=======
+
 
 /**
  * Delete a photo from an event
@@ -155,4 +154,4 @@ export const deletePhoto = async (
         throw error;
     }
 };
->>>>>>> 914ae25 (multi file upload)
+
