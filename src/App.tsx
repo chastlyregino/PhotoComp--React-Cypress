@@ -18,7 +18,7 @@ import UploadEventPhoto from './pages/Events/UploadEventPhoto';
 import CreateEvent from './pages/Events/CreateEvent';
 import PhotoGalleryPage from './pages/PhotoGallery/PhotoGalleryPage';
 import PhotoTaggingPage from './pages/PhotoTagging/PhotoTaggingPage';
-
+import OrganizationDetails from './pages/Organizations/OrganizationDetails';
 
 function App() {
     return (
@@ -38,14 +38,7 @@ function App() {
                         </ProtectedRoute>
                     }
                 />
-                <Route
-                    path="/organizations/:id/details"
-                    element={
-                        <ProtectedRoute>
-                            <CreateOrganization />
-                        </ProtectedRoute>
-                    }
-                />
+                <Route path="/organizations/:id/details" element={<OrganizationDetails />} />
                 <Route path="/organizations/:id/events" element={<SingleEvents />} />
                 <Route path="/account-settings" element={<AccountSettings />} />
                 <Route
@@ -89,7 +82,7 @@ function App() {
                     }
                 />
                 {/* for viewing individual photos in the carousel */}
-                <Route 
+                <Route
                     path="/organizations/:id/events/:eid/photos/:photoId"
                     element={
                         <ProtectedRoute>

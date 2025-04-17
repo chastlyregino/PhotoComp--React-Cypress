@@ -51,3 +51,8 @@
 .create-event-page {
     overflow: visible;
 }
+
+.main-content,
+.organization-details-page {
+    overflow: visible;
+}

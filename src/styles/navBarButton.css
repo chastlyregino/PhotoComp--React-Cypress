@@ -17,7 +17,7 @@
     display: inline-flex;
     cursor: pointer;
 }
-  
+
 .icon-only-button:hover {
     opacity: 0.8;
 }
@@ -32,8 +32,8 @@
     border: none;
     cursor: pointer;
     transition: background-color 0.2s ease;
-  }
-  
-  .attend-event-button:hover {
+}
+
+.attend-event-button:hover {
     background-color: #71797e; /* slightly lighter black on hover */
-  }
+}
