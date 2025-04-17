@@ -372,15 +372,15 @@ const OrganizationDetails: React.FC = () => {
                                 
 
                                 <div className="d-flex justify-content-between mt-4">
+                                    <Button
+                                        variant="outline-light custom-create-button"
+                                        onClick={() => navigate(-1)}
+                                    >
+                                        {isAdmin ? 'Cancel' : `Back to ${organizationId}`}
+                                    </Button>
+                                    
                                     {isAdmin && (
                                         <>
-                                            <Button
-                                                variant="outline-light custom-create-button"
-                                                onClick={() => navigate(-1)}
-                                            >
-                                                Cancel
-                                            </Button>
-
                                             <Button
                                                 variant="secondary"
                                                 type="submit"
