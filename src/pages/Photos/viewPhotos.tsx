@@ -12,7 +12,7 @@ import { getAllPhotos, Photo } from '../../context/PhotoService';
 import { getPublicOrganizationEvents, Event } from '../../context/OrgService';
 import AuthContext from '../../context/AuthContext';
 import {
-    EventsResponse,
+    EventResponse,
     changeEventPublicity,
     getOrganizationEvents,
 } from '../../context/OrgService';
@@ -42,51 +42,51 @@ const Photos: React.FC = () => {
     const { id, eid } = useParams();
 
     // Fetch event details
-    useEffect(() => {
-        if (id && eid) {
-            const fetchEventDetails = async () => {
-                try {
-                    setLoadingEvent(true);
-                    const response = await getPublicOrganizationEvents(id);
-                    const event = response.data.events.find(e => e.id === eid);
+    // useEffect(() => {
+    //     if (id && eid) {
+    //         const fetchEventDetails = async () => {
+    //             try {
+    //                 setLoadingEvent(true);
+    //                 const response = await getPublicOrganizationEvents(id);
+    //                 const event = response.data.events.find(e => e.id === eid);
                     
-                    if (event) {
-                        setEventInfo(event);
-                    }
+    //                 if (event) {
+    //                     setEventInfo(event);
+    //                 }
                     
-                    setLoadingEvent(false);
-                } catch (err) {
-                    console.error('Error fetching event details:', err);
-                    setLoadingEvent(false);
-                }
-            };
+    //                 setLoadingEvent(false);
+    //             } catch (err) {
+    //                 console.error('Error fetching event details:', err);
+    //                 setLoadingEvent(false);
+    //             }
+    //         };
             
-            fetchEventDetails();
-        }
-    }, [id, eid]);
+    //         fetchEventDetails();
+    //     }
+    // }, [id, eid]);
 
     // Fetch photos
-    useEffect(() => {
-        if (fetchedRef.current) return;
-        fetchedRef.current = true;
-        fetchPhotos();
-    }, [id, eid]);
+    // useEffect(() => {
+    //     if (fetchedRef.current) return;
+    //     fetchedRef.current = true;
+    //     fetchPhotos();
+    // }, [id, eid]);
 
-    useEffect(() => {
-        if (searchTerm.trim() === '') {
-            setFilteredPhotos(photos);
-        } else {
-            const filtered = photos.filter(photo => {
-                // Search in photo metadata if available
-                const title = photo.metadata?.title?.toLowerCase() || '';
-                const description = photo.metadata?.description?.toLowerCase() || '';
-                const searchLower = searchTerm.toLowerCase();
+    // useEffect(() => {
+    //     if (searchTerm.trim() === '') {
+    //         setFilteredPhotos(photos);
+    //     } else {
+    //         const filtered = photos.filter(photo => {
+    //             // Search in photo metadata if available
+    //             const title = photo.metadata?.title?.toLowerCase() || '';
+    //             const description = photo.metadata?.description?.toLowerCase() || '';
+    //             const searchLower = searchTerm.toLowerCase();
                 
-                return title.includes(searchLower) || description.includes(searchLower);
-            });
-            setFilteredPhotos(filtered);
-        }
-    }, [photos, searchTerm]);
+    //             return title.includes(searchLower) || description.includes(searchLower);
+    //         });
+    //         setFilteredPhotos(filtered);
+    //     }
+    // }, [photos, searchTerm]);
 
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearchTerm(e.target.value);
@@ -106,7 +106,32 @@ const Photos: React.FC = () => {
         fetchEventPublicity();
         fetchPhotos();
         fetchUserRole();
+        fetchEventDetails();
     }, []);
+
+    useEffect(() => {
+        fetchEventPublicity();
+    }, []);
+
+    const fetchEventDetails = async () => {
+        if(id) {
+            try {
+                setLoadingEvent(true);
+                const response = await getPublicOrganizationEvents(id);
+                const event = response.data.events.find(e => e.id === eid);
+                            
+                if (event) {
+                    setEventInfo(event);
+                }
+                            
+                setLoadingEvent(false);
+            } catch (err) {
+                console.error('Error fetching event details:', err);
+                setLoadingEvent(false);
+            }
+        }
+        
+    };
 
     const fetchPhotos = async () => {
         if (id && eid) {
@@ -141,6 +166,7 @@ const Photos: React.FC = () => {
             if (!id || !user) return;
 
             const result = await fetchUserRole();
+            console.log(`userRole: ${result}`)
             if (result) {
                 setIsAdminUser(result.role === 'ADMIN');
             }
@@ -150,22 +176,22 @@ const Photos: React.FC = () => {
         }
     };
 
-    const changePublicity = async (): Promise<EventsResponse | undefined> => {
+    const changePublicity = async () => {
         if (id && eid) {
             try {
+                // Immediately toggle UI for better user feedback
+                setEventPublicity(prev => !prev);
+                
+                // Then make the API call
                 const response = await changeEventPublicity(id, eid);
-                if (
-                    response &&
-                    response.data &&
-                    typeof response.data.events[0].isPublic === 'boolean'
-                ) {
-                    // Update event publicity based on response from API
-                    setEventPublicity(response.data.events[0].isPublic);
-                }
-                return response;
+                
+                // If API call fails, we'll revert in the catch block
+                console.log("Event publicity API response:", response);
             } catch (error) {
                 console.error(`Error changing event publicity ${eid}:`, error);
-                throw error;
+                // Revert UI state if API call fails
+                setEventPublicity(prev => !prev);
+                setError('Failed to change event publicity');
             }
         }
     };
@@ -237,6 +263,7 @@ const Photos: React.FC = () => {
         <>
             <div className="d-flex align-items-center gap-3">
                 {/* Create Organization should only appear when an Admin is logged in */}
+                
                 {isAdminUser &&(
                 <NavButton
                     to={`/organizations/${id}/events/${eid}/photos/upload`}
@@ -267,7 +294,7 @@ const Photos: React.FC = () => {
                 {user &&
                     token &&
                     (isAdminUser ? (
-                        <Button onClick={changePublicity} className="icon-only-button">
+                        <Button onClick={changePublicity} className="icon-only-button" key={`publicity-${eventPublicity}`}>
                             {eventPublicity ? (
                                 <icon.UnlockFill size={20} />
                             ) : (
