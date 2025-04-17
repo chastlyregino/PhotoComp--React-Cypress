@@ -100,10 +100,10 @@ const Photos: React.FC = () => {
     useEffect(() => {
         if (fetchedRef.current) return;
         fetchedRef.current = true;
-        fetchPhotos();
         checkIfAdmin();
-        fetchEventAttendees()
+        fetchEventAttendees();
         fetchEventPublicity();
+        fetchPhotos();
     }, []);
 
     // useEffect(() => {
@@ -176,11 +176,9 @@ const Photos: React.FC = () => {
     const fetchEventAttendees = async () => {
         if (id && eid && user) {
             try {
-                const res = await getEventAttendees(id, eid);
-                const attendees: EventUser[] = res.data.userEvent;
+                const attendees = await getEventAttendees(id, eid);
                 if(attendees) {
-                    const isAttending = attendees.find(attendee => attendee.id === user.id);
-                    console.log(`attendees: ${attendees}`)
+                    const isAttending = attendees.find(attendee => attendee as unknown as string === user.id);
                     console.log(isAttending)
                     if (isAttending) {
                         setIsEventAttendee(isAttending);
