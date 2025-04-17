@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
-import { Col, Row, Button, Alert } from 'react-bootstrap';
+import { Button, Col, Row } from 'react-bootstrap';
 import * as icon from 'react-bootstrap-icons';
 import { NavLink, useParams } from 'react-router-dom';
 
@@ -8,8 +8,7 @@ import TopBar from '../../components/bars/TopBar/TopBar';
 import SearchBar from '../../components/bars/SearchBar/SearchBar';
 import NavButton from '../../components/navButton/NavButton';
 import GalleryCard from '../../components/cards/galleryCard/GalleryCard';
-import { getAllPhotos, Photo } from '../../context/PhotoService';
-import { getPublicOrganizationEvents, Event } from '../../context/OrgService';
+import { getAllPhotos } from '../../context/PhotoService';
 import AuthContext from '../../context/AuthContext';
 import {
     EventsResponse,
@@ -28,65 +27,14 @@ import { UserOrgRelationship, isMemberOfOrg } from '../../context/AuthService';
 const Photos: React.FC = () => {
     const { user, token } = useContext(AuthContext);
     const [searchTerm, setSearchTerm] = useState('');
-    const [photos, setPhotos] = useState<Photo[]>([]);
-    const [filteredPhotos, setFilteredPhotos] = useState<Photo[]>([]);
+    const [photos, setPhotos] = useState<any[]>([]);
     const [error, setError] = useState<string | null>(null);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [eventInfo, setEventInfo] = useState<Event | null>(null);
-    const [loadingEvent, setLoadingEvent] = useState<boolean>(true);
+    const { id, eid } = useParams();
     const [isAdminUser, setIsAdminUser] = useState(false);
     const [isMember, setIsMember] = useState<UserOrgRelationship | null>(null);
     const [isEventAttendee, setIsEventAttendee] = useState<EventUser | null>(null);
     const [eventPublicity, setEventPublicity] = useState<boolean | null>(null);
     const fetchedRef = useRef(false);
-    const { id, eid } = useParams();
-
-    // Fetch event details
-    useEffect(() => {
-        if (id && eid) {
-            const fetchEventDetails = async () => {
-                try {
-                    setLoadingEvent(true);
-                    const response = await getPublicOrganizationEvents(id);
-                    const event = response.data.events.find(e => e.id === eid);
-                    
-                    if (event) {
-                        setEventInfo(event);
-                    }
-                    
-                    setLoadingEvent(false);
-                } catch (err) {
-                    console.error('Error fetching event details:', err);
-                    setLoadingEvent(false);
-                }
-            };
-            
-            fetchEventDetails();
-        }
-    }, [id, eid]);
-
-    // Fetch photos
-    useEffect(() => {
-        if (fetchedRef.current) return;
-        fetchedRef.current = true;
-        fetchPhotos();
-    }, [id, eid]);
-
-    useEffect(() => {
-        if (searchTerm.trim() === '') {
-            setFilteredPhotos(photos);
-        } else {
-            const filtered = photos.filter(photo => {
-                // Search in photo metadata if available
-                const title = photo.metadata?.title?.toLowerCase() || '';
-                const description = photo.metadata?.description?.toLowerCase() || '';
-                const searchLower = searchTerm.toLowerCase();
-                
-                return title.includes(searchLower) || description.includes(searchLower);
-            });
-            setFilteredPhotos(filtered);
-        }
-    }, [photos, searchTerm]);
 
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearchTerm(e.target.value);
@@ -291,51 +239,51 @@ const Photos: React.FC = () => {
 
     return (
         <>
-        <Row className="g-0">
-            <Col md="auto" className="sidebar-container">
-                <Sidebar />
-            </Col>
-            <Col className="main-content p-0">
-                <div className="sticky-top bg-dark z-3">
-                    <Row>
-                        <TopBar
-                            searchComponent={searchComponent}
-                            rightComponents={rightComponents}
-                        />
-                    </Row>
-                </div>
-                <div className="p-3 bg-dark text-white">
-                    <Row className="align-items-center mb-4">
-                        <Col>
-                            <h1 className="mb-4">Photos</h1>
-                        </Col>
-
-                        <Col xs="auto" className="ms-auto me-5">
-                            {pageActionComponents}
-                        </Col>
-                    </Row>
-                    <Row>
-                        {error && <p className="text-red-500">{error}</p>}
-
-                        {photos.map(photo => (
+            <Row className="g-0">
+                <Col md="auto" className="sidebar-container">
+                    <Sidebar />
+                </Col>
+                <Col className="main-content p-0">
+                    <div className="sticky-top bg-dark z-3">
+                        <Row>
+                            <TopBar
+                                searchComponent={searchComponent}
+                                rightComponents={rightComponents}
+                            />
+                        </Row>
+                    </div>
+                    <div className="p-3 bg-dark text-white">
+                        <Row className="align-items-center mb-4">
                             <Col>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
-                                    <div className="gallery-card photo">
-                                        <GalleryCard
-                                            key={photo.id}
-                                            item={photo}
-                                            className={`photo-card`}
-                                            orgName={id}
-                                        />
-                                    </div>
-                                </div>
+                                <h1 className="mb-4">Photos</h1>
                             </Col>
-                        ))}
-                    </Row>
-                </div>
-            </Col>
-        </Row>
-    </>
+
+                            <Col xs="auto" className="ms-auto me-5">
+                                {pageActionComponents}
+                            </Col>
+                        </Row>
+                        <Row>
+                            {error && <p className="text-red-500">{error}</p>}
+
+                            {photos.map(photo => (
+                                <Col>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+                                        <div className="gallery-card photo">
+                                            <GalleryCard
+                                                key={photo.id}
+                                                item={photo}
+                                                className={`photo-card`}
+                                                orgName={id}
+                                            />
+                                        </div>
+                                    </div>
+                                </Col>
+                            ))}
+                        </Row>
+                    </div>
+                </Col>
+            </Row>
+        </>
     );
 };
 
