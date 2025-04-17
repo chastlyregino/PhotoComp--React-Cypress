@@ -15,7 +15,7 @@ import {
     getOrganizationEvents,
 } from '../../context/OrgService';
 import AuthContext from '../../context/AuthContext';
-import { sendJoinRequest } from '../../context/MembershipService';
+import { getOrganizationMembershipRequests, sendJoinRequest } from '../../context/MembershipService';
 
 const SingleEvents: React.FC = () => {
     const navigate = useNavigate();
@@ -23,6 +23,7 @@ const SingleEvents: React.FC = () => {
     const { user, token } = useContext(AuthContext);
     const [searchTerm, setSearchTerm] = useState('');
 
+    const [requested, setRequested] = useState<boolean>(false);
     const [memberRole, setMemberRole] = useState<string | null>(null);
     const [events, setEvents] = useState<Event[]>([]);
     const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
@@ -51,14 +52,21 @@ const SingleEvents: React.FC = () => {
                     response = await getPublicOrganizationEvents(id);
                 } else {
                     try {
+                      try {
                         const reply = await isMemberOfOrg(user.id, id);
                         const userRelationRecord = reply.data.data;
                         setMemberRole(userRelationRecord.membership.role);
                         response = await getOrganizationEvents(id);
-                    } catch (membershipError) {
-                        console.error(`Error checking membership status: ${membershipError}`);
-                        response = await getPublicOrganizationEvents(id);
+                      } catch (e:any) {
+                        console.log(e);
+                        const reply = await getOrganizationMembershipRequests(id);
+                        const orgRequests = reply.data.requests;
+                        setRequested(orgRequests.some(req => req.userId == user.id));
+                      }
+                    } catch (_:any) {
+                      console.log(_);
                     }
+                    response = await getPublicOrganizationEvents(id);
                 }
 
                 setEvents(response.data.events);
@@ -167,7 +175,7 @@ const SingleEvents: React.FC = () => {
                 {user && token ? (
                     <>
                         {/* Create Event should only appear when an admin user is logged in */}
-                        {memberRole === 'ADMIN' && (
+                        {memberRole == "ADMIN" && (
                             <NavButton
                                 to={`/organizations/${id}/events/create`}
                                 variant="outline-light"
@@ -176,7 +184,7 @@ const SingleEvents: React.FC = () => {
                                 Create Event
                             </NavButton>
                         )}
-                        {user && !memberRole && (
+                        { user && !memberRole && !requested && (
                             <Button
                                 variant="outline-light"
                                 className="mx-1 top-bar-element custom-create-button"
@@ -184,6 +192,11 @@ const SingleEvents: React.FC = () => {
                             >
                                 Join the Org !
                             </Button>
+                        )}
+
+                        {requested && (
+                            <p className="ml-2 mt-2 text-info"> Request Pending! </p>
+
                         )}
 
                         <NavLink to="/account-settings" className="text-light top-bar-element">

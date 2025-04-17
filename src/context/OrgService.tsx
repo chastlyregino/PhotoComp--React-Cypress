@@ -66,6 +66,7 @@ export interface EventResponse {
 }
 
 // get all orgs
+
 export const getPublicOrganizations = async (lastEvaluatedKey?: string, limit: number = 9) => {
     try {
         const response = await noAuthInstance.get<OrganizationsResponse>('/guests', {
@@ -197,3 +198,4 @@ export const getUserOrganizations = async () => {
         throw error;
     }
 };
+

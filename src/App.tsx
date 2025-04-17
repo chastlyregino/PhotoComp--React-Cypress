@@ -19,6 +19,9 @@ import CreateEvent from './pages/Events/CreateEvent';
 import PhotoGalleryPage from './pages/PhotoGallery/PhotoGalleryPage';
 import PhotoTaggingPage from './pages/PhotoTagging/PhotoTaggingPage';
 import OrganizationDetails from './pages/Organizations/OrganizationDetails';
+import EventDetails from './pages/Events/EventDetails';
+
+
 
 function App() {
     return (
@@ -54,6 +57,14 @@ function App() {
                     element={
                         <ProtectedRoute>
                             <CreateEvent />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/organizations/:id/events/:eid/details"
+                    element={
+                        <ProtectedRoute>
+                            <EventDetails/>
                         </ProtectedRoute>
                     }
                 />
