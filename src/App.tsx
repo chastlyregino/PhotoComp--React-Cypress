@@ -39,7 +39,11 @@ function App() {
                     }
                 />
                 <Route path="/organizations/:id/events" element={<SingleEvents />} />
-                <Route path="/account-settings" element={<AccountSettings />} />
+                <ProtectedRoute>
+                    <Route path="/account-settings" element={<AccountSettings />} />
+                </ProtectedRoute>
+
+                M=
                 <Route
                     path="/organizations/:orgId/members/requests"
                     element={
@@ -81,7 +85,7 @@ function App() {
                     }
                 />
                 {/* for viewing individual photos in the carousel */}
-                <Route 
+                <Route
                     path="/organizations/:id/events/:eid/photos/:photoId"
                     element={
                         <ProtectedRoute>
@@ -89,7 +93,7 @@ function App() {
                         </ProtectedRoute>
                     }
                 />
-                <Route 
+                <Route
                     path="/organizations/:id/events/:eid/photos/:photoId/tag"
                     element={
                         <ProtectedRoute>
