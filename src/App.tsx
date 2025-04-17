@@ -17,6 +17,7 @@ import Logout from './pages/Logout';
 import UploadEventPhoto from './pages/Events/UploadEventPhoto';
 import CreateEvent from './pages/Events/CreateEvent';
 import PhotoGalleryPage from './pages/PhotoGallery/PhotoGalleryPage';
+import PhotoTaggingPage from './pages/PhotoTagging/PhotoTaggingPage';
 
 
 function App() {
@@ -85,6 +86,14 @@ function App() {
                     element={
                         <ProtectedRoute>
                             <PhotoGalleryPage />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route 
+                    path="/organizations/:id/events/:eid/photos/:photoId/tag"
+                    element={
+                        <ProtectedRoute>
+                            <PhotoTaggingPage />
                         </ProtectedRoute>
                     }
                 />
