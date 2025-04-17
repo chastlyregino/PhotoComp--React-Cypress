@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Container, Row, Col, Button, Alert, Card, Modal } from 'react-bootstrap';
+import { Container, Row, Col, Button, Alert, Card, Modal, Form } from 'react-bootstrap';
 import { useParams, useNavigate } from 'react-router-dom';
 import * as icon from 'react-bootstrap-icons';
 import { NavLink } from 'react-router-dom';
@@ -13,6 +13,7 @@ import NavButton from '../../components/navButton/NavButton';
 import AuthContext from '../../context/AuthContext';
 import { Event, getOrganizationEvents, getWeather, getUpdateWeather, deleteEvent} from '../../context/OrgService';
 import { isMemberOfOrg } from '../../context/AuthService';
+import LocationAutocomplete from '../../components/locationAutocomplete/LocationAutocomplete';
 
 const renderWeatherIcon = (code: number) => {
     if (code === 0 || code === 1) {
@@ -65,6 +66,10 @@ const EventDetails: React.FC = () => {
     
     const [deleteEventModal, setDeleteEventModal] = useState<boolean>(false);
     const [deletingEvent, setDeletingEvent] = useState<boolean>(false);
+
+    const [currentLocation, setCurrentLocation] = useState<string>("")
+    const [showLocationModal, setShowLocationModal] = useState<boolean>(false);
+    const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
     useEffect(() => {
         if (!id || !eid) return;
@@ -177,6 +182,64 @@ const EventDetails: React.FC = () => {
         }
     }
 
+    useEffect(() => {
+    if (showLocationModal && event?.location) {
+      if (typeof event?.location === 'string') {
+        setCurrentLocation(event.location);
+      } else if (event.location.name) {
+        setCurrentLocation(event.location.name);
+      }
+    }
+  }, [showLocationModal, event?.location]);
+
+  const handleLocationModalChange = (newLocation: string) => {
+    setCurrentLocation(newLocation);
+  };
+  const handleLocationUpdated = (updatedEvent: Event) => {
+      setEvent(prevEvent => {
+          if (prevEvent) {
+              return {
+                  ...prevEvent,
+                  ...updatedEvent
+              };
+          }
+          return updatedEvent;
+      });
+  };
+
+  const handleLocationModalSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+      if (!id || !eid) return;
+      e.preventDefault();
+      
+      if (!currentLocation.trim()) {
+        setError('Please enter a location');
+        return;
+      }
+
+      setIsSubmitting(true);
+      setError(null);
+      
+      try {
+        // Update the event location using the existing API
+        const response = await getWeather(currentLocation, id, eid);
+        
+        // Call the callback with the updated event data
+        handleLocationUpdated(response.data.event);
+        
+        // Close the modal
+        setShowLocationModal(false);
+      } catch (error: any) {
+        console.error('Error updating event location:', error);
+        if (error.response?.data?.message) {
+          setError(error.response.data.message);
+        } else {
+          setError('Failed to update event location. Please try again.');
+        }
+      } finally {
+        setIsSubmitting(false);
+      }
+    };
+
     const formatDate = (dateString: string) => {
         try {
             const date = new Date(dateString);
@@ -186,6 +249,7 @@ const EventDetails: React.FC = () => {
             return dateString;
         }
     };
+
 
     // Components to be injected into the TopBar
     const searchComponent = (
@@ -420,24 +484,33 @@ const EventDetails: React.FC = () => {
                                                     <h5 className="text-light mb-1">Event ID</h5>
                                                     <p className="text-light">{event.id}</p>
                                                 </div>
-                                                
-                                                {user && token && memberRole === 'ADMIN' && (
                                                     <div className="d-grid gap-2 mt-4">
-                                                      {event.location && (
+                                                      {event.weather && memberRole == 'MEMBER' && (
                                                         <Button 
                                                             variant="outline-light"
-                                                            onClick={() => event.weather ? handleRefreshWeather() :handleAddWeather()}
+                                                            onClick={() => handleRefreshWeather()}
                                                         >
                                                             <icon.Cloud className="me-2" />
-                                                            {loading ? 'Updating...' : (event.weather ? 'Refresh Weather' : 'Add Weather')}
+                                                            {loading ? 'Updating...' : 'Refresh Weather'}
                                                         </Button>
                                                       )}
+                                                    {user && token && memberRole == 'ADMIN' && (
+                                                      <>
+                                                        {event.location && (
+                                                          <Button 
+                                                              variant="outline-light"
+                                                              onClick={() => event.weather ? handleRefreshWeather() :handleAddWeather()}
+                                                          >
+                                                              <icon.Cloud className="me-2" />
+                                                              {loading ? 'Updating...' : (event.weather ? 'Refresh Weather' : 'Add Weather')}
+                                                          </Button>
+                                                        )}
                                                         <Button 
                                                             variant="outline-light"
-                                                            onClick={() => navigate(`/organizations/${id}/events/${eid}/edit`)}
+                                                            onClick={() => setShowLocationModal(true)}
                                                         >
                                                             <icon.PencilFill className="me-2" />
-                                                            Edit Event
+                                                            Edit Location
                                                         </Button>
                                                         <Button 
                                                             variant="outline-danger"
@@ -446,8 +519,9 @@ const EventDetails: React.FC = () => {
                                                             <icon.TrashFill className="me-2" />
                                                             Delete Event
                                                         </Button>
+                                                        </>
+                                                  )}
                                                     </div>
-                                                )}
                                             </Card.Body>
                                         </Card>
                                     </Col>
@@ -499,6 +573,53 @@ const EventDetails: React.FC = () => {
                         {deletingEvent ? 'Deleting...' : 'Delete Event'}
                     </Button>
                 </Modal.Footer>
+            </Modal>
+             {/* Edit Location Modal */}
+            <Modal 
+                show={showLocationModal} 
+                onHide={() => setShowLocationModal(false)}
+                centered
+                backdrop="static"
+                className="text-dark"
+            >
+                <Modal.Header closeButton>
+                    <Modal.Title>Edit Event Location</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    {error && (
+                        <Alert variant="danger" dismissible onClose={() => setError(null)}>
+                            {error}
+                        </Alert>
+                    )}
+
+                    <Form onSubmit={handleLocationModalSubmit}>
+                        <LocationAutocomplete
+                            id="eventLocation"
+                            value={currentLocation}
+                            onChange={handleLocationModalChange}
+                            placeholder="Enter event location"
+                            required={true}
+                        />
+                        
+                        <div className="d-flex justify-content-end mt-4">
+                            <Button 
+                                variant="secondary" 
+                                onClick={() => setShowLocationModal(false)}
+                                disabled={isSubmitting}
+                                className="me-2"
+                            >
+                                Cancel
+                            </Button>
+                            <Button 
+                                variant="primary" 
+                                type="submit"
+                                disabled={isSubmitting}
+                            >
+                                {isSubmitting ? 'Updating...' : 'Update Location'}
+                            </Button>
+                        </div>
+                    </Form>
+                </Modal.Body>
             </Modal>
         </>
     );
