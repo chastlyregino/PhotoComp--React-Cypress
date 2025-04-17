@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Carousel, Button, Spinner, OverlayTrigger, Tooltip, Container, Row, Col } from 'react-bootstrap';
 import { ChevronLeft, ChevronRight, TagFill } from 'react-bootstrap-icons';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Photo, getAllPhotos } from '../../context/PhotoService';
 import AuthContext from '../../context/AuthContext';
 import { getPhotoTags, TaggedUserWithDetails } from '../../context/PhotoTagService';
+import { isMemberOfOrg } from '../../context/AuthService';
 
 interface CustomPhotoCarouselProps {
   orgName: string;
@@ -28,13 +29,32 @@ const CustomPhotoCarousel: React.FC<CustomPhotoCarouselProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [taggedUsers, setTaggedUsers] = useState<Map<string, TaggedUserWithDetails[]>>(new Map());
   const [loadingTags, setLoadingTags] = useState<boolean>(false);
+  const [userOrgRole, setUserOrgRole] = useState<string | null>(null);
+  const [checkingRole, setCheckingRole] = useState<boolean>(true);
   
-  // Debug user role
+  // Check if user is admin of this organization
   useEffect(() => {
-    if (user) {
-      console.log('Current user role:', user.role);
-    }
-  }, [user]);
+    const checkUserRole = async () => {
+      if (user) {
+        try {
+          setCheckingRole(true);
+          const response = await isMemberOfOrg(user.id, orgName);
+          if (response && response.data && response.data.data && response.data.data.membership) {
+            setUserOrgRole(response.data.data.membership.role);
+          }
+        } catch (err) {
+          console.error('Error checking user role:', err);
+          setUserOrgRole(null);
+        } finally {
+          setCheckingRole(false);
+        }
+      } else {
+        setCheckingRole(false);
+      }
+    };
+    
+    checkUserRole();
+  }, [user, orgName]);
   
   useEffect(() => {
     const fetchPhotos = async () => {
@@ -178,8 +198,8 @@ const CustomPhotoCarousel: React.FC<CustomPhotoCarouselProps> = ({
   const currentPhoto = photos[activeIndex];
   const currentPhotoTags = taggedUsers.get(currentPhoto.id) || [];
   
-  // Only show the tag button to admin users - ROLE CHECK RESTORED
-  const showTagButton = user && (user.role === 'ADMIN' || user.role === 'admin');
+  // Only show tag button to admin users of this organization
+  const showTagButton = !checkingRole && userOrgRole === 'ADMIN';
   
   return (
     <div className="photo-carousel-container">
