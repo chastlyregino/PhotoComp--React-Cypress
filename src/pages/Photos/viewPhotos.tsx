@@ -35,6 +35,7 @@ const Photos: React.FC = () => {
     const [eventInfo, setEventInfo] = useState<Event | null>(null);
     const [loadingEvent, setLoadingEvent] = useState<boolean>(true);
     const [isAdminUser, setIsAdminUser] = useState(false);
+    const [isMember, setIsMember] = useState<UserOrgRelationship | null>(null);
     const [isEventAttendee, setIsEventAttendee] = useState<EventUser | null>(null);
     const [eventPublicity, setEventPublicity] = useState<boolean | null>(null);
     const fetchedRef = useRef(false);
@@ -104,13 +105,8 @@ const Photos: React.FC = () => {
         fetchEventAttendees();
         fetchEventPublicity();
         fetchPhotos();
+        fetchUserRole();
     }, []);
-
-    // useEffect(() => {
-    //     if (user && id && eid) {
-    //         fetchEventAttendees();
-    //     }
-    // }, [user, id, eid]);
 
     const fetchPhotos = async () => {
         if (id && eid) {
@@ -130,6 +126,7 @@ const Photos: React.FC = () => {
         if (id && user) {
             try {
                 const member = await isMemberOfOrg(user.id, id);
+                setIsMember(member.data.data.membership)
 
                 return member.data.data.membership;
             } catch (error) {
@@ -239,60 +236,42 @@ const Photos: React.FC = () => {
     const rightComponents = (
         <>
             <div className="d-flex align-items-center gap-3">
-                {user && token ? (
-                    <>
-                        <NavButton
-                            to={`/organizations/${id}/events/${eid}/photos/upload`}
-                            variant="outline-light"
-                            className="mx-1 top-bar-element"
-                        >
-                            Upload Photos
-                        </NavButton>
-                        <NavLink to="/account-settings" className="text-light top-bar-element">
-                            <icon.GearFill size={24} />
-                        </NavLink>
-                        <NavLink to="/logout" className="text-light top-bar-element">
-                            <icon.BoxArrowRight size={24} />
-                        </NavLink>
-                    </>
-                ) : (
-                    <>
-                        <NavButton
-                            to="/register"
-                            variant="outline-light"
-                            className="mx-1 top-bar-element"
-                        >
-                            Register
-                        </NavButton>
-                        <NavButton to="/login" variant="outline-light" className="top-bar-element">
-                            Login
-                        </NavButton>
-                    </>
+                {/* Create Organization should only appear when an Admin is logged in */}
+                {isAdminUser &&(
+                <NavButton
+                    to={`/organizations/${id}/events/${eid}/photos/upload`}
+                    variant="outline-light"
+                    className="mx-1 top-bar-element"
+                >
+                    Upload Photos
+                </NavButton>
                 )}
+                <NavLink to="/account-settings" className="text-light top-bar-element">
+                    <icon.GearFill size={24} />
+                </NavLink>
+                <NavLink to="/logout" className="text-light top-bar-element">
+                    <icon.BoxArrowRight size={24} />
+                </NavLink>
             </div>
         </>
     );
 
     const pageActionComponents = (
         <div className="d-flex align-items-center gap-3">
-            {!isEventAttendee && (
-                <div className="custom-create-button top-bar-element">
-                    <Button onClick={handleAttendEvent} className="w-100">
+            {!isEventAttendee && isMember && (
+                    <Button onClick={handleAttendEvent} className="top-bar-element custom-create-button">
                         Attend Event
                     </Button>
-                </div>
             )}
             
-
-            <div className="custom-create-button">
                 {user &&
                     token &&
                     (isAdminUser ? (
-                        <Button onClick={changePublicity}>
+                        <Button onClick={changePublicity} className="icon-only-button">
                             {eventPublicity ? (
-                                <icon.UnlockFill size={24} />
+                                <icon.UnlockFill size={20} />
                             ) : (
-                                <icon.LockFill size={24} />
+                                <icon.LockFill size={20} />
                             )}
                         </Button>
                     ) : eventPublicity ? (
@@ -300,11 +279,10 @@ const Photos: React.FC = () => {
                     ) : (
                         <icon.LockFill size={24} />
                     ))}
-            </div>
 
             <NavLink
                 to={`/organizations/${id}/events/${eid}/details`}
-                className="text-light top-bar-element"
+                className="icon-only-button"
             >
                 <icon.ListUl size={24} />
             </NavLink>
