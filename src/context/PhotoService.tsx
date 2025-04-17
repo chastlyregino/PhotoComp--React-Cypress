@@ -98,11 +98,11 @@ export const uploadEventPhoto = async (
  * @returns Promise with the response data
  */
 export const getPhotoDownloadUrl = async (
-    orgId: string, 
-    eventId: string, 
-    photoId: string, 
+    orgId: string,
+    eventId: string,
+    photoId: string,
     size: 'thumbnail' | 'medium' | 'large' | 'original' = 'original'
-): Promise<{status: string, data: {downloadUrl: string, size: string}}> => {
+): Promise<{ status: string; data: { downloadUrl: string; size: string } }> => {
     try {
         const response = await axiosInstance.get(
             `/organizations/${orgId}/events/${eventId}/photos/${photoId}/download`,

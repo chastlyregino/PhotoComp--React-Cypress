@@ -312,7 +312,11 @@ const CreateOrganization: React.FC = () => {
                                         >
                                             <div
                                                 className="position-absolute"
-                                                style={{ left: '-200px', top: '200px', zIndex: 1100  }}
+                                                style={{
+                                                    left: '-200px',
+                                                    top: '200px',
+                                                    zIndex: 1100,
+                                                }}
                                             >
                                                 <Button
                                                     variant="secondary"
@@ -326,7 +330,11 @@ const CreateOrganization: React.FC = () => {
 
                                             <div
                                                 className="position-absolute"
-                                                style={{ right: '-200px', top: '200px', zIndex: 1100  }}
+                                                style={{
+                                                    right: '-200px',
+                                                    top: '200px',
+                                                    zIndex: 1100,
+                                                }}
                                             >
                                                 <Button
                                                     variant="secondary"

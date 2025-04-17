@@ -49,18 +49,18 @@ const Photos: React.FC = () => {
     //                 setLoadingEvent(true);
     //                 const response = await getPublicOrganizationEvents(id);
     //                 const event = response.data.events.find(e => e.id === eid);
-                    
+
     //                 if (event) {
     //                     setEventInfo(event);
     //                 }
-                    
+
     //                 setLoadingEvent(false);
     //             } catch (err) {
     //                 console.error('Error fetching event details:', err);
     //                 setLoadingEvent(false);
     //             }
     //         };
-            
+
     //         fetchEventDetails();
     //     }
     // }, [id, eid]);
@@ -81,7 +81,7 @@ const Photos: React.FC = () => {
     //             const title = photo.metadata?.title?.toLowerCase() || '';
     //             const description = photo.metadata?.description?.toLowerCase() || '';
     //             const searchLower = searchTerm.toLowerCase();
-                
+
     //             return title.includes(searchLower) || description.includes(searchLower);
     //         });
     //         setFilteredPhotos(filtered);
@@ -114,23 +114,22 @@ const Photos: React.FC = () => {
     }, []);
 
     const fetchEventDetails = async () => {
-        if(id) {
+        if (id) {
             try {
                 setLoadingEvent(true);
                 const response = await getPublicOrganizationEvents(id);
                 const event = response.data.events.find(e => e.id === eid);
-                            
+
                 if (event) {
                     setEventInfo(event);
                 }
-                            
+
                 setLoadingEvent(false);
             } catch (err) {
                 console.error('Error fetching event details:', err);
                 setLoadingEvent(false);
             }
         }
-        
     };
 
     const fetchPhotos = async () => {
@@ -151,7 +150,7 @@ const Photos: React.FC = () => {
         if (id && user) {
             try {
                 const member = await isMemberOfOrg(user.id, id);
-                setIsMember(member.data.data.membership)
+                setIsMember(member.data.data.membership);
 
                 return member.data.data.membership;
             } catch (error) {
@@ -166,7 +165,7 @@ const Photos: React.FC = () => {
             if (!id || !user) return;
 
             const result = await fetchUserRole();
-            console.log(`userRole: ${result}`)
+            console.log(`userRole: ${result}`);
             if (result) {
                 setIsAdminUser(result.role === 'ADMIN');
             }
@@ -181,12 +180,12 @@ const Photos: React.FC = () => {
             try {
                 // Immediately toggle UI for better user feedback
                 setEventPublicity(prev => !prev);
-                
+
                 // Then make the API call
                 const response = await changeEventPublicity(id, eid);
-                
+
                 // If API call fails, we'll revert in the catch block
-                console.log("Event publicity API response:", response);
+                console.log('Event publicity API response:', response);
             } catch (error) {
                 console.error(`Error changing event publicity ${eid}:`, error);
                 // Revert UI state if API call fails
@@ -200,14 +199,15 @@ const Photos: React.FC = () => {
         if (id && eid && user) {
             try {
                 const attendees = await getEventAttendees(id, eid);
-                if(attendees) {
-                    const isAttending = attendees.find(attendee => attendee as unknown as string === user.id);
-                    console.log(isAttending)
+                if (attendees) {
+                    const isAttending = attendees.find(
+                        attendee => (attendee as unknown as string) === user.id
+                    );
+                    console.log(isAttending);
                     if (isAttending) {
                         setIsEventAttendee(isAttending);
                     }
                 }
-                
             } catch (error) {
                 console.error(`Error fetching attendees for event ${eid}:`, error);
             }
@@ -219,7 +219,7 @@ const Photos: React.FC = () => {
 
         try {
             const response = await attendEvent(id, eid);
-            console.log(`attendees: ${response}`)
+            console.log(`attendees: ${response}`);
             if (response && response.data && response.data.userEvent) {
                 setIsEventAttendee(response.data.userEvent); // ✅ Mark user as attending
             }
@@ -263,15 +263,15 @@ const Photos: React.FC = () => {
         <>
             <div className="d-flex align-items-center gap-3">
                 {/* Create Organization should only appear when an Admin is logged in */}
-                
-                {isAdminUser &&(
-                <NavButton
-                    to={`/organizations/${id}/events/${eid}/photos/upload`}
-                    variant="outline-light"
-                    className="mx-1 top-bar-element"
-                >
-                    Upload Photos
-                </NavButton>
+
+                {isAdminUser && (
+                    <NavButton
+                        to={`/organizations/${id}/events/${eid}/photos/upload`}
+                        variant="outline-light"
+                        className="mx-1 top-bar-element"
+                    >
+                        Upload Photos
+                    </NavButton>
                 )}
                 <NavLink to="/account-settings" className="text-light top-bar-element">
                     <icon.GearFill size={24} />
@@ -286,31 +286,35 @@ const Photos: React.FC = () => {
     const pageActionComponents = (
         <div className="d-flex align-items-center gap-3">
             {!isEventAttendee && isMember && (
-                    <Button onClick={handleAttendEvent} className="top-bar-element custom-create-button">
-                        Attend Event
-                    </Button>
+                <Button
+                    onClick={handleAttendEvent}
+                    className="top-bar-element custom-create-button"
+                >
+                    Attend Event
+                </Button>
             )}
-            
-                {user &&
-                    token &&
-                    (isAdminUser ? (
-                        <Button onClick={changePublicity} className="icon-only-button" key={`publicity-${eventPublicity}`}>
-                            {eventPublicity ? (
-                                <icon.UnlockFill size={20} />
-                            ) : (
-                                <icon.LockFill size={20} />
-                            )}
-                        </Button>
-                    ) : eventPublicity ? (
-                        <icon.UnlockFill size={24} />
-                    ) : (
-                        <icon.LockFill size={24} />
-                    ))}
 
-            <NavLink
-                to={`/organizations/${id}/events/${eid}/details`}
-                className="icon-only-button"
-            >
+            {user &&
+                token &&
+                (isAdminUser ? (
+                    <Button
+                        onClick={changePublicity}
+                        className="icon-only-button"
+                        key={`publicity-${eventPublicity}`}
+                    >
+                        {eventPublicity ? (
+                            <icon.UnlockFill size={20} />
+                        ) : (
+                            <icon.LockFill size={20} />
+                        )}
+                    </Button>
+                ) : eventPublicity ? (
+                    <icon.UnlockFill size={24} />
+                ) : (
+                    <icon.LockFill size={24} />
+                ))}
+
+            <NavLink to={`/organizations/${id}/events/${eid}/details`} className="icon-only-button">
                 <icon.ListUl size={24} />
             </NavLink>
         </div>
@@ -318,54 +322,54 @@ const Photos: React.FC = () => {
 
     return (
         <>
-        <Row className="g-0">
-            <Col md="auto" className="sidebar-container">
-                <Sidebar />
-            </Col>
-            <Col className="main-content p-0">
-                <div className="sticky-top bg-dark z-3">
-                    <Row>
-                        <TopBar
-                            searchComponent={searchComponent}
-                            rightComponents={rightComponents}
-                        />
-                    </Row>
-                </div>
-                <div className="p-3 bg-dark text-white">
-                    <Row className="align-items-center mb-4">
-                        <Col>
-                            <h1 className="mb-4">
-                                Photos
-                                {eventInfo?.title && <span className="text-muted ms-2">{eventInfo.title}</span>}
-                                </h1>
-                        </Col>
-
-                        <Col xs="auto" className="ms-auto me-5">
-                            {pageActionComponents}
-                        </Col>
-                    </Row>
-                    <Row>
-                        {error && <p className="text-red-500">{error}</p>}
-
-                        {photos.map(photo => (
+            <Row className="g-0">
+                <Col md="auto" className="sidebar-container">
+                    <Sidebar />
+                </Col>
+                <Col className="main-content p-0">
+                    <div className="sticky-top bg-dark z-3">
+                        <Row>
+                            <TopBar
+                                searchComponent={searchComponent}
+                                rightComponents={rightComponents}
+                            />
+                        </Row>
+                    </div>
+                    <div className="p-3 bg-dark text-white">
+                        <Row className="align-items-center mb-4">
                             <Col>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
-                                    <div className="gallery-card photo">
-                                        <GalleryCard
-                                            key={photo.id}
-                                            item={photo}
-                                            className={`photo-card`}
-                                            orgName={id}
-                                        />
-                                    </div>
-                                </div>
+                                <h1 className="mb-4">
+                                    Photos:
+                                    {eventInfo?.title && <span> {eventInfo.title}</span>}
+                                </h1>
                             </Col>
-                        ))}
-                    </Row>
-                </div>
-            </Col>
-        </Row>
-    </>
+
+                            <Col xs="auto" className="ms-auto me-5">
+                                {pageActionComponents}
+                            </Col>
+                        </Row>
+                        <Row>
+                            {error && <p className="text-red-500">{error}</p>}
+
+                            {photos.map(photo => (
+                                <Col>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+                                        <div className="gallery-card photo">
+                                            <GalleryCard
+                                                key={photo.id}
+                                                item={photo}
+                                                className={`photo-card`}
+                                                orgName={id}
+                                            />
+                                        </div>
+                                    </div>
+                                </Col>
+                            ))}
+                        </Row>
+                    </div>
+                </Col>
+            </Row>
+        </>
     );
 };
 

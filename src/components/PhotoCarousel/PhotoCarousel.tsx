@@ -8,19 +8,19 @@ import { getPhotoTags, TaggedUserWithDetails } from '../../context/PhotoTagServi
 import { isMemberOfOrg } from '../../context/AuthService';
 
 interface CustomPhotoCarouselProps {
-  orgName: string;
-  eventId: string;
-  activeIndex: number;
-  preferredSize?: 'small' | 'medium' | 'large';
-  onIndexChange: (index: number) => void;
+    orgName: string;
+    eventId: string;
+    activeIndex: number;
+    preferredSize?: 'small' | 'medium' | 'large';
+    onIndexChange: (index: number) => void;
 }
 
-const CustomPhotoCarousel: React.FC<CustomPhotoCarouselProps> = ({ 
-  orgName, 
-  eventId, 
-  activeIndex, 
-  preferredSize = 'medium',
-  onIndexChange
+const CustomPhotoCarousel: React.FC<CustomPhotoCarouselProps> = ({
+    orgName,
+    eventId,
+    activeIndex,
+    preferredSize = 'medium',
+    onIndexChange,
 }) => {
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);

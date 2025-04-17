@@ -172,17 +172,17 @@ const Organizations: React.FC = () => {
                                         )}
                                     </div>
                                 ) : ( */}
-                                    <div className="d-flex flex-wrap gap-4">
-                                        {filteredOrganizations.map(org => (
-                                            <div key={org.id}>
-                                                <GalleryCard
-                                                    item={org}
-                                                    className="organization-card"
-                                                    orgName={org.name}
-                                                />
-                                            </div>
-                                        ))}
-                                    </div>
+                                <div className="d-flex flex-wrap gap-4">
+                                    {filteredOrganizations.map(org => (
+                                        <div key={org.id}>
+                                            <GalleryCard
+                                                item={org}
+                                                className="organization-card"
+                                                orgName={org.name}
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
                                 {/* )} */}
                             </Row>
 

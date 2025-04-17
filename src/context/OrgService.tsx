@@ -65,7 +65,6 @@ export interface EventResponse {
     lastEvaluatedKey: string | null;
 }
 
-
 // get all orgs
 export const getPublicOrganizations = async (lastEvaluatedKey?: string, limit: number = 9) => {
     try {
