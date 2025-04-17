@@ -38,7 +38,8 @@ export interface PhotosResponse {
 export interface PhotoUploadResponse {
     status: string;
     data: {
-        photo: Photo;
+        photo?: Photo;
+        photos?: Photo[];
     };
 }
 
@@ -61,30 +62,45 @@ export const getAllPhotos = async (orgName: string, eventId: string): Promise<Ph
 };
 
 /**
- * Uploads a photo to an event
+ * Uploads a photo or multiple photos to an event
  * @param orgId The organization ID
  * @param eventId The ID of the event
- * @param formData FormData containing the photo file and metadata
+ * @param formData FormData containing the photo file(s) and metadata
+ * @param isMultiple Whether this is a multiple file upload
+ * @param onProgress Optional callback for tracking upload progress
  * @returns Promise with the response data
  */
 export const uploadEventPhoto = async (
     orgId: string,
     eventId: string,
-    formData: FormData
+    formData: FormData,
+    isMultiple: boolean = false,
+    onProgress?: (progress: number) => void
 ): Promise<PhotoUploadResponse> => {
     try {
+        // Add query parameter for multiple files if needed
+        const endpoint = isMultiple 
+            ? `/organizations/${orgId}/events/${eventId}/photos?multiple=true`
+            : `/organizations/${orgId}/events/${eventId}/photos`;
+            
         const response = await axiosInstance.post<PhotoUploadResponse>(
-            `/organizations/${orgId}/events/${eventId}/photos`,
+            endpoint,
             formData,
             {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
+                onUploadProgress: (progressEvent) => {
+                    if (onProgress && progressEvent.total) {
+                        const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                        onProgress(percentCompleted);
+                    }
+                }
             }
         );
         return response.data;
     } catch (error) {
-        console.error('Error uploading photo to event:', error);
+        console.error('Error uploading photo(s) to event:', error);
         throw error;
     }
 };
@@ -114,3 +130,29 @@ export const getPhotoDownloadUrl = async (
         throw error;
     }
 };
+<<<<<<< HEAD
+=======
+
+/**
+ * Delete a photo from an event
+ * @param orgId The organization ID
+ * @param eventId The ID of the event
+ * @param photoId The ID of the photo to delete
+ * @returns Promise with the response data
+ */
+export const deletePhoto = async (
+    orgId: string,
+    eventId: string,
+    photoId: string
+): Promise<{status: string, message: string}> => {
+    try {
+        const response = await axiosInstance.delete(
+            `/organizations/${orgId}/events/${eventId}/photos/${photoId}`
+        );
+        return response.data;
+    } catch (error) {
+        console.error('Error deleting photo:', error);
+        throw error;
+    }
+};
+>>>>>>> 914ae25 (multi file upload)
