@@ -10,7 +10,8 @@
             "cypress",
             "jest",
             "@testing-library/jest-dom"
-        ]
+        ],
+        "esModuleInterop": true
     },
     "include": ["src", "tests", "jest.setup.ts", "src/types"]
 }

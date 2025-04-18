@@ -38,7 +38,7 @@ type CardItem = Organization | Event | Photo;
 interface GalleryCardProps {
     item: CardItem;
     className: string;
-    orgName: string | undefined;
+    orgName?: string;
 }
 
 const GalleryCard: React.FC<GalleryCardProps> = ({ item, className, orgName }) => {
