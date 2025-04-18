@@ -34,16 +34,16 @@ const Register: React.FC = () => {
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const { email, password, username, firstName, lastName } = userData;
+        const { email, password, firstName, lastName } = userData;
 
-        if (!email || !password || !username || !firstName || !lastName) {
+        if (!email || !password || !firstName || !lastName) {
             setError('Please fill in all fields');
             return;
         }
         setError(null);
 
         try {
-            const response = await registerUser({ email, password, username, firstName, lastName });
+            const response = await registerUser({ email, password, firstName, lastName });
             const token = response.data.data.token;
             const user = response.data.data.user;
 

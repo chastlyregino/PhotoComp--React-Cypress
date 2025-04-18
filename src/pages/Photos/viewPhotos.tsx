@@ -145,7 +145,7 @@ const Photos: React.FC = () => {
                         attendee => (attendee as unknown as string) === user.id
                     );
                     if (isAttending) {
-                        setIsEventAttendee(isAttending);
+                        setIsEventAttendee(isAttending as any);
                     }
                 }
             } catch (error) {
