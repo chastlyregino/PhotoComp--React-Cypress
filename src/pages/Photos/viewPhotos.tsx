@@ -205,7 +205,7 @@ const Photos: React.FC = () => {
                     );
                     console.log(isAttending);
                     if (isAttending) {
-                        setIsEventAttendee(isAttending);
+                        setIsEventAttendee(isAttending as unknown as EventUser);
                     }
                 }
             } catch (error) {

@@ -53,7 +53,7 @@ const Membership: React.FC = () => {
             setFilteredRequests(requests);
         } else {
             const filtered = requests.filter(request => {
-                const { firstName, lastName, email } = request.userDetails;
+                const firstName = request.userDetails?.firstName; const lastName = request.userDetails?.lastName; const email = request.userDetails?.email;
                 const fullName = `${firstName} ${lastName}`.toLowerCase();
                 const emailLower = email.toLowerCase();
                 const search = searchTerm.toLowerCase();
