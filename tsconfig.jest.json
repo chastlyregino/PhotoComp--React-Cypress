@@ -8,7 +8,6 @@
         "types": [
             "node",
             "cypress",
-            "@testing-library/cypress",
             "jest",
             "@testing-library/jest-dom"
         ]
