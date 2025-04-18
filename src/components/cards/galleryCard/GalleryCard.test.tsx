@@ -84,12 +84,4 @@ describe('GalleryCard Component', () => {
         expect(screen.getByText('TESTORG')).toBeInTheDocument();
     });
 
-    test('navigates to event page when event card is clicked', () => {
-        const event = {
-            id: '456',
-            title: 'Test Event',
-            GSI2PK: 'ORG#TESTORG',
-            orgName: 'Testorg',
-        };
-
 });

@@ -24,10 +24,12 @@
         "react": "^19.0.0",
         "react-bootstrap": "^2.10.9",
         "react-bootstrap-icons": "^1.11.5",
-        "react-dom": "^19.0.0"
+        "react-dom": "^19.0.0",
+        "util": "^0.12.5"
     },
     "devDependencies": {
         "@eslint/js": "^9.21.0",
+        "@testing-library/cypress": "^10.0.3",
         "@testing-library/dom": "^10.4.0",
         "@testing-library/jest-dom": "^6.6.3",
         "@testing-library/react": "^16.2.0",
