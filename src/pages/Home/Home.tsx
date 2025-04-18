@@ -2,7 +2,6 @@ import React, { useState, useEffect, useContext } from 'react';
 import AuthContext from '../../context/AuthContext';
 import { Col, Row, Button, Container } from 'react-bootstrap';
 import * as icon from 'react-bootstrap-icons';
-
 import Sidebar from '../../components/bars/SideBar/SideBar';
 import TopBar from '../../components/bars/TopBar/TopBar';
 import SearchBar from '../../components/bars/SearchBar/SearchBar';
@@ -24,15 +23,12 @@ const Home = () => {
     const fetchOrganizations = async (key: string | undefined = undefined) => {
         try {
             setLoading(true);
-
             const response = await getPublicOrganizations(key);
-
             if (key) {
                 setOrganizations(prev => [...prev, ...response.data.organizations]);
             } else {
                 setOrganizations(response.data.organizations);
             }
-
             setLastEvaluatedKey(response.lastEvaluatedKey);
             setAllOrganizationsLoaded(response.lastEvaluatedKey === null);
             setLoading(false);
@@ -45,6 +41,16 @@ const Home = () => {
 
     useEffect(() => {
         fetchOrganizations();
+        
+        // Set up a timer to refresh organizations every 45 minutes to get fresh presigned URLs
+        // This is less than the typical 1-hour expiration time for presigned URLs
+        const refreshInterval = setInterval(() => {
+            console.log("Refreshing organization data to update presigned URLs");
+            fetchOrganizations();
+        }, 45 * 60 * 1000); // 45 minutes in milliseconds
+        
+        // Cleanup the interval when component unmounts
+        return () => clearInterval(refreshInterval);
     }, []);
 
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -117,10 +123,8 @@ const Home = () => {
                 </Col>
                 <Col className="main-content p-0">
                     <TopBar searchComponent={searchComponent} rightComponents={rightComponents} />
-
                     <Container fluid className="px-4 py-3">
                         <h1 className="mb-4 page-title">Organizations & Event</h1>
-
                         {loading && organizations.length === 0 ? (
                             <div className="text-center p-5">Loading organizations...</div>
                         ) : error ? (
@@ -133,7 +137,6 @@ const Home = () => {
                                 {displayedOrganizations.map(org => (
                                     <OrganizationRow key={org.id} organization={org} />
                                 ))}
-
                                 {/* Load More Button - show if more orgs to display or more to fetch */}
                                 {(displayCount < organizations.length ||
                                     !allOrganizationsLoaded) && (
