@@ -15,7 +15,10 @@ import {
     getOrganizationEvents,
 } from '../../context/OrgService';
 import AuthContext from '../../context/AuthContext';
-import { getOrganizationMembershipRequests, sendJoinRequest } from '../../context/MembershipService';
+import {
+    getOrganizationMembershipRequests,
+    sendJoinRequest,
+} from '../../context/MembershipService';
 
 const SingleEvents: React.FC = () => {
     const navigate = useNavigate();
@@ -52,24 +55,24 @@ const SingleEvents: React.FC = () => {
                     response = await getPublicOrganizationEvents(id);
                 } else {
                     try {
-                      try {
-                        const reply = await isMemberOfOrg(user.id, id);
-                        const userRelationRecord = reply.data.data;
-                        setMemberRole(userRelationRecord.membership.role);
-                        response = await getOrganizationEvents(id);
-                      } catch (e:any) {
-                        console.log(e);
-                        const reply = await getOrganizationMembershipRequests(id);
-                        const orgRequests = reply.data.requests;
-                        setRequested(orgRequests.some(req => req.userId == user.id));
-                        response = await getPublicOrganizationEvents(id);
-                      }
-                    } catch (_:any) {
-                      console.log(_);
+                        try {
+                            const reply = await isMemberOfOrg(user.id, id);
+                            const userRelationRecord = reply.data.data;
+                            setMemberRole(userRelationRecord.membership.role);
+                            response = await getOrganizationEvents(id);
+                        } catch (e: any) {
+                            console.log(e);
+                            const reply = await getOrganizationMembershipRequests(id);
+                            const orgRequests = reply.data.requests;
+                            setRequested(orgRequests.some(req => req.userId == user.id));
+                            response = await getPublicOrganizationEvents(id);
+                        }
+                    } catch (_: any) {
+                        console.log(_);
                     }
                 }
-                if (!response) throw Error("No response");
-                
+                if (!response) throw Error('No response');
+
                 setEvents(response.data.events);
                 setFilteredEvents(response.data.events);
                 setLastEvaluatedKey(response.lastEvaluatedKey);
@@ -152,11 +155,13 @@ const SingleEvents: React.FC = () => {
             await sendJoinRequest(id, message);
             setJoinSuccess(true);
             setJoinLoading(false);
+            setRequested(true);
         } catch (error) {
             console.log(error);
             setJoinLoading(false);
             setJoinError('Failed to send the join request');
             setJoinSuccess(false);
+            setRequested(false);
         }
     };
 
@@ -176,7 +181,7 @@ const SingleEvents: React.FC = () => {
                 {user && token ? (
                     <>
                         {/* Create Event should only appear when an admin user is logged in */}
-                        {memberRole == "ADMIN" && (
+                        {memberRole == 'ADMIN' && (
                             <NavButton
                                 to={`/organizations/${id}/events/create`}
                                 variant="outline-light"
@@ -185,7 +190,8 @@ const SingleEvents: React.FC = () => {
                                 Create Event
                             </NavButton>
                         )}
-                        { user && !memberRole && !requested && (
+
+                        {user && !memberRole && !requested && (
                             <Button
                                 variant="outline-light"
                                 className="mx-1 top-bar-element custom-create-button"
@@ -195,10 +201,7 @@ const SingleEvents: React.FC = () => {
                             </Button>
                         )}
 
-                        {requested && (
-                            <p className="ml-2 mt-2 text-info"> Request Pending! </p>
-
-                        )}
+                        {requested && <p className="ml-2 mt-2 text-info"> Request Pending! </p>}
 
                         <NavLink to="/account-settings" className="text-light top-bar-element">
                             <icon.GearFill size={24} />

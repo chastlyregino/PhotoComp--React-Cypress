@@ -27,24 +27,24 @@ export interface OrganizationsResponse {
 }
 
 interface Weather {
-  temperature: number;
-  weatherCode: number;
-  weatherDescription: string;
-  windSpeed: number;
-  precipitation: number;
+    temperature: number;
+    weatherCode: number;
+    weatherDescription: string;
+    windSpeed: number;
+    precipitation: number;
 }
 interface GeoCode {
-  providedAddress: string;
-  resolvedCoordinates: {
-    latitude: number;
-    longitude: number;
-    formattedAddress: string;
-  }
+    providedAddress: string;
+    resolvedCoordinates: {
+        latitude: number;
+        longitude: number;
+        formattedAddress: string;
+    };
 }
 interface ILocation {
-  latitude: number;
-  longitude: number;
-  name: string;
+    latitude: number;
+    longitude: number;
+    name: string;
 }
 
 export interface Event {
@@ -80,28 +80,10 @@ export interface EventsResponse {
     lastEvaluatedKey: string | null;
 }
 
-export interface EventResponse {
-    status: string;
-    data: {
-        updatedEvent: Event[];
-    };
-    lastEvaluatedKey: string | null;
-}
-
-export interface EventResponse {
-    status: string;
-    data: {
-        updatedEvent: Event[];
-    };
-    lastEvaluatedKey: string | null;
-}
-
-// get all orgs
 export interface DeleteEventResponse {
-  status: string;
-  message: string;
+    status: string;
+    message: string;
 }
-
 
 export const getPublicOrganizations = async (lastEvaluatedKey?: string, limit: number = 9) => {
     try {
@@ -129,7 +111,9 @@ export const getPublicOrganizationEvents = async (
             `/guests/organizations/${organizationId}/events`,
             {
                 params: {
-                    lastEvaluatedKey: lastEvaluatedKey ? JSON.stringify(lastEvaluatedKey) : undefined,
+                    lastEvaluatedKey: lastEvaluatedKey
+                        ? JSON.stringify(lastEvaluatedKey)
+                        : undefined,
                     limit,
                 },
             }
@@ -157,7 +141,10 @@ export const createOrganization = async (formData: FormData) => {
 };
 
 // Create a new event for an organization
-export const createEvent = async (orgId: string, eventData: { title: string; description: string; date: string; location: string; }) => {
+export const createEvent = async (
+    orgId: string,
+    eventData: { title: string; description: string; date: string; location: string }
+) => {
     try {
         const response = await axiosInstance.post(`/organizations/${orgId}/events`, eventData, {
             headers: {
@@ -234,35 +221,42 @@ export const getUserOrganizations = async () => {
 };
 
 // Get weather data for the event
-export const getWeather = async (location:string, id: string, eid: string) => {
-  try {
-    const response = await axiosInstance.patch<EventResponse>(`/organizations/${id}/events/${eid}/location/address`, {
-      address: location
-    });
-    return response.data;
-  } catch (error) {
-    console.error("Error fetching weather information", error);
-    throw error;
-  }
-}
+export const getWeather = async (location: string, id: string, eid: string) => {
+    try {
+        const response = await axiosInstance.patch<EventResponse>(
+            `/organizations/${id}/events/${eid}/location/address`,
+            {
+                address: location,
+            }
+        );
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching weather information', error);
+        throw error;
+    }
+};
 
 // Get weather data for the event
 export const getUpdateWeather = async (id: string, eid: string) => {
-  try {
-    const response = await axiosInstance.post<EventResponse>(`/organizations/${id}/events/${eid}/weather/refresh`);
-    return response.data;
-  } catch (error) {
-    console.error("Error fetching weather information", error);
-    throw error;
-  }
-}
+    try {
+        const response = await axiosInstance.post<EventResponse>(
+            `/organizations/${id}/events/${eid}/weather/refresh`
+        );
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching weather information', error);
+        throw error;
+    }
+};
 
 export const deleteEvent = async (id: string, eid: string) => {
-  try {
-    const response = await axiosInstance.delete<DeleteEventResponse>(`/organizations/${id}/events/${eid}/admin`);
-    return response.data;
-  } catch (error) {
-    console.error("Error fetching weather information", error);
-    throw error;
-  }
-}
+    try {
+        const response = await axiosInstance.delete<DeleteEventResponse>(
+            `/organizations/${id}/events/${eid}/admin`
+        );
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching weather information', error);
+        throw error;
+    }
+};
