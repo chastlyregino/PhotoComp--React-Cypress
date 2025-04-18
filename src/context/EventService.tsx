@@ -58,43 +58,49 @@ export const getEventAttendees = async (orgId: string, eventId: string): Promise
             const response = await axiosInstance.get<attendeesResponse>(
                 `/organizations/${orgId}/events/${eventId}`
             );
-            
+
             console.log('Event attendees response:', response.data);
-            
+
             // Check different possible response formats
-            if (response.data && response.data.data && Array.isArray(response.data.data.attendees)) {
+            if (
+                response.data &&
+                response.data.data &&
+                Array.isArray(response.data.data.attendees)
+            ) {
                 return response.data.data.attendees;
             }
         } catch (error) {
             console.warn('Error using primary attendees endpoint, trying fallback:', error);
         }
-        
+
         // Fallback: try to get event users from the event itself
         const eventResponse = await axiosInstance.get(
             `/organizations/${orgId}/events/${eventId}/users`
         );
-        
+
         // Try to extract event users from different possible response structures
         if (eventResponse.data && eventResponse.data.data && eventResponse.data.data.users) {
-            return eventResponse.data.data.users.map((user: any) => {
-                if (typeof user === 'string') return user;
-                if (user.userId) return user.userId;
-                if (user.id) return user.id;
-                return '';
-            }).filter(Boolean);
+            return eventResponse.data.data.users
+                .map((user: any) => {
+                    if (typeof user === 'string') return user;
+                    if (user.userId) return user.userId;
+                    if (user.id) return user.id;
+                    return '';
+                })
+                .filter(Boolean);
         }
-        
+
         // Last resort: If we can't find attendees through any API, try to get them from GSIs
         const indexResponse = await axiosInstance.get(
             `/organizations/${orgId}/events/${eventId}/gsi`
         );
-        
+
         if (indexResponse.data && indexResponse.data.items) {
             return indexResponse.data.items
                 .filter((item: any) => item.PK && item.PK.startsWith('USER#'))
                 .map((item: any) => item.PK);
         }
-        
+
         // If everything fails, return empty array
         console.warn('No attendees found for this event using any endpoint');
         return [];

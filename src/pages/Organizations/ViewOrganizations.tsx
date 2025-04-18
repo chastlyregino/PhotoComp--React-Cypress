@@ -101,14 +101,17 @@ const Organizations: React.FC = () => {
         if (fetchedRef.current) return;
         fetchedRef.current = true;
         fetchOrganizations();
-        
+
         // Set up a timer to refresh organizations every 45 minutes to get fresh presigned URLs
         // This is less than the typical 1-hour expiration time for presigned URLs
-        const refreshInterval = setInterval(() => {
-            console.log("Refreshing organization data to update presigned URLs");
-            fetchOrganizations();
-        }, 45 * 60 * 1000); // 45 minutes in milliseconds
-        
+        const refreshInterval = setInterval(
+            () => {
+                console.log('Refreshing organization data to update presigned URLs');
+                fetchOrganizations();
+            },
+            45 * 60 * 1000
+        ); // 45 minutes in milliseconds
+
         // Cleanup the interval when component unmounts
         return () => clearInterval(refreshInterval);
     }, []);

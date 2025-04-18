@@ -56,3 +56,8 @@
 .organization-details-page {
     overflow: visible;
 }
+
+.main-content,
+.upload-photo-page {
+    overflow: visible;
+}
