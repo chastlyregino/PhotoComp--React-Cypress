@@ -1,6 +1,6 @@
 import React, { useState, useContext } from 'react';
 import { Container, Form, Button, Row, Col, Alert } from 'react-bootstrap';
-import { useNavigate, useParams } from 'react-router-dom';
+import { NavLink, useNavigate, useParams } from 'react-router-dom';
 import AuthContext from '../../context/AuthContext';
 import { createEvent } from '../../context/OrgService';
 import LocationAutocomplete from '../../components/locationAutocomplete/LocationAutocomplete';
@@ -10,6 +10,7 @@ import Sidebar from '../../components/bars/SideBar/SideBar';
 import TopBar from '../../components/bars/TopBar/TopBar';
 import SearchBar from '../../components/bars/SearchBar/SearchBar';
 import NavButton from '../../components/navButton/NavButton';
+import * as icon from 'react-bootstrap-icons';
 
 interface EventData {
     title: string;
@@ -69,7 +70,14 @@ const CreateEvent: React.FC<{}> = () => {
         <>
             <div className="d-flex align-items-center gap-3">
                 {user && token ? (
-                    <></>
+                    <>
+                        <NavLink to="/account-settings" className="text-light top-bar-element">
+                            <icon.GearFill size={24} />
+                        </NavLink>
+                        <NavLink to="/logout" className="text-light top-bar-element">
+                            <icon.BoxArrowRight size={24} />
+                        </NavLink>
+                    </>
                 ) : (
                     <>
                         <NavButton
@@ -153,7 +161,6 @@ const CreateEvent: React.FC<{}> = () => {
                     <div className="sticky-top bg-dark z-3">
                         <Row>
                             <TopBar
-                                searchComponent={searchComponent}
                                 rightComponents={rightComponents}
                             />
                         </Row>

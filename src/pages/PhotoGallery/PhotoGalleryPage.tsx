@@ -347,7 +347,6 @@ const PhotoGalleryPage: React.FC = () => {
                     <div className="sticky-top bg-dark z-3">
                         <Row>
                             <TopBar
-                                searchComponent={searchComponent}
                                 rightComponents={rightComponents}
                             />
                         </Row>
