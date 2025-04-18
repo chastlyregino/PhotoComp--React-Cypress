@@ -15,15 +15,20 @@ const OrganizationRow: React.FC<OrganizationRowProps> = ({ organization }) => {
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [expandedRow, setExpandedRow] = useState<boolean>(false);
-
     const orgId = organization.PK.split('#')[1];
+    
+    // Added state to track when logo URLs should be refreshed
+    const [refreshCount, setRefreshCount] = useState<number>(0);
 
     useEffect(() => {
         const fetchEvents = async () => {
             try {
                 setLoading(true);
                 const response = await getPublicOrganizationEvents(orgId);
-                setEvents(response.data.events);
+                
+                if (response.data.events && response.data.events.length > 0) {
+                    setEvents(response.data.events);
+                }
                 setLoading(false);
             } catch (err) {
                 console.error(`Error fetching events for ${organization.name}:`, err);
@@ -31,7 +36,17 @@ const OrganizationRow: React.FC<OrganizationRowProps> = ({ organization }) => {
                 setLoading(false);
             }
         };
+        
         fetchEvents();
+        
+        // Set up a timer to trigger refreshing organization logo URL every 45 minutes
+        // This is less than the typical 1-hour expiration time for presigned URLs
+        const refreshInterval = setInterval(() => {
+            setRefreshCount(prev => prev + 1);
+        }, 45 * 60 * 1000); // 45 minutes in milliseconds
+        
+        // Cleanup the interval when component unmounts
+        return () => clearInterval(refreshInterval);
     }, [organization, orgId]);
 
     const handleSeeMore = () => {
@@ -46,7 +61,7 @@ const OrganizationRow: React.FC<OrganizationRowProps> = ({ organization }) => {
     const eventsToDisplay = events.slice(0, displayedEvents);
 
     return (
-        <div className="organization-row mb-4">
+        <div className="organization-row mb-4" key={`${organization.id}-${refreshCount}`}>
             <div
                 className={`row-container ${expandedRow ? 'expanded' : ''}`}
                 style={{
@@ -67,7 +82,6 @@ const OrganizationRow: React.FC<OrganizationRowProps> = ({ organization }) => {
                         orgName={organization.name}
                     />
                 </div>
-
                 {/* Event Cards */}
                 {loading ? (
                     <div>Loading events...</div>
@@ -91,7 +105,6 @@ const OrganizationRow: React.FC<OrganizationRowProps> = ({ organization }) => {
                                 />
                             </div>
                         ))}
-
                         {!expandedRow && events.length > 3 && (
                             <div
                                 style={{
@@ -107,7 +120,6 @@ const OrganizationRow: React.FC<OrganizationRowProps> = ({ organization }) => {
                                 </Button>
                             </div>
                         )}
-
                         {expandedRow && (
                             <div
                                 style={{

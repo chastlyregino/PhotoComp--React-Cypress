@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef, useContext } from 'react';
 import { Button, Col, Row, Container, Alert } from 'react-bootstrap';
 import * as icon from 'react-bootstrap-icons';
 import { NavLink } from 'react-router-dom';
-
 import Sidebar from '../../components/bars/SideBar/SideBar';
 import TopBar from '../../components/bars/TopBar/TopBar';
 import SearchBar from '../../components/bars/SearchBar/SearchBar';
@@ -55,7 +54,6 @@ const Organizations: React.FC = () => {
                         >
                             Create Organization
                         </NavButton>
-
                         <NavLink to="/account-settings" className="text-light top-bar-element">
                             <icon.GearFill size={24} />
                         </NavLink>
@@ -103,6 +101,16 @@ const Organizations: React.FC = () => {
         if (fetchedRef.current) return;
         fetchedRef.current = true;
         fetchOrganizations();
+        
+        // Set up a timer to refresh organizations every 45 minutes to get fresh presigned URLs
+        // This is less than the typical 1-hour expiration time for presigned URLs
+        const refreshInterval = setInterval(() => {
+            console.log("Refreshing organization data to update presigned URLs");
+            fetchOrganizations();
+        }, 45 * 60 * 1000); // 45 minutes in milliseconds
+        
+        // Cleanup the interval when component unmounts
+        return () => clearInterval(refreshInterval);
     }, []);
 
     useEffect(() => {
@@ -147,18 +155,15 @@ const Organizations: React.FC = () => {
                                     <h1 className="mb-4">Organizations</h1>
                                 </Col>
                             </Row>
-
                             {error && <Alert variant="danger">{error}</Alert>}
-
                             <Row>
-                                {/* {loading && organizations.length === 0 ? (
+                                {loading && organizations.length === 0 ? (
                                     <div className="text-center p-5">Loading organizations...</div>
                                 ) : filteredOrganizations.length === 0 ? (
                                     <div className="text-center p-5">
                                         {searchTerm
                                             ? 'No matching organizations found.'
                                             : 'No organizations available.'}
-
                                         {user && token && (
                                             <div className="mt-4">
                                                 <Button
@@ -171,21 +176,20 @@ const Organizations: React.FC = () => {
                                             </div>
                                         )}
                                     </div>
-                                ) : ( */}
-                                <div className="d-flex flex-wrap gap-4">
-                                    {filteredOrganizations.map(org => (
-                                        <div key={org.id}>
-                                            <GalleryCard
-                                                item={org}
-                                                className="organization-card"
-                                                orgName={org.name}
-                                            />
-                                        </div>
-                                    ))}
-                                </div>
-                                {/* )} */}
+                                ) : (
+                                    <div className="d-flex flex-wrap gap-4">
+                                        {filteredOrganizations.map(org => (
+                                            <div key={org.id}>
+                                                <GalleryCard
+                                                    item={org}
+                                                    className="organization-card"
+                                                    orgName={org.name}
+                                                />
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </Row>
-
                             {hasMore && organizations.length > 0 && (
                                 <Row className="mt-4">
                                     <Col className="text-center">
