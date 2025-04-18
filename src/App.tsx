@@ -43,7 +43,11 @@ function App() {
                 />
                 <Route path="/organizations/:id/details" element={<OrganizationDetails />} />
                 <Route path="/organizations/:id/events" element={<SingleEvents />} />
-                <Route path="/account-settings" element={<AccountSettings />} />
+                <Route path="/account-settings" element={
+                    <ProtectedRoute>
+                        <AccountSettings />
+                    </ProtectedRoute>
+                    } />
                 <Route
                     path="/organizations/:orgId/members/requests"
                     element={
