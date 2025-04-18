@@ -213,11 +213,10 @@ const UploadEventPhoto: React.FC = () => {
                 <Col md="auto" className="sidebar-container">
                     <Sidebar />
                 </Col>
-                <Col className="upload-photo-page p-0">
+                <Col className="main-content p-0">
                     <div className="sticky-top bg-dark z-3">
                         <Row>
                             <TopBar
-                                searchComponent={searchComponent}
                                 rightComponents={rightComponents}
                             />
                         </Row>
