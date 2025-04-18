@@ -94,9 +94,34 @@ const PhotoTaggingPage: React.FC = () => {
             const formattedAttendees = await Promise.all(
               attendees.map(async (attendee) => {
                 // Extract userId from format like USER#userId
-                const userId = attendee.includes('#') ? 
-                  attendee.split('#')[1] : 
-                  attendee;
+                let userId = '';
+                if (typeof attendee === 'string') {
+                  userId = attendee.includes('#') ? attendee.split('#')[1] : attendee;
+                } else if (attendee && typeof attendee === 'object') {
+                  // Handle object type with userId property
+                  userId = (attendee as any).userId || '';
+                }
+                
+                // Check if this is the current logged-in user
+                if (user && userId === user.id) {
+                  console.log("Found current user in attendees, using their profile data");
+                  // Use the current user's data from AuthContext
+                  return {
+                    PK: `USER#${userId}`,
+                    SK: `EVENT#${eventId}`,
+                    userId: userId,
+                    role: user.role || 'MEMBER',
+                    joinDate: new Date().toISOString(),
+                    organizationName: orgId,
+                    eventId: eventId,
+                    userDetails: {
+                      id: userId,
+                      email: user.email,
+                      firstName: user.firstName,
+                      lastName: user.lastName
+                    }
+                  };
+                }
                 
                 // Fetch user details for this attendee
                 try {
@@ -114,9 +139,9 @@ const PhotoTaggingPage: React.FC = () => {
                     eventId: eventId,
                     userDetails: {
                       id: userId,
-                      email: userData.email || 'email@example.com',
-                      firstName: userData.firstName || 'User',
-                      lastName: userData.lastName || userId,
+                      email: userData.email || `${userId}@example.com`,
+                      firstName: userData.firstName || 'Attendee',  // Changed from 'User'
+                      lastName: userData.lastName || 'User',  // Changed from userId substring
                     }
                   };
                 } catch (userError) {
@@ -132,9 +157,9 @@ const PhotoTaggingPage: React.FC = () => {
                     eventId: eventId,
                     userDetails: {
                       id: userId,
-                      email: 'email@example.com',
-                      firstName: 'User',
-                      lastName: userId,
+                      email: `${userId}@example.com`,
+                      firstName: 'Attendee',  // Changed from 'User'
+                      lastName: 'User',  // Changed from userId
                     }
                   };
                 }
