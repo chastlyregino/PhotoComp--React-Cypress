@@ -91,5 +91,7 @@ describe('GalleryCard Component', () => {
             GSI2PK: 'ORG#TESTORG',
             orgName: 'Testorg',
         };
+    });
+
 
 });
