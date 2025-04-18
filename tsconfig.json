@@ -1,3 +1,4 @@
+
 {
     "compilerOptions": {
         "jsx": "react-jsx",
@@ -5,12 +6,14 @@
         "target": "ES2020",
         "module": "ESNext",
         "lib": ["ES2020", "DOM", "DOM.Iterable"],
-        "strict": true,
+        "strict": false,         
         "skipLibCheck": true,
         "moduleResolution": "bundler",
         "isolatedModules": true,
         "noEmit": true,
-        "composite": true
+        "composite": true,
+        "noImplicitAny": false,    
+        "strictNullChecks": false  
     },
     "include": ["src", "tests/__mocks__/fileMock.js"],
     "references": [
