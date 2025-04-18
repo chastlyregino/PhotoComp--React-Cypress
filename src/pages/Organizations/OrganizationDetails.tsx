@@ -190,7 +190,6 @@ const OrganizationDetails: React.FC = () => {
 
     const rightComponents = (
         <div className="d-flex align-items-center gap-3">
-                        
             {user ? (
                 <>
                     <NavLink to="/account-settings" className="text-light top-bar-element">
@@ -226,7 +225,7 @@ const OrganizationDetails: React.FC = () => {
                 <div className="sticky-top bg-dark z-3">
                     <TopBar searchComponent={searchComponent} rightComponents={rightComponents} />
                 </div>
-    
+
                 <Container fluid className="px-4 pt-4 bg-dark text-light min-vh-100">
                     <div className="organization-details-page bg-dark text-light min-vh-100">
                         {error ? (
@@ -234,7 +233,10 @@ const OrganizationDetails: React.FC = () => {
                                 <Alert variant="danger" className="my-4">
                                     {error}
                                 </Alert>
-                                <Button variant="secondary" onClick={() => navigate('/organizations')}>
+                                <Button
+                                    variant="secondary"
+                                    onClick={() => navigate('/organizations')}
+                                >
                                     Back to Organizations
                                 </Button>
                             </>
@@ -369,8 +371,6 @@ const OrganizationDetails: React.FC = () => {
                                     </Col>
                                 </Row>
 
-                                
-
                                 <div className="d-flex justify-content-between mt-4">
                                     <Button
                                         variant="outline-light custom-create-button"
@@ -378,7 +378,7 @@ const OrganizationDetails: React.FC = () => {
                                     >
                                         {isAdmin ? 'Cancel' : `Back to ${organizationId}`}
                                     </Button>
-                                    
+
                                     {isAdmin && (
                                         <>
                                             <Button
@@ -411,6 +411,6 @@ const OrganizationDetails: React.FC = () => {
             </Col>
         </Row>
     );
-};    
+};
 
 export default OrganizationDetails;

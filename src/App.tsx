@@ -21,8 +21,6 @@ import PhotoTaggingPage from './pages/PhotoTagging/PhotoTaggingPage';
 import OrganizationDetails from './pages/Organizations/OrganizationDetails';
 import EventDetails from './pages/Events/EventDetails';
 
-
-
 function App() {
     return (
         <>
@@ -43,11 +41,14 @@ function App() {
                 />
                 <Route path="/organizations/:id/details" element={<OrganizationDetails />} />
                 <Route path="/organizations/:id/events" element={<SingleEvents />} />
-                <Route path="/account-settings" element={
-                    <ProtectedRoute>
-                        <AccountSettings />
-                    </ProtectedRoute>
-                    } />
+                <Route
+                    path="/account-settings"
+                    element={
+                        <ProtectedRoute>
+                            <AccountSettings />
+                        </ProtectedRoute>
+                    }
+                />
                 <Route
                     path="/organizations/:orgId/members/requests"
                     element={
@@ -68,7 +69,7 @@ function App() {
                     path="/organizations/:id/events/:eid/details"
                     element={
                         <ProtectedRoute>
-                            <EventDetails/>
+                            <EventDetails />
                         </ProtectedRoute>
                     }
                 />
@@ -105,7 +106,7 @@ function App() {
                         </ProtectedRoute>
                     }
                 />
-                <Route 
+                <Route
                     path="/organizations/:id/events/:eid/photos/:photoId/tag"
                     element={
                         <ProtectedRoute>

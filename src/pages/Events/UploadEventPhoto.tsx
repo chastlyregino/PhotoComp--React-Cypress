@@ -186,7 +186,7 @@ const UploadEventPhoto: React.FC = () => {
 
         try {
             // Make API call to upload photos
-            await uploadEventPhoto(id as string, eid as string, formData, true, (progress) => {
+            await uploadEventPhoto(id as string, eid as string, formData, true, progress => {
                 setUploadProgress(progress);
             });
             console.log('Photos uploaded successfully');
@@ -213,7 +213,7 @@ const UploadEventPhoto: React.FC = () => {
                 <Col md="auto" className="sidebar-container">
                     <Sidebar />
                 </Col>
-                <Col className="main-content p-0">
+                <Col className="upload-photo-page p-0">
                     <div className="sticky-top bg-dark z-3">
                         <Row>
                             <TopBar
@@ -255,7 +255,7 @@ const UploadEventPhoto: React.FC = () => {
                                                 style={{ fontFamily: 'Michroma, sans-serif' }}
                                                 className="fs-4"
                                             >
-                                                Photo Title (Optional)
+                                                Photo Title
                                             </Form.Label>
                                             <Form.Control
                                                 type="text"
@@ -271,7 +271,7 @@ const UploadEventPhoto: React.FC = () => {
                                                 style={{ fontFamily: 'Michroma, sans-serif' }}
                                                 className="fs-4"
                                             >
-                                                Photo Description (Optional)
+                                                Photo Description
                                             </Form.Label>
                                             <Form.Control
                                                 type="text"
@@ -297,7 +297,10 @@ const UploadEventPhoto: React.FC = () => {
                                                     </h5>
                                                     <div className="d-flex flex-wrap gap-2 justify-content-center">
                                                         {previewUrls.map((url, index) => (
-                                                            <div key={index} className="position-relative">
+                                                            <div
+                                                                key={index}
+                                                                className="position-relative"
+                                                            >
                                                                 <img
                                                                     src={url}
                                                                     alt={`Photo preview ${index + 1}`}
@@ -328,8 +331,8 @@ const UploadEventPhoto: React.FC = () => {
                                                     />
                                                 </div>
                                                 <small className="text-muted d-block mt-2">
-                                                    You can select multiple photos at once.
-                                                    Maximum 10 photos, 5MB each.
+                                                    You can select multiple photos at once. Maximum
+                                                    10 photos, 5MB each.
                                                 </small>
                                             </div>
                                         </Form.Group>
@@ -353,11 +356,15 @@ const UploadEventPhoto: React.FC = () => {
 
                                         <div
                                             className="position-relative mt-5 pt-5"
-                                            style={{ height: '250px' }}
+                                            style={{ height: '250px', zIndex: 1100 }}
                                         >
                                             <div
                                                 className="position-absolute"
-                                                style={{ left: '-200px', top: '200px' }}
+                                                style={{
+                                                    left: '-200px',
+                                                    top: '200px',
+                                                    zIndex: 1100,
+                                                }}
                                             >
                                                 <Button
                                                     variant="secondary"
@@ -375,7 +382,11 @@ const UploadEventPhoto: React.FC = () => {
 
                                             <div
                                                 className="position-absolute"
-                                                style={{ right: '-200px', top: '200px' }}
+                                                style={{
+                                                    right: '-200px',
+                                                    top: '200px',
+                                                    zIndex: 1100,
+                                                }}
                                             >
                                                 <Button
                                                     variant="secondary"

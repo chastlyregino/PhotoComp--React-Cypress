@@ -79,25 +79,23 @@ export const uploadEventPhoto = async (
 ): Promise<PhotoUploadResponse> => {
     try {
         // Add query parameter for multiple files if needed
-        const endpoint = isMultiple 
+        const endpoint = isMultiple
             ? `/organizations/${orgId}/events/${eventId}/photos?multiple=true`
             : `/organizations/${orgId}/events/${eventId}/photos`;
-            
-        const response = await axiosInstance.post<PhotoUploadResponse>(
-            endpoint,
-            formData,
-            {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-                onUploadProgress: (progressEvent) => {
-                    if (onProgress && progressEvent.total) {
-                        const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-                        onProgress(percentCompleted);
-                    }
+
+        const response = await axiosInstance.post<PhotoUploadResponse>(endpoint, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+            onUploadProgress: progressEvent => {
+                if (onProgress && progressEvent.total) {
+                    const percentCompleted = Math.round(
+                        (progressEvent.loaded * 100) / progressEvent.total
+                    );
+                    onProgress(percentCompleted);
                 }
-            }
-        );
+            },
+        });
         return response.data;
     } catch (error) {
         console.error('Error uploading photo(s) to event:', error);
@@ -131,7 +129,6 @@ export const getPhotoDownloadUrl = async (
     }
 };
 
-
 /**
  * Delete a photo from an event
  * @param orgId The organization ID
@@ -143,7 +140,7 @@ export const deletePhoto = async (
     orgId: string,
     eventId: string,
     photoId: string
-): Promise<{status: string, message: string}> => {
+): Promise<{ status: string; message: string }> => {
     try {
         const response = await axiosInstance.delete(
             `/organizations/${orgId}/events/${eventId}/photos/${photoId}`
@@ -154,4 +151,3 @@ export const deletePhoto = async (
         throw error;
     }
 };
-

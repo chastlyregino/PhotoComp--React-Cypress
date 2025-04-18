@@ -46,21 +46,21 @@ const GalleryCard: React.FC<GalleryCardProps> = ({ item, className, orgName }) =
     const isOrganization = className.includes('organization');
     const isEvent = className.includes('event');
     const isPhoto = className.includes('photo');
-    
+
     // Add state for fallback image
     const [imageError, setImageError] = useState(false);
     const fallbackImage = '/placeholder-image.jpg'; // Default placeholder image
-    
+
     // Function to check if item is an Organization
     const isOrganizationItem = (item: CardItem): item is Organization =>
         'name' in item && !('title' in item && !('organizationName' in item));
-    
+
     // Function to check if item is an Event
     const isEventItem = (item: CardItem): item is Event => 'title' in item;
-    
+
     // Function to check if item is a Photo
     const isPhotoItem = (item: CardItem): item is Photo => 'url' in item;
-    
+
     // Handler for image load errors
     const handleImageError = () => {
         setImageError(true);
@@ -71,7 +71,7 @@ const GalleryCard: React.FC<GalleryCardProps> = ({ item, className, orgName }) =
         if (imageError) {
             return fallbackImage;
         }
-        
+
         if (isOrganizationItem(item) && item.logoUrl) {
             return item.logoUrl;
         } else if (isEventItem(item) && item.imageUrl) {

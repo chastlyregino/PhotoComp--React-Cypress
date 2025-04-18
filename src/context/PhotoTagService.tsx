@@ -2,29 +2,29 @@ import axiosInstance from '../utils/axios';
 
 // Define interfaces for the tag data
 export interface TaggedUser {
-  id: string;
-  userId: string;
-  photoId: string;
-  eventId: string;
-  taggedBy: string;
-  taggedAt: string;
+    id: string;
+    userId: string;
+    photoId: string;
+    eventId: string;
+    taggedBy: string;
+    taggedAt: string;
 }
 
 export interface TaggedUserWithDetails {
-  tag: TaggedUser;
-  user: {
-    id: string;
-    email: string;
-    firstName: string;
-    lastName: string;
-  };
+    tag: TaggedUser;
+    user: {
+        id: string;
+        email: string;
+        firstName: string;
+        lastName: string;
+    };
 }
 
 export interface TagResponse {
-  status: string;
-  data: {
-    tags: TaggedUser[];
-  };
+    status: string;
+    data: {
+        tags: TaggedUser[];
+    };
 }
 
 /**
@@ -35,19 +35,19 @@ export interface TagResponse {
  * @returns Promise with tagged users data
  */
 export const getPhotoTags = async (
-  orgId: string,
-  eventId: string,
-  photoId: string
+    orgId: string,
+    eventId: string,
+    photoId: string
 ): Promise<{ status: string; data: { tags: TaggedUserWithDetails[] } }> => {
-  try {
-    const response = await axiosInstance.get(
-      `/organizations/${orgId}/events/${eventId}/photos/${photoId}/tags`
-    );
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching photo tags:', error);
-    throw error;
-  }
+    try {
+        const response = await axiosInstance.get(
+            `/organizations/${orgId}/events/${eventId}/photos/${photoId}/tags`
+        );
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching photo tags:', error);
+        throw error;
+    }
 };
 
 /**
@@ -59,21 +59,21 @@ export const getPhotoTags = async (
  * @returns Promise with created tags
  */
 export const tagUsersInPhoto = async (
-  orgId: string,
-  eventId: string,
-  photoId: string,
-  userIds: string[]
+    orgId: string,
+    eventId: string,
+    photoId: string,
+    userIds: string[]
 ): Promise<TagResponse> => {
-  try {
-    const response = await axiosInstance.post(
-      `/organizations/${orgId}/events/${eventId}/photos/${photoId}/tags`,
-      { userIds }
-    );
-    return response.data;
-  } catch (error) {
-    console.error('Error tagging users in photo:', error);
-    throw error;
-  }
+    try {
+        const response = await axiosInstance.post(
+            `/organizations/${orgId}/events/${eventId}/photos/${photoId}/tags`,
+            { userIds }
+        );
+        return response.data;
+    } catch (error) {
+        console.error('Error tagging users in photo:', error);
+        throw error;
+    }
 };
 
 /**
@@ -85,20 +85,20 @@ export const tagUsersInPhoto = async (
  * @returns Promise with success response
  */
 export const removeTagFromPhoto = async (
-  orgId: string,
-  eventId: string,
-  photoId: string,
-  userId: string
+    orgId: string,
+    eventId: string,
+    photoId: string,
+    userId: string
 ): Promise<{ status: string; message: string }> => {
-  try {
-    const response = await axiosInstance.delete(
-      `/organizations/${orgId}/events/${eventId}/photos/${photoId}/tags/${userId}`
-    );
-    return response.data;
-  } catch (error) {
-    console.error('Error removing tag from photo:', error);
-    throw error;
-  }
+    try {
+        const response = await axiosInstance.delete(
+            `/organizations/${orgId}/events/${eventId}/photos/${photoId}/tags/${userId}`
+        );
+        return response.data;
+    } catch (error) {
+        console.error('Error removing tag from photo:', error);
+        throw error;
+    }
 };
 
 /**
@@ -107,20 +107,20 @@ export const removeTagFromPhoto = async (
  * @returns Promise with tagged photos
  */
 export const getUserTaggedPhotos = async (
-  userId: string
+    userId: string
 ): Promise<{ status: string; data: { photos: any[]; count: number } }> => {
-  try {
-    const response = await axiosInstance.get(`/users/${userId}/tagged-photos`);
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching user tagged photos:', error);
-    throw error;
-  }
+    try {
+        const response = await axiosInstance.get(`/users/${userId}/tagged-photos`);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching user tagged photos:', error);
+        throw error;
+    }
 };
 
 export default {
-  getPhotoTags,
-  tagUsersInPhoto,
-  removeTagFromPhoto,
-  getUserTaggedPhotos
+    getPhotoTags,
+    tagUsersInPhoto,
+    removeTagFromPhoto,
+    getUserTaggedPhotos,
 };
