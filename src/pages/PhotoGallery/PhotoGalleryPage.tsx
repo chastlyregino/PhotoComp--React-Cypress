@@ -346,9 +346,7 @@ const PhotoGalleryPage: React.FC = () => {
                 <Col className="main-content p-0">
                     <div className="sticky-top bg-dark z-3">
                         <Row>
-                            <TopBar
-                                rightComponents={rightComponents}
-                            />
+                            <TopBar rightComponents={rightComponents} />
                         </Row>
                     </div>
 

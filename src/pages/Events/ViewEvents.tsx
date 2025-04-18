@@ -23,6 +23,7 @@ const Events: React.FC = () => {
     const [organizations, setOrganizations] = useState<Organization[]>([]);
     const [lastEvaluatedKeyOrg, setlastEvaluatedKeyOrg] = useState<string | null>(null);
     const [events, setEvents] = useState<Event[]>([]);
+    const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
     const [lastEvaluatedKeyOrgEvent, setlastEvaluatedKeyOrgEvent] = useState<
         Record<string, string | null>
     >({});
@@ -162,6 +163,7 @@ const Events: React.FC = () => {
         }
 
         setEvents(prev => [...prev, ...newEvents]);
+        setFilteredEvents(prev => [...prev, ...newEvents]);
         setlastEvaluatedKeyOrgEvent(prev => ({ ...prev, ...newEventKeys }));
     };
 
@@ -262,7 +264,7 @@ const Events: React.FC = () => {
                         <Row>
                             {error && <p className="text-red-500">{error}</p>}
 
-                            {events.map(event => (
+                            {filteredEvents.map(event => (
                                 <Col>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
                                         <GalleryCard
