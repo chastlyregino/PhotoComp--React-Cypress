@@ -27,6 +27,8 @@ const Organizations: React.FC = () => {
 
     const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        console.log('Search submitted:', searchTerm);
+        // Implement your search logic here organizations
     };
 
     /* Components to be injected into the TopBar*/

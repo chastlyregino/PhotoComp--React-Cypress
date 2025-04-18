@@ -50,7 +50,10 @@ export const attendEvent = async (orgId: string, eventId: string) => {
  * @param eventId Event ID
  * @returns Array of user IDs for attendees
  */
-export const getEventAttendees = async (orgId: string, eventId: string): Promise<string[]> => {
+export const getEventAttendees = async (
+    orgId: string,
+    eventId: string
+): Promise<EventUser[] | undefined> => {
     try {
         // Try using the proper endpoint first
         try {
@@ -67,7 +70,7 @@ export const getEventAttendees = async (orgId: string, eventId: string): Promise
                 response.data.data &&
                 Array.isArray(response.data.data.attendees)
             ) {
-                return response.data.data.attendees;
+                return response.data.data.attendees as unknown as EventUser[];
             }
         } catch (error) {
             console.warn('Error using primary attendees endpoint, trying fallback:', error);
