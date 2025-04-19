@@ -1,5 +1,8 @@
 {
     "compilerOptions": {
+        "declaration": true,
+        "declarationDir": "./node_modules/.tmp",
+        "emitDeclarationOnly": true,
         "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
         "outDir": "./dist/node",
         "target": "ES2022",
