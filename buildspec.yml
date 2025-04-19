@@ -1,0 +1,19 @@
+version: 0.2
+phases:
+  install:
+    runtime-version:
+      nodejs: 20
+    commands:
+      - npm install -g vite@latest
+
+  pre_build:
+    commands:
+      - npm install
+  build:
+    commands:
+      - npm run build
+      - ls 
+artifacts:
+  base-directory: dist/
+  files:
+    - "**/*"
