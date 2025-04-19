@@ -38,12 +38,11 @@ type CardItem = Organization | Event | Photo;
 interface GalleryCardProps {
     item: CardItem;
     className: string;
-    orgName: string | undefined;
+    orgName?: string;
 }
 
 const GalleryCard: React.FC<GalleryCardProps> = ({ item, className, orgName }) => {
     const navigate = useNavigate();
-    const isOrganization = className.includes('organization');
     const isEvent = className.includes('event');
     const isPhoto = className.includes('photo');
 

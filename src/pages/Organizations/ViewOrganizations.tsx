@@ -173,7 +173,7 @@ const Organizations: React.FC = () => {
                                             <div className="mt-4">
                                                 <Button
                                                     variant="primary"
-                                                    as={NavLink}
+                                                    as={NavLink as any}
                                                     to="/organizations/create"
                                                 >
                                                     Create Your First Organization
