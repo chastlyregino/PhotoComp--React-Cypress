@@ -1,5 +1,8 @@
 {
     "compilerOptions": {
+        "declaration": true,
+        "declarationDir": "./node_modules/.tmp",
+        "emitDeclarationOnly": true,
         "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
         "outDir": "./dist/app",
         "target": "ES2020",
