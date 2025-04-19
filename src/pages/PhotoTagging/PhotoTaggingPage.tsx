@@ -102,8 +102,8 @@ const PhotoTaggingPage: React.FC = () => {
                                 // Extract userId from format like USER#userId
                                 let userId = '';
                                 if (typeof attendee === 'string') {
-                                    userId = attendee.includes('#')
-                                        ? attendee.split('#')[1]
+                                    userId = (attendee as any).includes('#') 
+                                        ? (attendee as any).split('#')[1]
                                         : attendee;
                                 } else if (attendee && typeof attendee === 'object') {
                                     // Handle object type with userId property
