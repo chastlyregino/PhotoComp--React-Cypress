@@ -13,6 +13,6 @@ phases:
       - npm run build
       - ls 
 artifacts:
-  base-directory: dist/
   files:
     - '**/*'
+  base-directory: dist
