@@ -54,7 +54,7 @@ const Sidebar: React.FC = () => {
                     >
                         <icon.Window /> Events
                     </NavLink>
-
+                    {/*
                     <NavLink
                         to={`/organizations/${id || `:id`}/events/${eid || `:eid`}/photos`}
                         end
@@ -65,7 +65,8 @@ const Sidebar: React.FC = () => {
                         }
                     >
                         <icon.Images /> Photos
-                    </NavLink>
+                    </NavLink> 
+                    */}
                 </Nav>
             </Navbar.Collapse>
         </Navbar>

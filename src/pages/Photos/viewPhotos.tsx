@@ -213,6 +213,14 @@ const Photos: React.FC = () => {
 
     const pageActionComponents = (
         <div className="d-flex align-items-center gap-3">
+            {!isEventAttendee && !isMember && (
+                <NavButton
+                    to={`/organizations/${id}/events`}
+                    className="top-bar-element custom-create-button"
+                >
+                Back to events
+                </NavButton>
+            )}
             {!isEventAttendee && isMember && (
                 <Button
                     onClick={handleAttendEvent}

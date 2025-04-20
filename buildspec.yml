@@ -1,7 +1,7 @@
 version: 0.2
 phases:
   install:
-    runtime-version:
+    runtime-versions:
       nodejs: 20
     commands:
       - npm install -g vite@latest
@@ -12,7 +12,6 @@ phases:
   build:
     commands:
       - npm run build
-      - ls 
 artifacts:
   base-directory: dist/
   files:
