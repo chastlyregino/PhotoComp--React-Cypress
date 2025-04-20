@@ -27,7 +27,7 @@
         "lib": ["DOM", "DOM.Iterable", "ES2017"],
         "allowSyntheticDefaultImports": true,
         "skipLibCheck": true,
-        "forceConsistentCasingInFileNames": true,
+        "forceConsistentCasingInFileNames": true
     },
     "files": [],
     "include": ["src", "./jest.setup.ts"],
