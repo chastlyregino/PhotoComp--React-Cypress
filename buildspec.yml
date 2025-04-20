@@ -5,7 +5,6 @@ phases:
       nodejs: 20
     commands:
       - npm install -g vite@latest
-
   pre_build:
     commands:
       - npm install
@@ -16,4 +15,4 @@ phases:
 artifacts:
   base-directory: dist/
   files:
-    - "**/*"
+    - '**/*'
