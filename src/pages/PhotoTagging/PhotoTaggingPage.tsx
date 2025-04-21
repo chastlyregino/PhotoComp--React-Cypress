@@ -1,3 +1,4 @@
+// src/pages/PhotoTagging/PhotoTaggingPage.tsx
 import React, { useState, useEffect, useContext } from 'react';
 import { Container, Row, Col, Button, Alert, Spinner } from 'react-bootstrap';
 import { NavLink, useParams, useNavigate } from 'react-router-dom';
@@ -9,31 +10,14 @@ import Sidebar from '../../components/bars/SideBar/SideBar';
 import TopBar from '../../components/bars/TopBar/TopBar';
 import SearchBar from '../../components/bars/SearchBar/SearchBar';
 import NavButton from '../../components/navButton/NavButton';
-import MemberCard from '../../components/cards/memberCard/MemberCard';
+import MemberCard from '../../components/cards/memberCard/MemberCard'; // Import MemberCard
 import axiosInstance from '../../utils/axios';
-import { getEventAttendees } from '../../context/EventService';
+// Import the new function and types
+import { getEventDetailsWithAttendees, AttendeeWithDetailsResponse, EventUser } from '../../context/EventService'; // Use AttendeeWithDetailsResponse
+import { UserDetails } from '../../components/cards/memberCard/MemberCard'; // Ensure UserDetails is imported
 
-// Define types for our data models
-interface User {
-    id: string;
-    email: string;
-    firstName: string;
-    lastName: string;
-}
-
-interface Member {
-    PK: string;
-    SK: string;
-    userId: string;
-    role: string;
-    joinDate: string;
-    organizationName: string;
-    userDetails: User;
-}
-
-interface EventAttendee extends Member {
-    eventId: string;
-}
+// Use AttendeeWithDetailsResponse directly or create a simple alias if needed
+type AttendeeForTagging = AttendeeWithDetailsResponse;
 
 const PhotoTaggingPage: React.FC = () => {
     const navigate = useNavigate();
@@ -42,8 +26,8 @@ const PhotoTaggingPage: React.FC = () => {
 
     // State for search and members
     const [searchTerm, setSearchTerm] = useState('');
-    const [attendees, setAttendees] = useState<EventAttendee[]>([]);
-    const [filteredAttendees, setFilteredAttendees] = useState<EventAttendee[]>([]);
+    const [attendees, setAttendees] = useState<AttendeeForTagging[]>([]); // Use the updated type
+    const [filteredAttendees, setFilteredAttendees] = useState<AttendeeForTagging[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
@@ -51,229 +35,111 @@ const PhotoTaggingPage: React.FC = () => {
     const [submitting, setSubmitting] = useState<boolean>(false);
     const [eventName, setEventName] = useState<string>('');
 
-    // Pagination state - modified for better scrolling experience
-    const [initialDisplayCount, setInitialDisplayCount] = useState<number>(12); // Initial number to display
-    const [displayCount, setDisplayCount] = useState<number>(12); // Current display count
+    // Pagination state
+    const [initialDisplayCount] = useState<number>(12);
+    const [displayCount, setDisplayCount] = useState<number>(12);
     const [hasMore, setHasMore] = useState<boolean>(true);
     const [loadingMore, setLoadingMore] = useState<boolean>(false);
-    const [lastEvaluatedKey, setLastEvaluatedKey] = useState<string | null>(null);
 
-    // Fetch attendees for the event
+    // Fetch initial list of attendees WITH details
     useEffect(() => {
-        const fetchAttendees = async () => {
+        const fetchInitialAttendees = async () => {
             if (!orgId || !eventId || !photoId) {
                 setError('Missing organization, event, or photo ID');
                 setLoading(false);
                 return;
             }
 
+            setLoading(true);
+            setError(null);
+
             try {
-                setLoading(true);
-                setError(null);
+                // Fetch event details AND attendees with user details in one call
+                const response = await getEventDetailsWithAttendees(orgId, eventId);
 
-                // First get event details to display the event name
-                try {
-                    const eventResponse = await axiosInstance.get(
-                        `/organizations/${orgId}/events/${eventId}`
-                    );
-                    if (
-                        eventResponse.data &&
-                        eventResponse.data.data &&
-                        eventResponse.data.data.event
-                    ) {
-                        setEventName(eventResponse.data.data.event.title);
-                    }
-                } catch (eventError) {
-                    console.error('Error fetching event details:', eventError);
-                    // Continue with attendee fetching even if event details fail
-                }
+                setEventName(response.data?.event?.title || 'Event'); // Set event name
 
-                // Fetch event attendees using the correct endpoint and handling
-                try {
-                    // Using the getEventAttendees helper from EventService for consistency
-                    const attendees = await getEventAttendees(orgId, eventId);
+                const fetchedAttendees = response.data.attendees || [];
 
-                    console.log('Raw attendees response:', attendees); // Debug log
+                 // Filter out attendees without userDetails before setting state
+                const validAttendees = fetchedAttendees.filter(att => att.userDetails !== null);
 
-                    if (attendees && attendees.length > 0) {
-                        // Transform attendees to expected format if needed
-                        const formattedAttendees = await Promise.all(
-                            attendees.map(async attendee => {
-                                // Extract userId from format like USER#userId
-                                let userId = '';
-                                if (typeof attendee === 'string') {
-                                    userId = (attendee as any).includes('#') 
-                                        ? (attendee as any).split('#')[1]
-                                        : attendee;
-                                } else if (attendee && typeof attendee === 'object') {
-                                    // Handle object type with userId property
-                                    userId = (attendee as any).userId || '';
-                                }
-
-                                // Check if this is the current logged-in user
-                                if (user && userId === user.id) {
-                                    console.log(
-                                        'Found current user in attendees, using their profile data'
-                                    );
-                                    // Use the current user's data from AuthContext
-                                    return {
-                                        PK: `USER#${userId}`,
-                                        SK: `EVENT#${eventId}`,
-                                        userId: userId,
-                                        role: user.role || 'MEMBER',
-                                        joinDate: new Date().toISOString(),
-                                        organizationName: orgId,
-                                        eventId: eventId,
-                                        userDetails: {
-                                            id: userId,
-                                            email: user.email,
-                                            firstName: user.firstName,
-                                            lastName: user.lastName,
-                                        },
-                                    };
-                                }
-
-                                // Fetch user details for this attendee
-                                try {
-                                    const userResponse = await axiosInstance.get(
-                                        `/users/${userId}`
-                                    );
-                                    const userData = userResponse.data.data?.user || {};
-
-                                    // Create a properly formatted attendee object
-                                    return {
-                                        PK: `USER#${userId}`,
-                                        SK: `EVENT#${eventId}`,
-                                        userId: userId,
-                                        role: 'MEMBER', // Default role
-                                        joinDate: new Date().toISOString(),
-                                        organizationName: orgId,
-                                        eventId: eventId,
-                                        userDetails: {
-                                            id: userId,
-                                            email: userData.email || `${userId}@example.com`,
-                                            firstName: userData.firstName || 'Attendee', // Changed from 'User'
-                                            lastName: userData.lastName || 'User', // Changed from userId substring
-                                        },
-                                    };
-                                } catch (userError) {
-                                    console.error(
-                                        `Error fetching details for user ${userId}:`,
-                                        userError
-                                    );
-                                    // Return a placeholder object with available info
-                                    return {
-                                        PK: `USER#${userId}`,
-                                        SK: `EVENT#${eventId}`,
-                                        userId: userId,
-                                        role: 'MEMBER',
-                                        joinDate: new Date().toISOString(),
-                                        organizationName: orgId,
-                                        eventId: eventId,
-                                        userDetails: {
-                                            id: userId,
-                                            email: `${userId}@example.com`,
-                                            firstName: 'Attendee', // Changed from 'User'
-                                            lastName: 'User', // Changed from userId
-                                        },
-                                    };
-                                }
-                            })
-                        );
-
-                        console.log('Formatted attendees:', formattedAttendees); // Debug log
-                        setAttendees(formattedAttendees);
-                        setFilteredAttendees(formattedAttendees);
-
-                        // Update hasMore based on number of attendees vs. initial display count
-                        setHasMore(formattedAttendees.length > initialDisplayCount);
-                    } else {
-                        console.log('No attendees found or invalid response format');
-                        setAttendees([]);
-                        setFilteredAttendees([]);
-                        setHasMore(false);
-                    }
-                } catch (attendeesError) {
-                    console.error('Error fetching attendees:', attendeesError);
-                    throw attendeesError;
-                }
-
+                setAttendees(validAttendees as AttendeeForTagging[]); // Cast as AttendeeForTagging
+                setFilteredAttendees(validAttendees as AttendeeForTagging[]); // Set filtered list initially
+                setDisplayCount(Math.min(validAttendees.length, initialDisplayCount));
+                setHasMore(validAttendees.length > initialDisplayCount);
                 setLoading(false);
+
             } catch (err) {
-                console.error('Error in main fetchAttendees function:', err);
+                console.error('Error fetching attendees with details:', err);
                 setError('Failed to load event attendees. Please try again later.');
+                setAttendees([]);
+                setFilteredAttendees([]);
+                setHasMore(false);
                 setLoading(false);
             }
         };
 
-        fetchAttendees();
+        fetchInitialAttendees();
     }, [orgId, eventId, photoId, initialDisplayCount]);
 
-    // Handle load more function
-    const handleLoadMore = () => {
-        setLoadingMore(true);
-
-        // Simulate loading delay for better UX (remove in production)
-        setTimeout(() => {
-            // Increase display count by the initial batch size
-            const newDisplayCount = displayCount + initialDisplayCount;
-            setDisplayCount(newDisplayCount);
-
-            // Check if we've reached the end of our data
-            setHasMore(newDisplayCount < filteredAttendees.length);
-            setLoadingMore(false);
-        }, 500);
-    };
-
-    // Filter attendees based on search term
+     // Filter attendees based on search term
     useEffect(() => {
-        if (searchTerm.trim() === '') {
-            setFilteredAttendees(attendees);
-            // Reset display count when clearing search
-            setDisplayCount(initialDisplayCount);
-            setHasMore(attendees.length > initialDisplayCount);
-        } else {
-            const filtered = attendees.filter((attendee: EventAttendee) => {
-                const { firstName, lastName, email } = attendee.userDetails;
-                const fullName = `${firstName} ${lastName}`.toLowerCase();
-                const searchLower = searchTerm.toLowerCase();
+        const applyFilter = () => {
+            let filtered = attendees;
 
-                return fullName.includes(searchLower) || email.toLowerCase().includes(searchLower);
-            });
+            if (searchTerm.trim() !== '') {
+                const searchLower = searchTerm.toLowerCase();
+                filtered = attendees.filter((attendee: AttendeeForTagging) => {
+                    // Search by name/email if details are loaded
+                    if (attendee.userDetails) {
+                        const { firstName, lastName, email } = attendee.userDetails;
+                        const fullName = `${firstName} ${lastName}`.toLowerCase();
+                        return fullName.includes(searchLower) || email.toLowerCase().includes(searchLower);
+                    }
+                    // Fallback if userDetails somehow missing (shouldn't happen with filter above)
+                    return attendee.attendeeInfo.PK.toLowerCase().includes(searchLower);
+                });
+            }
 
             setFilteredAttendees(filtered);
-            // Show all search results immediately
-            setDisplayCount(filtered.length);
-            setHasMore(false);
-        }
+            // Adjust display count and hasMore based on the *filtered* list
+            setDisplayCount(Math.min(filtered.length, initialDisplayCount));
+            setHasMore(filtered.length > initialDisplayCount);
+        };
+
+        applyFilter();
     }, [attendees, searchTerm, initialDisplayCount]);
 
-    // Get the currently visible members based on display count
+     // Get the currently visible members based on display count
     const visibleAttendees = filteredAttendees.slice(0, displayCount);
 
-    // Handle search change
-    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setSearchTerm(e.target.value);
+     // Handle load more function
+    const handleLoadMore = () => {
+        setLoadingMore(true);
+        const newDisplayCount = Math.min(displayCount + initialDisplayCount, filteredAttendees.length);
+        setDisplayCount(newDisplayCount);
+        setHasMore(newDisplayCount < filteredAttendees.length);
+        // Simulate delay if needed, otherwise just update state
+        setTimeout(() => setLoadingMore(false), 200); // Short delay for visual feedback
     };
 
-    const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-    };
 
-    // Toggle member selection
-    const handleMemberSelect = (memberId: string) => {
+    // Handle member selection - Use userDetails.id
+    const handleMemberSelect = (userId: string) => {
         setSelectedMembers(prev => {
-            if (prev.includes(memberId)) {
-                return prev.filter(id => id !== memberId);
+            if (prev.includes(userId)) {
+                return prev.filter(id => id !== userId);
             } else {
-                return [...prev, memberId];
+                return [...prev, userId];
             }
         });
     };
 
+
     // Submit tags
     const handleSubmitTags = async () => {
-        if (selectedMembers.length === 0) {
+         if (selectedMembers.length === 0) {
             setError('Please select at least one member to tag');
             return;
         }
@@ -286,7 +152,9 @@ const PhotoTaggingPage: React.FC = () => {
         try {
             setSubmitting(true);
             setError(null);
+            setSuccess(null);
 
+            // API call remains the same, sending selected user IDs
             const response = await axiosInstance.post(
                 `/organizations/${orgId}/events/${eventId}/photos/${photoId}/tags`,
                 { userIds: selectedMembers }
@@ -295,20 +163,17 @@ const PhotoTaggingPage: React.FC = () => {
             console.log('Tag response:', response.data);
             setSuccess('Members tagged successfully!');
             setSubmitting(false);
+            setSelectedMembers([]); // Clear selection
 
-            // Redirect back to photo page after a short delay
-            setTimeout(() => {
-                navigate(`/organizations/${orgId}/events/${eventId}/photos/${photoId}`);
-            }, 1500);
+            // Redirect after success
+             setTimeout(() => {
+                 navigate(`/organizations/${orgId}/events/${eventId}/photos/${photoId}`);
+             }, 1500);
+
         } catch (err: any) {
             console.error('Error tagging members:', err);
-
-            if (err.response && err.response.data && err.response.data.message) {
-                setError(err.response.data.message);
-            } else {
-                setError('Failed to tag members. Please try again.');
-            }
-
+            const apiErrorMessage = err.response?.data?.message;
+            setError(apiErrorMessage || 'Failed to tag members. Please try again.');
             setSubmitting(false);
         }
     };
@@ -318,13 +183,22 @@ const PhotoTaggingPage: React.FC = () => {
         navigate(`/organizations/${orgId}/events/${eventId}/photos/${photoId}`);
     };
 
-    // TopBar components
+    // --- TopBar components ---
+    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setSearchTerm(e.target.value);
+        setDisplayCount(initialDisplayCount); // Reset pagination on new search
+    };
+
+    const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+    };
+
     const searchComponent = (
         <SearchBar
             value={searchTerm}
             onChange={handleSearchChange}
             onSubmit={handleSearchSubmit}
-            placeholder="Search members..."
+            placeholder="Search attendees..."
             className="ms-3"
         />
     );
@@ -358,6 +232,7 @@ const PhotoTaggingPage: React.FC = () => {
             </div>
         </>
     );
+    // --- End TopBar components ---
 
     return (
         <>
@@ -377,7 +252,7 @@ const PhotoTaggingPage: React.FC = () => {
 
                     <div className="photo-tagging-page bg-dark text-light min-vh-100">
                         <Container fluid className="px-4 pt-4">
-                            <div className="d-flex justify-content-between align-items-center mb-4">
+                             <div className="d-flex justify-content-between align-items-center mb-4">
                                 <h1 className="mb-0">Photos: {eventName}</h1>
                                 <NavButton
                                     to={`/organizations/${orgId}/events/${eventId}/photos/${photoId}`}
@@ -425,23 +300,39 @@ const PhotoTaggingPage: React.FC = () => {
                             ) : (
                                 <>
                                     {/* Display members in a card grid layout */}
-                                    <Row className="g-4 member-cards-container mb-4">
-                                        {visibleAttendees.map((attendee: EventAttendee) => (
+                                     <Row className="g-4 member-cards-container mb-4">
+                                        {visibleAttendees.map((attendee: AttendeeForTagging) => (
                                             <Col
                                                 xs={12}
                                                 sm={6}
                                                 md={4}
                                                 lg={3}
-                                                key={attendee.userId}
+                                                key={attendee.userDetails?.id || attendee.attendeeInfo.PK} // Use userDetails.id if available
                                                 className="d-flex justify-content-center"
                                             >
-                                                <MemberCard
-                                                    member={attendee}
-                                                    isSelected={selectedMembers.includes(
-                                                        attendee.userId
-                                                    )}
-                                                    onSelect={handleMemberSelect}
-                                                />
+                                                 {/* Ensure userDetails exist before rendering */}
+                                                {attendee.userDetails ? (
+                                                     <MemberCard
+                                                        member={{ // Construct the Member object needed by the card
+                                                             PK: attendee.attendeeInfo.PK,
+                                                             SK: attendee.attendeeInfo.SK,
+                                                             userId: attendee.userDetails.id, // Use ID from details
+                                                             role: attendee.attendeeInfo.role || 'MEMBER', // Role comes from attendeeInfo or default
+                                                             joinDate: attendee.attendeeInfo.joinDate || new Date().toISOString(), // Use joinDate if available, else fallback
+                                                             organizationName: orgId || 'Unknown Org', // Use orgId from params
+                                                             userDetails: attendee.userDetails, // Pass the fetched details
+                                                         }}
+                                                         isSelected={selectedMembers.includes(attendee.userDetails.id)} // Use userDetails.id for selection
+                                                         onSelect={() => handleMemberSelect(attendee.userDetails!.id)} // Use userDetails.id for selection handler
+                                                     />
+                                                 ) : (
+                                                      // Should not happen often due to filter, but handle just in case
+                                                     <div className="member-card placeholder-card text-center p-3">
+                                                         <Spinner animation="border" size="sm" variant="light" className="mb-2" />
+                                                         <small>Loading details...</small>
+                                                     </div>
+                                                 )}
+
                                             </Col>
                                         ))}
                                     </Row>
@@ -457,19 +348,9 @@ const PhotoTaggingPage: React.FC = () => {
                                             >
                                                 {loadingMore ? (
                                                     <>
-                                                        <Spinner
-                                                            as="span"
-                                                            animation="border"
-                                                            size="sm"
-                                                            role="status"
-                                                            aria-hidden="true"
-                                                            className="me-2"
-                                                        />
-                                                        Loading...
+                                                        <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" className="me-2" /> Loading...
                                                     </>
-                                                ) : (
-                                                    'Load More'
-                                                )}
+                                                ) : ( 'Load More' )}
                                             </Button>
                                         </div>
                                     )}
@@ -489,23 +370,13 @@ const PhotoTaggingPage: React.FC = () => {
                                 <Button
                                     variant="secondary"
                                     onClick={handleSubmitTags}
-                                    disabled={selectedMembers.length === 0 || submitting}
+                                    disabled={selectedMembers.length === 0 || submitting || loading} // Disable if loading attendees too
                                 >
                                     {submitting ? (
                                         <>
-                                            <Spinner
-                                                as="span"
-                                                animation="border"
-                                                size="sm"
-                                                role="status"
-                                                aria-hidden="true"
-                                                className="me-2"
-                                            />
-                                            Tagging...
+                                             <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" className="me-2"/> Tagging...
                                         </>
-                                    ) : (
-                                        `Tag selected members (${selectedMembers.length})`
-                                    )}
+                                    ) : ( `Tag selected members (${selectedMembers.length})` )}
                                 </Button>
                             </div>
                         </Container>
