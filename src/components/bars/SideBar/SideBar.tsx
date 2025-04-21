@@ -1,11 +1,13 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Navbar, Nav } from 'react-bootstrap';
 import * as icon from 'react-bootstrap-icons';
 import { NavLink, useParams } from 'react-router-dom';
 import logo from '../../../assets/PhotoCompLogo.png';
+import AuthContext from '../../../context/AuthContext';
 
 const Sidebar: React.FC = () => {
     const { id, eid } = useParams();
+    const { user, token } = useContext(AuthContext);
     return (
         <Navbar
             collapseOnSelect
@@ -17,6 +19,13 @@ const Sidebar: React.FC = () => {
             <Navbar.Brand className="mx-auto sidebar-brand">
                 <img src={logo} alt="Logo" />
             </Navbar.Brand>
+            {user && token && (
+                <>
+                    <p className="mb-4">
+                    Welcome: {`${user.firstName}`}!
+                    </p>
+                </>
+            )}
             <Navbar.Toggle aria-controls="responsive-navbar-nav" />
             <Navbar.Collapse id="responsive-navbar-nav">
                 <Nav className="flex-column">
