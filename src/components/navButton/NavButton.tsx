@@ -2,14 +2,14 @@ import React from 'react';
 import { Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 
-interface BackButtonProps {
+interface NavButtonProps {
     to?: string;
     className?: string;
     variant?: string;
     children?: React.ReactNode;
 }
 
-const BackButton: React.FC<BackButtonProps> = ({
+const NavButton: React.FC<NavButtonProps> = ({
     to = '/',
     className = '',
     variant = 'primary',
@@ -32,4 +32,4 @@ const BackButton: React.FC<BackButtonProps> = ({
     );
 };
 
-export default BackButton;
+export default NavButton;

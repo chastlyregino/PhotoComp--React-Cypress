@@ -587,17 +587,13 @@ const EventDetails: React.FC = () => {
                                 </Row>
                             ) : (
                                 <div className="text-center p-5">
-                                    <h3>Event not found</h3>
-                                    <p>
-                                        The event you're looking for doesn't exist or has been
-                                        removed.
-                                    </p>
+                                    <h3>Event not available to you</h3>
                                     <NavButton
-                                        to={`/organizations/${id}/events/${eid}`}
+                                        to={`/organizations/${id}/events`}
                                         variant="outline-light"
                                         className="mt-3"
                                     >
-                                        Back to Event
+                                        Back to Events
                                     </NavButton>
                                 </div>
                             )}
