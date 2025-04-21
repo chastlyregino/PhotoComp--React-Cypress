@@ -18,13 +18,15 @@ const Sidebar: React.FC = () => {
             <Navbar.Brand className="mx-auto sidebar-brand">
                 <img src={logo} alt="Logo" />
             </Navbar.Brand>
-            {user && token && (
-                <>
-                    <p className="mb-4">
-                    Welcome: {`${user.firstName}`}!
-                    </p>
-                </>
-            )}
+            <Navbar.Text>
+                {user && token && (
+                    <>
+                        <p className="mb-4">
+                            Hi {`${user.firstName}`}!
+                        </p>
+                    </>
+                )}
+            </Navbar.Text>
             <Navbar.Toggle aria-controls="responsive-navbar-nav" />
             <Navbar.Collapse id="responsive-navbar-nav">
                 <Nav className="flex-column">
