@@ -21,7 +21,7 @@ const Sidebar: React.FC = () => {
             <Navbar.Text>
                 {user && token && (
                     <>
-                        <p className="mb-4">
+                        <p className="mb-4" style={{ color: '#ffffff' }}>
                             Hi {`${user.firstName}`}!
                         </p>
                     </>
