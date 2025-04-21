@@ -10,7 +10,6 @@ const Sidebar: React.FC = () => {
     const { user, token } = useContext(AuthContext);
     return (
         <Navbar
-            collapseOnSelect
             data-bs-theme="dark"
             bg="dark"
             variant="dark"
@@ -18,15 +17,14 @@ const Sidebar: React.FC = () => {
         >
             <Navbar.Brand className="mx-auto sidebar-brand">
                 <img src={logo} alt="Logo" />
-                {user && token && (
-                    <>
-                        <p className="mb-4">
-                        Welcome: {`${user.firstName}`}!
-                        </p>
-                    </>
-                )}
             </Navbar.Brand>
-            
+            {user && token && (
+                <>
+                    <p className="mb-4">
+                    Welcome: {`${user.firstName}`}!
+                    </p>
+                </>
+            )}
             <Navbar.Toggle aria-controls="responsive-navbar-nav" />
             <Navbar.Collapse id="responsive-navbar-nav">
                 <Nav className="flex-column">
