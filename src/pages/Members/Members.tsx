@@ -188,6 +188,12 @@ const Members: React.FC = () => {
                             </h1>
                             <NavButton
                                 className="requests-button"
+                                to={`/organizations/${orgId}/events`}
+                            >
+                                Go to events
+                            </NavButton>
+                            <NavButton
+                                className="requests-button"
                                 to={`/organizations/${orgId}/members/requests`}
                             >
                                 {' '}
