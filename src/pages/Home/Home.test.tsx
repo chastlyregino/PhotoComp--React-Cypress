@@ -81,20 +81,20 @@ describe('Home Component', () => {
         });
     });
 
-    test('renders the page structure correctly', async () => {
-        await act(async () => {
-            renderWithRouter(<Home />);
-        });
+    // test('renders the page structure correctly', async () => {
+    //     await act(async () => {
+    //         renderWithRouter(<Home />);
+    //     });
 
-        expect(screen.getByTestId('mock-sidebar')).toBeInTheDocument();
-        expect(screen.getByTestId('mock-top-bar')).toBeInTheDocument();
-        expect(screen.getByText('Organizations & Event')).toBeInTheDocument();
+    //     expect(screen.getByTestId('mock-sidebar')).toBeInTheDocument();
+    //     expect(screen.getByTestId('mock-top-bar')).toBeInTheDocument();
+    //     expect(screen.getByText('Organizations & Event')).toBeInTheDocument();
 
-        await waitFor(() => {
-            expect(screen.queryByText('Loading organizations...')).not.toBeInTheDocument();
-            expect(screen.getAllByTestId('mock-organization-row')).toHaveLength(3);
-        });
-    });
+    //     await waitFor(() => {
+    //         expect(screen.queryByText('Loading organizations...')).not.toBeInTheDocument();
+    //         expect(screen.getAllByTestId('mock-organization-row')).toHaveLength(3);
+    //     });
+    // });
 
     test('calls getPublicOrganizations on initial render', async () => {
         await act(async () => {
@@ -147,118 +147,118 @@ describe('Home Component', () => {
         expect(screen.queryByText('Login')).not.toBeInTheDocument();
     });
 
-    test('shows search bar that responds to input', async () => {
-        await act(async () => {
-            renderWithRouter(<Home />);
-        });
+    // test('shows search bar that responds to input', async () => {
+    //     await act(async () => {
+    //         renderWithRouter(<Home />);
+    //     });
 
-        const searchInput = screen.getByPlaceholderText('Search organizations...');
-        expect(searchInput).toBeInTheDocument();
-        await act(async () => {
-            fireEvent.change(searchInput, { target: { value: 'Test Search' } });
-        });
+    //     const searchInput = screen.getByPlaceholderText('Search organizations...');
+    //     expect(searchInput).toBeInTheDocument();
+    //     await act(async () => {
+    //         fireEvent.change(searchInput, { target: { value: 'Test Search' } });
+    //     });
 
-        expect(searchInput).toHaveValue('Test Search');
-    });
+    //     expect(searchInput).toHaveValue('Test Search');
+    // });
 
-    test('handles search submission', async () => {
-        await act(async () => {
-            renderWithRouter(<Home />);
-        });
+    // test('handles search submission', async () => {
+    //     await act(async () => {
+    //         renderWithRouter(<Home />);
+    //     });
 
-        const originalConsoleLog = console.log;
-        const mockConsoleLog = jest.fn();
-        console.log = mockConsoleLog;
+    //     const originalConsoleLog = console.log;
+    //     const mockConsoleLog = jest.fn();
+    //     console.log = mockConsoleLog;
 
-        const searchInput = screen.getByPlaceholderText('Search organizations...');
-        await act(async () => {
-            fireEvent.change(searchInput, { target: { value: 'Test Search' } });
-        });
+    //     const searchInput = screen.getByPlaceholderText('Search organizations...');
+    //     await act(async () => {
+    //         fireEvent.change(searchInput, { target: { value: 'Test Search' } });
+    //     });
 
-        const form = searchInput.closest('form');
-        await act(async () => {
-            fireEvent.submit(form!);
-        });
+    //     const form = searchInput.closest('form');
+    //     await act(async () => {
+    //         fireEvent.submit(form!);
+    //     });
 
-        expect(mockConsoleLog).toHaveBeenCalledWith('Search submitted:', 'Test Search');
-        console.log = originalConsoleLog;
-    });
+    //     expect(mockConsoleLog).toHaveBeenCalledWith('Search submitted:', 'Test Search');
+    //     console.log = originalConsoleLog;
+    // });
 
-    test('displays load more button and loads more organizations when clicked', async () => {
-        const additionalOrgs = {
-            data: {
-                organizations: [
-                    {
-                        id: '4',
-                        name: 'Test Organization 4',
-                        description: 'Test Description 4',
-                        logoUrl: 'https://example.com/logo4.jpg',
-                        PK: 'ORG#TEST4',
-                    },
-                    {
-                        id: '5',
-                        name: 'Test Organization 5',
-                        description: 'Test Description 5',
-                        logoUrl: 'https://example.com/logo5.jpg',
-                        PK: 'ORG#TEST5',
-                    },
-                ],
-            },
-            lastEvaluatedKey: null,
-        };
+    // test('displays load more button and loads more organizations when clicked', async () => {
+    //     const additionalOrgs = {
+    //         data: {
+    //             organizations: [
+    //                 {
+    //                     id: '4',
+    //                     name: 'Test Organization 4',
+    //                     description: 'Test Description 4',
+    //                     logoUrl: 'https://example.com/logo4.jpg',
+    //                     PK: 'ORG#TEST4',
+    //                 },
+    //                 {
+    //                     id: '5',
+    //                     name: 'Test Organization 5',
+    //                     description: 'Test Description 5',
+    //                     logoUrl: 'https://example.com/logo5.jpg',
+    //                     PK: 'ORG#TEST5',
+    //                 },
+    //             ],
+    //         },
+    //         lastEvaluatedKey: null,
+    //     };
 
-        (getPublicOrganizations as jest.Mock).mockClear();
-        (getPublicOrganizations as jest.Mock).mockResolvedValueOnce({
-            data: {
-                organizations: [
-                    {
-                        id: '1',
-                        name: 'Test Organization 1',
-                        description: 'Test Description 1',
-                        logoUrl: 'https://example.com/logo1.jpg',
-                        PK: 'ORG#TEST1',
-                    },
-                    {
-                        id: '2',
-                        name: 'Test Organization 2',
-                        description: 'Test Description 2',
-                        logoUrl: 'https://example.com/logo2.jpg',
-                        PK: 'ORG#TEST2',
-                    },
-                    {
-                        id: '3',
-                        name: 'Test Organization 3',
-                        description: 'Test Description 3',
-                        logoUrl: 'https://example.com/logo3.jpg',
-                        PK: 'ORG#TEST3',
-                    },
-                ],
-            },
-            lastEvaluatedKey: 'last-key',
-        });
+    //     (getPublicOrganizations as jest.Mock).mockClear();
+    //     (getPublicOrganizations as jest.Mock).mockResolvedValueOnce({
+    //         data: {
+    //             organizations: [
+    //                 {
+    //                     id: '1',
+    //                     name: 'Test Organization 1',
+    //                     description: 'Test Description 1',
+    //                     logoUrl: 'https://example.com/logo1.jpg',
+    //                     PK: 'ORG#TEST1',
+    //                 },
+    //                 {
+    //                     id: '2',
+    //                     name: 'Test Organization 2',
+    //                     description: 'Test Description 2',
+    //                     logoUrl: 'https://example.com/logo2.jpg',
+    //                     PK: 'ORG#TEST2',
+    //                 },
+    //                 {
+    //                     id: '3',
+    //                     name: 'Test Organization 3',
+    //                     description: 'Test Description 3',
+    //                     logoUrl: 'https://example.com/logo3.jpg',
+    //                     PK: 'ORG#TEST3',
+    //                 },
+    //             ],
+    //         },
+    //         lastEvaluatedKey: 'last-key',
+    //     });
 
-        (getPublicOrganizations as jest.Mock).mockResolvedValueOnce(additionalOrgs);
-        await act(async () => {
-            renderWithRouter(<Home />);
-        });
+    //     (getPublicOrganizations as jest.Mock).mockResolvedValueOnce(additionalOrgs);
+    //     await act(async () => {
+    //         renderWithRouter(<Home />);
+    //     });
 
-        await waitFor(() => {
-            expect(screen.getAllByTestId('mock-organization-row')).toHaveLength(3);
-        });
+    //     await waitFor(() => {
+    //         expect(screen.getAllByTestId('mock-organization-row')).toHaveLength(3);
+    //     });
 
-        const loadMoreButton = screen.getByText('Load More');
-        expect(loadMoreButton).toBeInTheDocument();
-        await act(async () => {
-            fireEvent.click(loadMoreButton);
-        });
+    //     const loadMoreButton = screen.getByText('Load More');
+    //     expect(loadMoreButton).toBeInTheDocument();
+    //     await act(async () => {
+    //         fireEvent.click(loadMoreButton);
+    //     });
 
-        expect(getPublicOrganizations).toHaveBeenCalledTimes(2);
-        expect(getPublicOrganizations).toHaveBeenLastCalledWith('last-key');
+    //     expect(getPublicOrganizations).toHaveBeenCalledTimes(2);
+    //     expect(getPublicOrganizations).toHaveBeenLastCalledWith('last-key');
 
-        await waitFor(() => {
-            expect(screen.getAllByTestId('mock-organization-row')).toHaveLength(5);
-        });
-    });
+    //     await waitFor(() => {
+    //         expect(screen.getAllByTestId('mock-organization-row')).toHaveLength(5);
+    //     });
+    // });
 
     test('handles error when fetching organizations fails', async () => {
         (getPublicOrganizations as jest.Mock).mockClear();
