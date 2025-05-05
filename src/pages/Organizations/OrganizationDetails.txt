@@ -1,0 +1,162 @@
+import React from 'react';
+import { render, fireEvent, screen, waitFor } from '@testing-library/react';
+import { BrowserRouter as Router, useParams } from 'react-router-dom';
+import OrganizationDetails from './OrganizationDetails';
+import * as OrgService from '../../context/OrgService';
+import * as AuthService from '../../context/AuthService';
+import AuthContext from '../../context/AuthContext';
+
+// Mocks
+jest.mock('../../context/OrgService');
+jest.mock('../../context/AuthService');
+jest.mock('react-router-dom', () => {
+    const actual = jest.requireActual('react-router-dom');
+    return {
+        ...actual,
+        useParams: jest.fn(), // Allow per-test injection
+    };
+});
+
+// Shared mock data
+const mockUser = {
+    id: 'user123',
+    email: 'test@user.com',
+    firstName: 'Test',
+    lastName: 'User',
+    role: 'ADMIN',
+};
+
+const mockOrg = {
+    id: 'org123',
+    name: 'Test Organization',
+    description: 'A test organization',
+    contactEmail: 'test@org.com',
+    website: 'https://test.org',
+    logoUrl: 'https://test.org/logo.png',
+};
+
+// Utility setup
+const setup = () => {
+    render(
+        <Router>
+            <AuthContext.Provider
+                value={{
+                    user: mockUser,
+                    token: null,
+                    setUser: jest.fn(),
+                    setToken: jest.fn(),
+                    logout: jest.fn(),
+                }}
+            >
+                <OrganizationDetails />
+            </AuthContext.Provider>
+        </Router>
+    );
+};
+
+const mockOrgServiceSuccess = (org = mockOrg) => {
+    (OrgService.getPublicOrganizations as jest.Mock).mockResolvedValue({
+        message: 'Success',
+        data: {
+            organizations: [org],
+        },
+        lastEvaluatedKey: null,
+    });
+};
+
+const mockIsMemberAdmin = () => {
+    (AuthService.isMemberOfOrg as jest.Mock).mockResolvedValue({
+        status: 'success',
+        data: {
+            data: {
+                membership: { role: 'ADMIN' },
+            },
+        },
+    });
+};
+
+describe('OrganizationDetails Component', () => {
+    beforeEach(() => {
+        jest.resetAllMocks();
+    });
+
+    describe('Rendering and basic interaction', () => {
+        beforeEach(() => {
+            (useParams as jest.Mock).mockReturnValue({ id: 'org123' });
+            mockOrgServiceSuccess();
+            mockIsMemberAdmin();
+        });
+
+        it('renders organization details', async () => {
+            setup();
+            await waitFor(() => screen.getByText('Test Organization'));
+
+            expect(screen.getByText('A test organization')).toBeInTheDocument();
+            expect(screen.getByText('test@org.com')).toBeInTheDocument();
+            expect(screen.getByText('https://test.org')).toBeInTheDocument();
+            expect(screen.getByAltText('Logo Preview')).toBeInTheDocument();
+        });
+
+        it('handles input changes', async () => {
+            setup();
+            await waitFor(() => screen.getByText('Test Organization'));
+
+            const descriptionInput = screen.getByLabelText(/description/i) as HTMLTextAreaElement;
+            fireEvent.change(descriptionInput, { target: { value: 'Updated description' } });
+
+            expect(descriptionInput.value).toBe('Updated description');
+        });
+    });
+
+    describe('Form submission', () => {
+        beforeEach(() => {
+            (useParams as jest.Mock).mockReturnValue({ id: 'org123' });
+            mockOrgServiceSuccess();
+            mockIsMemberAdmin();
+        });
+
+        it('submits the form successfully', async () => {
+            (OrgService.updateOrganization as jest.Mock).mockResolvedValue({});
+
+            setup();
+            await waitFor(() => screen.getByText('Test Organization'));
+
+            const submitButton = screen.getByText(/update organization/i);
+            fireEvent.click(submitButton);
+
+            await waitFor(() => screen.getByText('Organization updated successfully!'));
+        });
+    });
+
+    describe('Error handling', () => {
+        it('shows error on organization fetch failure', async () => {
+            (useParams as jest.Mock).mockReturnValue({ id: 'orgError' });
+            (OrgService.getPublicOrganizations as jest.Mock).mockRejectedValue(new Error('Failed to load'));
+
+            setup();
+            await waitFor(() => screen.getByText(/failed to load organization details/i));
+        });
+    });
+
+    describe('Dynamic org ID behavior', () => {
+        it('renders different org based on ID', async () => {
+            const altOrg = {
+                id: 'org999',
+                name: 'Alt Org',
+                description: 'Alt description',
+                contactEmail: 'alt@org.com',
+                website: 'https://alt.org',
+                logoUrl: 'https://alt.org/logo.png',
+            };
+
+            (useParams as jest.Mock).mockReturnValue({ id: 'org999' });
+            mockOrgServiceSuccess(altOrg);
+            mockIsMemberAdmin();
+
+            setup();
+            await waitFor(() => screen.getByText('Alt Org'));
+
+            expect(screen.getByText('Alt description')).toBeInTheDocument();
+        });
+    });
+});

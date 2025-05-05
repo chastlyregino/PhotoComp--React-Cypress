@@ -3,7 +3,7 @@ export default {
     testEnvironment: 'jsdom',
     // preset: 'ts-jest',
     moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
-    testMatch: ['/tests//.[jt]s?(x)', '**/.{test,spec}.[jt]s?(x)'],
+    testMatch: ['**/?(*.)+(spec|test).[jt]s?(x)'],
     transform: {
         '^.+\\.(ts|tsx)?$': 'ts-jest',
     },
