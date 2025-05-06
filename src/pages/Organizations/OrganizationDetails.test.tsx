@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import OrganizationDetails from './OrganizationDetails';
 import AuthContext, { User } from '../../context/AuthContext';
@@ -14,7 +14,7 @@ const mockUpdateOrganization = OrgService.updateOrganization as jest.Mock;
 const mockIsMemberOfOrg = AuthService.isMemberOfOrg as jest.Mock;
 
 const mockOrganization = {
-  id: 'org123',
+  id: '1',
   name: 'Test Org',
   description: 'Test Description',
   contactEmail: 'contact@test.org',
@@ -22,7 +22,7 @@ const mockOrganization = {
   logoUrl: 'https://logo.url/logo.png',
 };
 
-const renderWithRouter = (userRole = 'admin') => {
+const renderWithRouter = (userRole) => {
   const mockUser: User = {
     id: 'user1',
     email: 'test@example.com',
@@ -32,7 +32,7 @@ const renderWithRouter = (userRole = 'admin') => {
   };
 
   return render(
-    <MemoryRouter initialEntries={['/organizations/org123/details']}>
+    <MemoryRouter initialEntries={['/organizations/1/details']}>
       <AuthContext.Provider
         value={{
           user: mockUser,
@@ -121,7 +121,7 @@ describe('OrganizationDetails', () => {
         data: { organizations: [] },
         });
 
-        renderWithRouter();
+        renderWithRouter('ADMIN');
 
         await waitFor(() => {
         expect(screen.getByText(/Organization not found/i)).toBeInTheDocument();
@@ -152,22 +152,68 @@ describe('OrganizationDetails directly rendering router', () => {
       
         mockUpdateOrganization.mockResolvedValue({});
 
-        renderWithRouter();
+        //renderWithRouter('ADMIN');
     });
+    
+    // it('renders organization details page correctly for admin', async () => {
+    //     await waitFor(() => {
+    //         expect(screen.getByText(/Organization Details/i)).toBeInTheDocument();
+    //         expect(screen.getByText(/Organization Name/i)).toBeInTheDocument();
+    //         expect(screen.getByText(/Description/i)).toBeInTheDocument();
+    //         expect(screen.getByText(/Contact Email/i)).toBeInTheDocument();
+    //         expect(screen.getByText(/Test Description/i)).toBeInTheDocument();
+    //     });
+    // });
+
+    it('allows admin to update organization details', async () => {
+        renderWithRouter('ADMIN');
+      
+        // Wait for fields to be populated
+        await waitFor(() => {
+          expect(screen.getByDisplayValue('Test Org')).toBeInTheDocument();
+          expect(screen.getByDisplayValue('Test Description')).toBeInTheDocument();
+          expect(screen.getByDisplayValue('contact@test.org')).toBeInTheDocument();
+        });
+      
+        // Change description and email
+        fireEvent.change(screen.getByLabelText(/Description/i), {
+          target: { value: 'Updated Description' },
+        });
+      
+        fireEvent.change(screen.getByLabelText(/Contact Email/i), {
+          target: { value: 'updated@email.com' },
+        });
+      
+        // Submit the form
+        fireEvent.click(screen.getByRole('button', { name: /Update Organization/i }));
+      
+        // Wait for the update call
+        await waitFor(() => {
+          expect(mockUpdateOrganization).toHaveBeenCalledWith(expect.anything(), {
+            ...mockOrganization,
+            description: 'Updated Description',
+            contactEmail: 'updated@email.com',
+          });
+        });
+      });
+      
 
     // it('allows updating form fields and submitting', async () => {
     //     await waitFor(() => {
-    //     expect(screen.getByDisplayValue('Test Description')).toBeInTheDocument();
+    //         expect(screen.getByRole('textarea', { name: /Description/i })).toBeInTheDocument();
     //     });
 
-    //     fireEvent.change(screen.getByLabelText(/Contact Email/i), {
-    //     target: { value: 'new@email.com' },
-    //     });
-
-    //     fireEvent.click(screen.getByRole('button', { name: /Update Organization/i }));
+    //     act(() => {
+    //         fireEvent.change(screen.getByRole('textbox', { name: /Contact Email/i }), {
+    //             target: { value: 'new@email.com' },
+    //             });
+        
+    //         fireEvent.click(screen.getByRole('button', { name: /Update Organization/i }));
+    //     })
+        
 
     //     await waitFor(() => {
-    //     expect(mockUpdateOrganization).toHaveBeenCalled();
+    //         expect(mockUpdateOrganization).toHaveBeenCalled();
     //     });
     // });
 
