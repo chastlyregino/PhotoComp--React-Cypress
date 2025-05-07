@@ -3,6 +3,7 @@ import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import OrganizationDetails from './OrganizationDetails';
 import AuthContext, { User } from '../../context/AuthContext';
+import { renderWithRouter } from '../../utils/test-utils';
 import * as OrgService from '../../context/OrgService';
 import * as AuthService from '../../context/AuthService';
 
@@ -14,8 +15,8 @@ const mockUpdateOrganization = OrgService.updateOrganization as jest.Mock;
 const mockIsMemberOfOrg = AuthService.isMemberOfOrg as jest.Mock;
 
 const mockOrganization = {
-  id: '1',
-  name: 'Test Org',
+  id: 'test',
+  name: 'Test',
   description: 'Test Description',
   contactEmail: 'contact@test.org',
   website: 'https://test.org',
@@ -30,38 +31,54 @@ jest.mock('react-router-dom', () => ({
     useParams: () => mockParams,
 }));
 
-const renderWithRouter = () => {
-  const mockUser: User = {
+const mockUser: User = {
     id: 'user1',
     email: 'test@example.com',
     firstName: 'Test',
     lastName: 'User',
     role: 'user',
-  };
-
-  return render(
-    <MemoryRouter initialEntries={['/organizations/1/details']}>
-      <AuthContext.Provider
-        value={{
-          user: mockUser,
-          token: 'mockToken',
-          setUser: jest.fn(),
-          setToken: jest.fn(),
-          logout: jest.fn(),
-        }}
-      >
-        <Routes>
-          <Route path="/organizations/:id/details" element={<OrganizationDetails />} />
-        </Routes>
-      </AuthContext.Provider>
-    </MemoryRouter>
-  );
 };
+
+const mockAuthContext = {
+    user: mockUser,
+    token: 'test-token',
+    setUser: jest.fn(),
+    setToken: jest.fn(),
+    logout: jest.fn(),
+};
+
+// const renderWithRouter = () => {
+//   const mockUser: User = {
+//     id: 'user1',
+//     email: 'test@example.com',
+//     firstName: 'Test',
+//     lastName: 'User',
+//     role: 'user',
+//   };
+
+//   return render(
+//     <MemoryRouter initialEntries={['/organizations/1/details']}>
+//       <AuthContext.Provider
+//         value={{
+//           user: mockUser,
+//           token: 'mockToken',
+//           setUser: jest.fn(),
+//           setToken: jest.fn(),
+//           logout: jest.fn(),
+//         }}
+//       >
+//         <Routes>
+//           <Route path="/organizations/:id/details" element={<OrganizationDetails />} />
+//         </Routes>
+//       </AuthContext.Provider>
+//     </MemoryRouter>
+//   );
+// };
 
 describe('OrganizationDetails', () => {
     beforeEach(() => {
         jest.clearAllMocks();
-        
+
         mockGetPublicOrganizations.mockResolvedValue({
           data: {
             organizations: [mockOrganization],
@@ -126,10 +143,12 @@ describe('OrganizationDetails', () => {
 
     it('shows error when organization not found', async () => {
         mockGetPublicOrganizations.mockResolvedValueOnce({
-        data: { organizations: [] },
+        data: { organizations: [], lastEvaluatedKey: null, },
         });
 
-        renderWithRouter();
+        await act(async () => {
+            renderWithRouter(<OrganizationDetails />, { route: '/organizations/:id/details' });
+        });
 
         await waitFor(() => {
         expect(screen.getByText(/Organization not found/i)).toBeInTheDocument();
@@ -145,6 +164,7 @@ describe('OrganizationDetails directly rendering router', () => {
         mockGetPublicOrganizations.mockResolvedValue({
           data: {
             organizations: [mockOrganization],
+            lastEvaluatedKey: null,
           },
         });
       
@@ -174,11 +194,11 @@ describe('OrganizationDetails directly rendering router', () => {
     // });
 
     it('allows admin to update organization details', async () => {
-        renderWithRouter();
+        renderWithRouter(<OrganizationDetails />, { route: '/organizations/test/details' });
       
         // Wait for fields to be populated
         await waitFor(() => {
-          expect(screen.getByDisplayValue('Test Org')).toBeInTheDocument();
+          expect(screen.getByDisplayValue('Test')).toBeInTheDocument();
           expect(screen.getByDisplayValue('Test Description')).toBeInTheDocument();
           expect(screen.getByDisplayValue('contact@test.org')).toBeInTheDocument();
         });
