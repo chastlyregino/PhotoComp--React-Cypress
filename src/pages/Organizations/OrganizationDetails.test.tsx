@@ -22,13 +22,21 @@ const mockOrganization = {
   logoUrl: 'https://logo.url/logo.png',
 };
 
-const renderWithRouter = (userRole) => {
+const mockNavigate = jest.fn();
+const mockParams = jest.fn();
+jest.mock('react-router-dom', () => ({
+    ...jest.requireActual('react-router-dom'),
+    useNavigate: () => mockNavigate,
+    useParams: () => mockParams,
+}));
+
+const renderWithRouter = () => {
   const mockUser: User = {
     id: 'user1',
     email: 'test@example.com',
     firstName: 'Test',
     lastName: 'User',
-    role: userRole,
+    role: 'user',
   };
 
   return render(
@@ -53,7 +61,7 @@ const renderWithRouter = (userRole) => {
 describe('OrganizationDetails', () => {
     beforeEach(() => {
         jest.clearAllMocks();
-      
+        
         mockGetPublicOrganizations.mockResolvedValue({
           data: {
             organizations: [mockOrganization],
@@ -121,7 +129,7 @@ describe('OrganizationDetails', () => {
         data: { organizations: [] },
         });
 
-        renderWithRouter('ADMIN');
+        renderWithRouter();
 
         await waitFor(() => {
         expect(screen.getByText(/Organization not found/i)).toBeInTheDocument();
@@ -166,7 +174,7 @@ describe('OrganizationDetails directly rendering router', () => {
     // });
 
     it('allows admin to update organization details', async () => {
-        renderWithRouter('ADMIN');
+        renderWithRouter();
       
         // Wait for fields to be populated
         await waitFor(() => {
